@@ -56,8 +56,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Observer define una dependencia de uno a muchos...",
     examples: {
-      javascript: "class Subject { constructor() { this.observers = []; } }",
-      java: "public interface Observer { void update(Object data); }"
+      javascript: "class Subject { constructor() { this.observers = []; } notify(data) { this.observers.forEach(observer => observer.update(data)); } }",
+      php: "class Subject { private $observers = []; public function notify($data) { foreach ($this->observers as $observer) { $observer->update($data); } } }"
     },
     relatedPatterns: ["mediator", "command"]
   },
@@ -76,8 +76,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Adapter permite que interfaces incompatibles trabajen juntas...",
     examples: {
-      java: "public class Adapter implements Target { private Adaptee adaptee; }",
-      python: "class Adapter: def __init__(self, adaptee): self.adaptee = adaptee"
+      javascript: "class Adapter { constructor(adaptee) { this.adaptee = adaptee; } request() { return this.adaptee.specificRequest(); } }",
+      php: "class Adapter implements Target { private $adaptee; public function __construct($adaptee) { $this->adaptee = $adaptee; } public function request() { return $this->adaptee->specificRequest(); } }"
     },
     relatedPatterns: ["facade", "decorator"]
   },
@@ -96,8 +96,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Command encapsula una petición como un objeto...",
     examples: {
-      csharp: "public interface ICommand { void Execute(); }",
-      java: "public interface Command { void execute(); }"
+      javascript: "class Command { execute() { throw new Error('Must implement'); } } class ConcreteCommand extends Command { execute() { this.receiver.action(); } }",
+      php: "interface Command { public function execute(); } class ConcreteCommand implements Command { public function execute() { $this->receiver->action(); } }"
     },
     relatedPatterns: ["observer", "memento"]
   },
@@ -116,8 +116,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Repository encapsula la lógica para acceder a datos...",
     examples: {
-      csharp: "public interface IRepository<T> { Task<T> GetByIdAsync(int id); }",
-      java: "public interface Repository<T> { Optional<T> findById(Long id); }"
+      javascript: "class Repository { async findById(id) { return await this.dataSource.findById(id); } async save(entity) { return await this.dataSource.save(entity); } }",
+      php: "interface Repository { public function findById($id); public function save($entity); } class UserRepository implements Repository { public function findById($id) { return $this->db->find($id); } }"
     },
     relatedPatterns: ["unit-of-work", "specification"]
   },
@@ -136,8 +136,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón MVC separa la aplicación en tres componentes...",
     examples: {
-      javascript: "class Controller { constructor(model, view) { this.model = model; } }",
-      csharp: "public class Controller : ControllerBase { private readonly IService _service; }"
+      javascript: "class Controller { constructor(model, view) { this.model = model; this.view = view; } updateView() { this.view.render(this.model.getData()); } }",
+      php: "class Controller { private $model; private $view; public function __construct($model, $view) { $this->model = $model; $this->view = $view; } public function updateView() { $this->view->render($this->model->getData()); } }"
     },
     relatedPatterns: ["mvp", "mvvm"]
   },
@@ -156,8 +156,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Strategy define una familia de algoritmos...",
     examples: {
-      java: "public interface Strategy { void execute(); }",
-      python: "class Strategy: def execute(self): pass"
+      javascript: "class Strategy { execute() { throw new Error('Must implement'); } } class ConcreteStrategy extends Strategy { execute() { console.log('Executing strategy'); } }",
+      php: "interface Strategy { public function execute(); } class ConcreteStrategy implements Strategy { public function execute() { echo 'Executing strategy'; } }"
     },
     relatedPatterns: ["state", "template-method"]
   }
