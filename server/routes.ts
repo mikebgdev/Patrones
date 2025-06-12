@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { getPatternRecommendations, explainPatternChoice, type RecommendationRequest } from "./ai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all patterns
@@ -56,6 +57,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(architecture);
     } catch (error) {
       res.status(500).json({ message: "Error fetching architecture" });
+    }
+  });
+
+  // AI Pattern Recommendations
+  app.post("/api/recommendations", async (req, res) => {
+    try {
+      const request: RecommendationRequest = req.body;
+      
+      if (!request.projectDescription || request.projectDescription.trim().length < 10) {
+        return res.status(400).json({ 
+          message: "La descripción del proyecto debe tener al menos 10 caracteres" 
+        });
+      }
+
+      const recommendations = await getPatternRecommendations(request);
+      res.json({ recommendations });
+    } catch (error) {
+      console.error("Error getting recommendations:", error);
+      res.status(500).json({ message: "Error generando recomendaciones" });
+    }
+  });
+
+  // Explain pattern choice for a specific context
+  app.post("/api/patterns/:slug/explain", async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const { projectContext } = req.body;
+      
+      if (!projectContext || projectContext.trim().length < 10) {
+        return res.status(400).json({ 
+          message: "El contexto del proyecto debe tener al menos 10 caracteres" 
+        });
+      }
+
+      const explanation = await explainPatternChoice(slug, projectContext);
+      res.json({ explanation });
+    } catch (error) {
+      console.error("Error explaining pattern:", error);
+      res.status(500).json({ message: "Error generando explicación" });
     }
   });
 
