@@ -3614,10 +3614,514 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
-    content: "El patrón Proxy proporciona un sustituto o marcador de posición para otro objeto para controlar el acceso a él.",
+    content: "El patrón Proxy es como un guardia de seguridad en un edificio: controla quien puede acceder a recursos específicos, puede hacer verificaciones adicionales, y puede realizar tareas de mantenimiento sin que el cliente se entere.\n\nEste patrón proporciona un sustituto que controla el acceso al objeto real.\n\n**¿Cuándo usarlo?**\n• Cuando quieres controlar el acceso a un objeto (proxy de protección)\n• Cuando quieres crear objetos costosos bajo demanda (proxy virtual)\n• Cuando necesitas una referencia local a un objeto remoto (proxy remoto)\n• Cuando quieres añadir funcionalidad adicional al acceder a un objeto (proxy inteligente)\n\n**Ventajas:**\n• Controla el acceso al objeto real\n• Puede implementar lazy loading para objetos costosos\n• Puede añadir funcionalidad sin cambiar el objeto real\n• Principio Abierto/Cerrado: puedes introducir nuevos proxies sin cambiar código existente\n\n**Desventajas:**\n• El código puede volverse más complicado\n• La respuesta del servicio puede retrasarse",
     examples: {
-      javascript: "class Proxy { constructor(realSubject) { this.realSubject = realSubject; } request() { if (this.checkAccess()) { return this.realSubject.request(); } return null; } }",
-      php: "class Proxy { private $realSubject; public function __construct($realSubject) { $this->realSubject = $realSubject; } public function request() { if ($this->checkAccess()) { return $this->realSubject->request(); } return null; } }"
+      javascript: `// Interfaz común para el servicio real y el proxy
+class ImageService {
+  display() {
+    throw new Error('display method must be implemented');
+  }
+  
+  getInfo() {
+    throw new Error('getInfo method must be implemented');
+  }
+}
+
+// Servicio real - operación costosa de cargar imagen
+class RealImageService extends ImageService {
+  constructor(filename) {
+    super();
+    this.filename = filename;
+    this.loadFromDisk();
+  }
+  
+  loadFromDisk() {
+    console.log(\`💿 Cargando imagen desde disco: \${this.filename}\`);
+    // Simular operación costosa
+    console.log(\`   📊 Procesando imagen de alta resolución...\`);
+    console.log(\`   🎨 Aplicando filtros y optimizaciones...\`);
+    console.log(\`   ✅ Imagen \${this.filename} cargada en memoria\`);
+  }
+  
+  display() {
+    console.log(\`🖼️  Mostrando imagen: \${this.filename}\`);
+  }
+  
+  getInfo() {
+    return {
+      filename: this.filename,
+      size: '2.5MB',
+      resolution: '4K',
+      format: 'PNG'
+    };
+  }
+}
+
+// Proxy Virtual - lazy loading y cache
+class ImageProxy extends ImageService {
+  constructor(filename) {
+    super();
+    this.filename = filename;
+    this.realImageService = null;
+    this.accessCount = 0;
+  }
+  
+  display() {
+    this.accessCount++;
+    console.log(\`🔍 Proxy: Acceso #\${this.accessCount} a \${this.filename}\`);
+    
+    // Lazy loading - crear el objeto real solo cuando se necesita
+    if (!this.realImageService) {
+      console.log(\`⚡ Proxy: Creando instancia real por primera vez\`);
+      this.realImageService = new RealImageService(this.filename);
+    } else {
+      console.log(\`♻️  Proxy: Reutilizando instancia cargada\`);
+    }
+    
+    return this.realImageService.display();
+  }
+  
+  getInfo() {
+    // Información básica sin cargar la imagen
+    if (!this.realImageService) {
+      return {
+        filename: this.filename,
+        status: 'No cargada',
+        accessCount: this.accessCount
+      };
+    }
+    
+    return {
+      ...this.realImageService.getInfo(),
+      accessCount: this.accessCount,
+      status: 'Cargada'
+    };
+  }
+}
+
+// Proxy de Protección - control de acceso
+class ProtectedImageProxy extends ImageService {
+  constructor(filename, userRole) {
+    super();
+    this.filename = filename;
+    this.userRole = userRole;
+    this.realImageService = null;
+    this.accessLog = [];
+  }
+  
+  checkAccess() {
+    const allowedRoles = ['admin', 'editor', 'viewer'];
+    const isAuthorized = allowedRoles.includes(this.userRole);
+    
+    this.accessLog.push({
+      timestamp: new Date().toISOString(),
+      role: this.userRole,
+      authorized: isAuthorized,
+      action: 'display'
+    });
+    
+    return isAuthorized;
+  }
+  
+  display() {
+    console.log(\`🛡️  ProtectedProxy: Verificando acceso para rol '\${this.userRole}'\`);
+    
+    if (!this.checkAccess()) {
+      console.log(\`❌ Acceso denegado: rol '\${this.userRole}' no autorizado\`);
+      throw new Error('Acceso denegado');
+    }
+    
+    console.log(\`✅ Acceso autorizado para rol '\${this.userRole}'\`);
+    
+    if (!this.realImageService) {
+      this.realImageService = new RealImageService(this.filename);
+    }
+    
+    return this.realImageService.display();
+  }
+  
+  getInfo() {
+    return {
+      filename: this.filename,
+      userRole: this.userRole,
+      accessLog: this.accessLog
+    };
+  }
+}
+
+// Proxy Inteligente - funcionalidad adicional
+class SmartImageProxy extends ImageService {
+  constructor(filename) {
+    super();
+    this.filename = filename;
+    this.realImageService = null;
+    this.statistics = {
+      accessCount: 0,
+      lastAccessed: null,
+      totalDisplayTime: 0
+    };
+  }
+  
+  display() {
+    const startTime = Date.now();
+    this.statistics.accessCount++;
+    this.statistics.lastAccessed = new Date().toISOString();
+    
+    console.log(\`🧠 SmartProxy: Recopilando estadísticas de uso\`);
+    
+    if (!this.realImageService) {
+      this.realImageService = new RealImageService(this.filename);
+    }
+    
+    const result = this.realImageService.display();
+    
+    const displayTime = Date.now() - startTime;
+    this.statistics.totalDisplayTime += displayTime;
+    
+    console.log(\`📈 SmartProxy: Tiempo de display: \${displayTime}ms\`);
+    console.log(\`📊 SmartProxy: Total accesos: \${this.statistics.accessCount}\`);
+    
+    return result;
+  }
+  
+  getInfo() {
+    const baseInfo = this.realImageService ? this.realImageService.getInfo() : {};
+    
+    return {
+      ...baseInfo,
+      statistics: this.statistics,
+      averageDisplayTime: this.statistics.accessCount > 0 
+        ? this.statistics.totalDisplayTime / this.statistics.accessCount 
+        : 0
+    };
+  }
+}
+
+// Cliente que usa diferentes tipos de proxies
+class ImageViewer {
+  constructor() {
+    this.images = [];
+  }
+  
+  addImage(imageService) {
+    this.images.push(imageService);
+  }
+  
+  showAllImages() {
+    console.log(\`\\n🖼️  Mostrando galería con \${this.images.length} imágenes:\`);
+    
+    this.images.forEach((image, index) => {
+      console.log(\`\\n--- Imagen \${index + 1}: \${image.filename} ---\`);
+      try {
+        image.display();
+      } catch (error) {
+        console.log(\`❌ Error: \${error.message}\`);
+      }
+    });
+  }
+  
+  showImageInfo() {
+    console.log(\`\\n📋 Información de imágenes:\`);
+    this.images.forEach((image, index) => {
+      console.log(\`\\n\${index + 1}. \${image.filename}:\`);
+      console.log(JSON.stringify(image.getInfo(), null, 2));
+    });
+  }
+}
+
+// Uso del patrón Proxy
+console.log('=== Visor de Imágenes con Patrón Proxy ===\\n');
+
+const viewer = new ImageViewer();
+
+// Diferentes tipos de proxies
+console.log('--- Agregando imágenes con diferentes proxies ---');
+
+// Proxy Virtual (lazy loading)
+const lazyImage = new ImageProxy('vacation-photo.png');
+viewer.addImage(lazyImage);
+
+// Proxy de Protección 
+const protectedImage = new ProtectedImageProxy('confidential-document.png', 'admin');
+const unauthorizedImage = new ProtectedImageProxy('secret-file.png', 'guest');
+viewer.addImage(protectedImage);
+viewer.addImage(unauthorizedImage);
+
+// Proxy Inteligente
+const smartImage = new SmartImageProxy('analytics-chart.png');
+viewer.addImage(smartImage);
+
+// Mostrar información antes de cargar
+console.log('\\n--- Información antes de cargar ---');
+viewer.showImageInfo();
+
+// Mostrar imágenes (trigger lazy loading)
+viewer.showAllImages();
+
+// Acceder nuevamente para ver caching y estadísticas
+console.log('\\n--- Segundo acceso (testing cache y estadísticas) ---');
+viewer.showAllImages();
+
+// Información final
+console.log('\\n--- Información final ---');
+viewer.showImageInfo();
+
+console.log('\\n🎯 Los proxies controlan acceso, implementan lazy loading y añaden funcionalidad!');`,
+      php: `<?php
+// Interfaz común para el servicio real y el proxy
+interface ImageService {
+    public function display(): void;
+    public function getInfo(): array;
+}
+
+// Servicio real - operación costosa de cargar imagen
+class RealImageService implements ImageService {
+    private $filename;
+    
+    public function __construct(string $filename) {
+        $this->filename = $filename;
+        $this->loadFromDisk();
+    }
+    
+    private function loadFromDisk(): void {
+        echo "💿 Cargando imagen desde disco: {$this->filename}\\n";
+        echo "   📊 Procesando imagen de alta resolución...\\n";
+        echo "   🎨 Aplicando filtros y optimizaciones...\\n";
+        echo "   ✅ Imagen {$this->filename} cargada en memoria\\n";
+    }
+    
+    public function display(): void {
+        echo "🖼️  Mostrando imagen: {$this->filename}\\n";
+    }
+    
+    public function getInfo(): array {
+        return [
+            'filename' => $this->filename,
+            'size' => '2.5MB',
+            'resolution' => '4K',
+            'format' => 'PNG'
+        ];
+    }
+}
+
+// Proxy Virtual - lazy loading y cache
+class ImageProxy implements ImageService {
+    private $filename;
+    private $realImageService;
+    private $accessCount = 0;
+    
+    public function __construct(string $filename) {
+        $this->filename = $filename;
+        $this->realImageService = null;
+    }
+    
+    public function display(): void {
+        $this->accessCount++;
+        echo "🔍 Proxy: Acceso #{$this->accessCount} a {$this->filename}\\n";
+        
+        // Lazy loading - crear el objeto real solo cuando se necesita
+        if ($this->realImageService === null) {
+            echo "⚡ Proxy: Creando instancia real por primera vez\\n";
+            $this->realImageService = new RealImageService($this->filename);
+        } else {
+            echo "♻️  Proxy: Reutilizando instancia cargada\\n";
+        }
+        
+        $this->realImageService->display();
+    }
+    
+    public function getInfo(): array {
+        // Información básica sin cargar la imagen
+        if ($this->realImageService === null) {
+            return [
+                'filename' => $this->filename,
+                'status' => 'No cargada',
+                'accessCount' => $this->accessCount
+            ];
+        }
+        
+        return array_merge(
+            $this->realImageService->getInfo(),
+            [
+                'accessCount' => $this->accessCount,
+                'status' => 'Cargada'
+            ]
+        );
+    }
+}
+
+// Proxy de Protección - control de acceso
+class ProtectedImageProxy implements ImageService {
+    private $filename;
+    private $userRole;
+    private $realImageService;
+    private $accessLog = [];
+    
+    public function __construct(string $filename, string $userRole) {
+        $this->filename = $filename;
+        $this->userRole = $userRole;
+        $this->realImageService = null;
+    }
+    
+    private function checkAccess(): bool {
+        $allowedRoles = ['admin', 'editor', 'viewer'];
+        $isAuthorized = in_array($this->userRole, $allowedRoles);
+        
+        $this->accessLog[] = [
+            'timestamp' => date('c'),
+            'role' => $this->userRole,
+            'authorized' => $isAuthorized,
+            'action' => 'display'
+        ];
+        
+        return $isAuthorized;
+    }
+    
+    public function display(): void {
+        echo "🛡️  ProtectedProxy: Verificando acceso para rol '{$this->userRole}'\\n";
+        
+        if (!$this->checkAccess()) {
+            echo "❌ Acceso denegado: rol '{$this->userRole}' no autorizado\\n";
+            throw new Exception('Acceso denegado');
+        }
+        
+        echo "✅ Acceso autorizado para rol '{$this->userRole}'\\n";
+        
+        if ($this->realImageService === null) {
+            $this->realImageService = new RealImageService($this->filename);
+        }
+        
+        $this->realImageService->display();
+    }
+    
+    public function getInfo(): array {
+        return [
+            'filename' => $this->filename,
+            'userRole' => $this->userRole,
+            'accessLog' => $this->accessLog
+        ];
+    }
+}
+
+// Proxy Inteligente - funcionalidad adicional
+class SmartImageProxy implements ImageService {
+    private $filename;
+    private $realImageService;
+    private $statistics;
+    
+    public function __construct(string $filename) {
+        $this->filename = $filename;
+        $this->realImageService = null;
+        $this->statistics = [
+            'accessCount' => 0,
+            'lastAccessed' => null,
+            'totalDisplayTime' => 0
+        ];
+    }
+    
+    public function display(): void {
+        $startTime = microtime(true);
+        $this->statistics['accessCount']++;
+        $this->statistics['lastAccessed'] = date('c');
+        
+        echo "🧠 SmartProxy: Recopilando estadísticas de uso\\n";
+        
+        if ($this->realImageService === null) {
+            $this->realImageService = new RealImageService($this->filename);
+        }
+        
+        $this->realImageService->display();
+        
+        $displayTime = (microtime(true) - $startTime) * 1000;
+        $this->statistics['totalDisplayTime'] += $displayTime;
+        
+        echo "📈 SmartProxy: Tiempo de display: " . round($displayTime, 2) . "ms\\n";
+        echo "📊 SmartProxy: Total accesos: {$this->statistics['accessCount']}\\n";
+    }
+    
+    public function getInfo(): array {
+        $baseInfo = $this->realImageService ? $this->realImageService->getInfo() : [];
+        
+        $averageDisplayTime = $this->statistics['accessCount'] > 0 
+            ? $this->statistics['totalDisplayTime'] / $this->statistics['accessCount'] 
+            : 0;
+        
+        return array_merge($baseInfo, [
+            'statistics' => $this->statistics,
+            'averageDisplayTime' => round($averageDisplayTime, 2)
+        ]);
+    }
+}
+
+// Cliente que usa diferentes tipos de proxies
+class ImageViewer {
+    private $images = [];
+    
+    public function addImage(ImageService $imageService): void {
+        $this->images[] = $imageService;
+    }
+    
+    public function showAllImages(): void {
+        echo "\\n🖼️  Mostrando galería con " . count($this->images) . " imágenes:\\n";
+        
+        foreach ($this->images as $index => $image) {
+            echo "\\n--- Imagen " . ($index + 1) . " ---\\n";
+            try {
+                $image->display();
+            } catch (Exception $error) {
+                echo "❌ Error: {$error->getMessage()}\\n";
+            }
+        }
+    }
+    
+    public function showImageInfo(): void {
+        echo "\\n📋 Información de imágenes:\\n";
+        foreach ($this->images as $index => $image) {
+            echo "\\n" . ($index + 1) . ".\\n";
+            print_r($image->getInfo());
+        }
+    }
+}
+
+// Uso del patrón Proxy
+echo "=== Visor de Imágenes con Patrón Proxy ===\\n\\n";
+
+$viewer = new ImageViewer();
+
+// Diferentes tipos de proxies
+echo "--- Agregando imágenes con diferentes proxies ---\\n";
+
+// Proxy Virtual (lazy loading)
+$lazyImage = new ImageProxy('vacation-photo.png');
+$viewer->addImage($lazyImage);
+
+// Proxy de Protección 
+$protectedImage = new ProtectedImageProxy('confidential-document.png', 'admin');
+$unauthorizedImage = new ProtectedImageProxy('secret-file.png', 'guest');
+$viewer->addImage($protectedImage);
+$viewer->addImage($unauthorizedImage);
+
+// Proxy Inteligente
+$smartImage = new SmartImageProxy('analytics-chart.png');
+$viewer->addImage($smartImage);
+
+// Mostrar información antes de cargar
+echo "\\n--- Información antes de cargar ---\\n";
+$viewer->showImageInfo();
+
+// Mostrar imágenes (trigger lazy loading)
+$viewer->showAllImages();
+
+// Acceder nuevamente para ver caching y estadísticas
+echo "\\n--- Segundo acceso (testing cache y estadísticas) ---\\n";
+$viewer->showAllImages();
+
+// Información final
+echo "\\n--- Información final ---\\n";
+$viewer->showImageInfo();
+
+echo "\\n🎯 Los proxies controlan acceso, implementan lazy loading y añaden funcionalidad!\\n";
+?>`
     },
     relatedPatterns: ["adapter", "decorator"]
   },
@@ -3636,10 +4140,487 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
-    content: "El patrón Chain of Responsibility permite pasar solicitudes a lo largo de una cadena de manejadores potenciales.",
+    content: "El patrón Chain of Responsibility es como una línea de atención al cliente: cuando llamas con un problema, primero hablas con el operador básico. Si no puede ayudarte, te transfiere al supervisor. Si él tampoco puede, te pasa al especialista, y así sucesivamente hasta que alguien resuelve tu problema.\n\nEste patrón permite pasar solicitudes a través de una cadena de manejadores hasta que uno pueda procesarla.\n\n**¿Cuándo usarlo?**\n• Cuando tu programa debe procesar diferentes tipos de solicitudes de varias maneras\n• Cuando es esencial ejecutar varios manejadores en un orden específico\n• Cuando el conjunto de manejadores y su orden deben cambiar en tiempo de ejecución\n• Cuando quieres desacoplar el emisor de una solicitud de sus receptores\n\n**Ventajas:**\n• Puedes controlar el orden de manejo de solicitudes\n• Principio de responsabilidad única: puedes desacoplar clases que invocan operaciones de clases que realizan operaciones\n• Principio abierto/cerrado: puedes introducir nuevos manejadores sin romper código existente\n• Reduce el acoplamiento entre emisor y receptor\n\n**Desventajas:**\n• Algunas solicitudes pueden no ser manejadas\n• Puede ser difícil observar las características de tiempo de ejecución y depurar la cadena",
     examples: {
-      javascript: "class Handler { setNext(handler) { this.nextHandler = handler; return handler; } handle(request) { if (this.nextHandler) { return this.nextHandler.handle(request); } return null; } }",
-      php: "abstract class Handler { private $nextHandler; public function setNext($handler) { $this->nextHandler = $handler; return $handler; } public function handle($request) { if ($this->nextHandler) { return $this->nextHandler->handle($request); } return null; } }"
+      javascript: `// Handler abstracto base
+class SupportHandler {
+  constructor() {
+    this.nextHandler = null;
+  }
+  
+  setNext(handler) {
+    this.nextHandler = handler;
+    return handler; // Permite encadenamiento fluido
+  }
+  
+  handle(request) {
+    if (this.canHandle(request)) {
+      return this.processRequest(request);
+    }
+    
+    if (this.nextHandler) {
+      return this.nextHandler.handle(request);
+    }
+    
+    return null; // No se pudo procesar
+  }
+  
+  canHandle(request) {
+    throw new Error('canHandle method must be implemented');
+  }
+  
+  processRequest(request) {
+    throw new Error('processRequest method must be implemented');
+  }
+}
+
+// Manejador de nivel 1 - Soporte básico
+class BasicSupportHandler extends SupportHandler {
+  canHandle(request) {
+    return request.complexity === 'basic' && request.type === 'technical';
+  }
+  
+  processRequest(request) {
+    console.log(\`👨‍💻 Soporte Básico: Resolviendo problema técnico básico\`);
+    console.log(\`   Problema: \${request.description}\`);
+    console.log(\`   Solución: Reinicie la aplicación y actualice su navegador\`);
+    
+    return {
+      status: 'resolved',
+      handledBy: 'Basic Support',
+      solution: 'Reinicie la aplicación y actualice su navegador',
+      timeToResolve: '5 minutos'
+    };
+  }
+}
+
+// Manejador de nivel 2 - Soporte técnico avanzado
+class TechnicalSupportHandler extends SupportHandler {
+  canHandle(request) {
+    return request.complexity === 'intermediate' && request.type === 'technical';
+  }
+  
+  processRequest(request) {
+    console.log(\`🔧 Soporte Técnico: Diagnosticando problema avanzado\`);
+    console.log(\`   Problema: \${request.description}\`);
+    console.log(\`   Ejecutando diagnósticos profundos...\`);
+    console.log(\`   Solución: Configuración personalizada aplicada\`);
+    
+    return {
+      status: 'resolved',
+      handledBy: 'Technical Support',
+      solution: 'Configuración personalizada aplicada',
+      timeToResolve: '30 minutos'
+    };
+  }
+}
+
+// Manejador de nivel 3 - Billing
+class BillingSupportHandler extends SupportHandler {
+  canHandle(request) {
+    return request.type === 'billing';
+  }
+  
+  processRequest(request) {
+    console.log(\`💳 Soporte de Facturación: Gestionando consulta financiera\`);
+    console.log(\`   Problema: \${request.description}\`);
+    console.log(\`   Revisando historial de pagos...\`);
+    console.log(\`   Solución: Ajuste de facturación procesado\`);
+    
+    return {
+      status: 'resolved',
+      handledBy: 'Billing Support',
+      solution: 'Ajuste de facturación procesado',
+      timeToResolve: '15 minutos'
+    };
+  }
+}
+
+// Manejador de nivel 4 - Especialista senior
+class SeniorSpecialistHandler extends SupportHandler {
+  canHandle(request) {
+    return request.complexity === 'complex';
+  }
+  
+  processRequest(request) {
+    console.log(\`🎯 Especialista Senior: Manejando caso complejo\`);
+    console.log(\`   Problema: \${request.description}\`);
+    console.log(\`   Análisis de arquitectura completa en progreso...\`);
+    console.log(\`   Coordinando con equipo de desarrollo...\`);
+    console.log(\`   Solución: Parche personalizado desarrollado\`);
+    
+    return {
+      status: 'resolved',
+      handledBy: 'Senior Specialist',
+      solution: 'Parche personalizado desarrollado',
+      timeToResolve: '2 horas'
+    };
+  }
+}
+
+// Manejador final - Manager
+class ManagerHandler extends SupportHandler {
+  canHandle(request) {
+    return true; // El manager puede manejar cualquier solicitud escalada
+  }
+  
+  processRequest(request) {
+    console.log(\`👔 Manager: Escalación al nivel ejecutivo\`);
+    console.log(\`   Problema: \${request.description}\`);
+    console.log(\`   Asignando recursos especiales...\`);
+    console.log(\`   Creando plan de acción personalizado\`);
+    
+    return {
+      status: 'escalated',
+      handledBy: 'Manager',
+      solution: 'Plan de acción personalizado - seguimiento en 24h',
+      timeToResolve: '24 horas'
+    };
+  }
+}
+
+// Sistema de tickets de soporte
+class SupportTicketSystem {
+  constructor() {
+    this.setupChain();
+    this.ticketCounter = 1;
+  }
+  
+  setupChain() {
+    // Configurar la cadena de responsabilidad
+    this.basicSupport = new BasicSupportHandler();
+    this.technicalSupport = new TechnicalSupportHandler();
+    this.billingSupport = new BillingSupportHandler();
+    this.seniorSpecialist = new SeniorSpecialistHandler();
+    this.manager = new ManagerHandler();
+    
+    // Enlazar la cadena
+    this.basicSupport
+      .setNext(this.technicalSupport)
+      .setNext(this.billingSupport)
+      .setNext(this.seniorSpecialist)
+      .setNext(this.manager);
+  }
+  
+  processTicket(request) {
+    const ticketId = this.ticketCounter++;
+    console.log(\`\\n🎫 Ticket #\${ticketId}: \${request.title}\`);
+    console.log(\`   Tipo: \${request.type}, Complejidad: \${request.complexity}\`);
+    console.log(\`   Cliente: \${request.customer}\`);
+    console.log(\`\\n🔄 Procesando a través de la cadena de soporte...\`);
+    
+    const result = this.basicSupport.handle(request);
+    
+    if (result) {
+      console.log(\`\\n✅ Ticket #\${ticketId} resuelto por: \${result.handledBy}\`);
+      console.log(\`   Estado: \${result.status}\`);
+      console.log(\`   Tiempo estimado: \${result.timeToResolve}\`);
+      return { ticketId, ...result };
+    } else {
+      console.log(\`\\n❌ Ticket #\${ticketId} no pudo ser procesado\`);
+      return { ticketId, status: 'unresolved', handledBy: 'none' };
+    }
+  }
+  
+  getChainStatus() {
+    console.log(\`\\n📊 Estado de la cadena de soporte:\`);
+    console.log(\`   1. Soporte Básico → Técnico\`);
+    console.log(\`   2. Soporte Técnico → Facturación\`);
+    console.log(\`   3. Soporte Facturación → Especialista Senior\`);
+    console.log(\`   4. Especialista Senior → Manager\`);
+    console.log(\`   5. Manager (final)\`);
+  }
+}
+
+// Uso del patrón Chain of Responsibility
+console.log('=== Sistema de Soporte con Chain of Responsibility ===\\n');
+
+const supportSystem = new SupportTicketSystem();
+supportSystem.getChainStatus();
+
+// Crear diferentes tipos de solicitudes
+const requests = [
+  {
+    title: 'Aplicación no carga',
+    type: 'technical',
+    complexity: 'basic',
+    customer: 'Juan Pérez',
+    description: 'La aplicación web no carga después de la actualización'
+  },
+  {
+    title: 'Error de integración API',
+    type: 'technical',
+    complexity: 'intermediate',
+    customer: 'María González',
+    description: 'API devuelve errores 500 en endpoints específicos'
+  },
+  {
+    title: 'Cobro duplicado',
+    type: 'billing',
+    complexity: 'basic',
+    customer: 'Carlos Ruiz',
+    description: 'Se realizó un cobro doble en mi tarjeta de crédito'
+  },
+  {
+    title: 'Migración de arquitectura',
+    type: 'technical',
+    complexity: 'complex',
+    customer: 'TechCorp Inc.',
+    description: 'Necesitamos migrar 50,000 usuarios a nueva infraestructura'
+  },
+  {
+    title: 'Problema de rendimiento crítico',
+    type: 'technical',
+    complexity: 'complex',
+    customer: 'Enterprise Solutions',
+    description: 'Sistema completo funcionando lento, afectando producción'
+  }
+];
+
+// Procesar todos los tickets
+requests.forEach(request => {
+  supportSystem.processTicket(request);
+});
+
+console.log('\\n🎯 Cada solicitud se maneja por el nivel apropiado automáticamente!');`,
+      php: `<?php
+// Handler abstracto base
+abstract class SupportHandler {
+    private $nextHandler = null;
+    
+    public function setNext(SupportHandler $handler): SupportHandler {
+        $this->nextHandler = $handler;
+        return $handler; // Permite encadenamiento fluido
+    }
+    
+    public function handle(array $request): ?array {
+        if ($this->canHandle($request)) {
+            return $this->processRequest($request);
+        }
+        
+        if ($this->nextHandler) {
+            return $this->nextHandler->handle($request);
+        }
+        
+        return null; // No se pudo procesar
+    }
+    
+    abstract protected function canHandle(array $request): bool;
+    abstract protected function processRequest(array $request): array;
+}
+
+// Manejador de nivel 1 - Soporte básico
+class BasicSupportHandler extends SupportHandler {
+    protected function canHandle(array $request): bool {
+        return $request['complexity'] === 'basic' && $request['type'] === 'technical';
+    }
+    
+    protected function processRequest(array $request): array {
+        echo "👨‍💻 Soporte Básico: Resolviendo problema técnico básico\\n";
+        echo "   Problema: {$request['description']}\\n";
+        echo "   Solución: Reinicie la aplicación y actualice su navegador\\n";
+        
+        return [
+            'status' => 'resolved',
+            'handledBy' => 'Basic Support',
+            'solution' => 'Reinicie la aplicación y actualice su navegador',
+            'timeToResolve' => '5 minutos'
+        ];
+    }
+}
+
+// Manejador de nivel 2 - Soporte técnico avanzado
+class TechnicalSupportHandler extends SupportHandler {
+    protected function canHandle(array $request): bool {
+        return $request['complexity'] === 'intermediate' && $request['type'] === 'technical';
+    }
+    
+    protected function processRequest(array $request): array {
+        echo "🔧 Soporte Técnico: Diagnosticando problema avanzado\\n";
+        echo "   Problema: {$request['description']}\\n";
+        echo "   Ejecutando diagnósticos profundos...\\n";
+        echo "   Solución: Configuración personalizada aplicada\\n";
+        
+        return [
+            'status' => 'resolved',
+            'handledBy' => 'Technical Support',
+            'solution' => 'Configuración personalizada aplicada',
+            'timeToResolve' => '30 minutos'
+        ];
+    }
+}
+
+// Manejador de nivel 3 - Billing
+class BillingSupportHandler extends SupportHandler {
+    protected function canHandle(array $request): bool {
+        return $request['type'] === 'billing';
+    }
+    
+    protected function processRequest(array $request): array {
+        echo "💳 Soporte de Facturación: Gestionando consulta financiera\\n";
+        echo "   Problema: {$request['description']}\\n";
+        echo "   Revisando historial de pagos...\\n";
+        echo "   Solución: Ajuste de facturación procesado\\n";
+        
+        return [
+            'status' => 'resolved',
+            'handledBy' => 'Billing Support',
+            'solution' => 'Ajuste de facturación procesado',
+            'timeToResolve' => '15 minutos'
+        ];
+    }
+}
+
+// Manejador de nivel 4 - Especialista senior
+class SeniorSpecialistHandler extends SupportHandler {
+    protected function canHandle(array $request): bool {
+        return $request['complexity'] === 'complex';
+    }
+    
+    protected function processRequest(array $request): array {
+        echo "🎯 Especialista Senior: Manejando caso complejo\\n";
+        echo "   Problema: {$request['description']}\\n";
+        echo "   Análisis de arquitectura completa en progreso...\\n";
+        echo "   Coordinando con equipo de desarrollo...\\n";
+        echo "   Solución: Parche personalizado desarrollado\\n";
+        
+        return [
+            'status' => 'resolved',
+            'handledBy' => 'Senior Specialist',
+            'solution' => 'Parche personalizado desarrollado',
+            'timeToResolve' => '2 horas'
+        ];
+    }
+}
+
+// Manejador final - Manager
+class ManagerHandler extends SupportHandler {
+    protected function canHandle(array $request): bool {
+        return true; // El manager puede manejar cualquier solicitud escalada
+    }
+    
+    protected function processRequest(array $request): array {
+        echo "👔 Manager: Escalación al nivel ejecutivo\\n";
+        echo "   Problema: {$request['description']}\\n";
+        echo "   Asignando recursos especiales...\\n";
+        echo "   Creando plan de acción personalizado\\n";
+        
+        return [
+            'status' => 'escalated',
+            'handledBy' => 'Manager',
+            'solution' => 'Plan de acción personalizado - seguimiento en 24h',
+            'timeToResolve' => '24 horas'
+        ];
+    }
+}
+
+// Sistema de tickets de soporte
+class SupportTicketSystem {
+    private $basicSupport;
+    private $ticketCounter = 1;
+    
+    public function __construct() {
+        $this->setupChain();
+    }
+    
+    private function setupChain(): void {
+        // Configurar la cadena de responsabilidad
+        $this->basicSupport = new BasicSupportHandler();
+        $technicalSupport = new TechnicalSupportHandler();
+        $billingSupport = new BillingSupportHandler();
+        $seniorSpecialist = new SeniorSpecialistHandler();
+        $manager = new ManagerHandler();
+        
+        // Enlazar la cadena
+        $this->basicSupport
+            ->setNext($technicalSupport)
+            ->setNext($billingSupport)
+            ->setNext($seniorSpecialist)
+            ->setNext($manager);
+    }
+    
+    public function processTicket(array $request): array {
+        $ticketId = $this->ticketCounter++;
+        echo "\\n🎫 Ticket #$ticketId: {$request['title']}\\n";
+        echo "   Tipo: {$request['type']}, Complejidad: {$request['complexity']}\\n";
+        echo "   Cliente: {$request['customer']}\\n";
+        echo "\\n🔄 Procesando a través de la cadena de soporte...\\n";
+        
+        $result = $this->basicSupport->handle($request);
+        
+        if ($result) {
+            echo "\\n✅ Ticket #$ticketId resuelto por: {$result['handledBy']}\\n";
+            echo "   Estado: {$result['status']}\\n";
+            echo "   Tiempo estimado: {$result['timeToResolve']}\\n";
+            return array_merge(['ticketId' => $ticketId], $result);
+        } else {
+            echo "\\n❌ Ticket #$ticketId no pudo ser procesado\\n";
+            return ['ticketId' => $ticketId, 'status' => 'unresolved', 'handledBy' => 'none'];
+        }
+    }
+    
+    public function getChainStatus(): void {
+        echo "\\n📊 Estado de la cadena de soporte:\\n";
+        echo "   1. Soporte Básico → Técnico\\n";
+        echo "   2. Soporte Técnico → Facturación\\n";
+        echo "   3. Soporte Facturación → Especialista Senior\\n";
+        echo "   4. Especialista Senior → Manager\\n";
+        echo "   5. Manager (final)\\n";
+    }
+}
+
+// Uso del patrón Chain of Responsibility
+echo "=== Sistema de Soporte con Chain of Responsibility ===\\n\\n";
+
+$supportSystem = new SupportTicketSystem();
+$supportSystem->getChainStatus();
+
+// Crear diferentes tipos de solicitudes
+$requests = [
+    [
+        'title' => 'Aplicación no carga',
+        'type' => 'technical',
+        'complexity' => 'basic',
+        'customer' => 'Juan Pérez',
+        'description' => 'La aplicación web no carga después de la actualización'
+    ],
+    [
+        'title' => 'Error de integración API',
+        'type' => 'technical',
+        'complexity' => 'intermediate',
+        'customer' => 'María González',
+        'description' => 'API devuelve errores 500 en endpoints específicos'
+    ],
+    [
+        'title' => 'Cobro duplicado',
+        'type' => 'billing',
+        'complexity' => 'basic',
+        'customer' => 'Carlos Ruiz',
+        'description' => 'Se realizó un cobro doble en mi tarjeta de crédito'
+    ],
+    [
+        'title' => 'Migración de arquitectura',
+        'type' => 'technical',
+        'complexity' => 'complex',
+        'customer' => 'TechCorp Inc.',
+        'description' => 'Necesitamos migrar 50,000 usuarios a nueva infraestructura'
+    ],
+    [
+        'title' => 'Problema de rendimiento crítico',
+        'type' => 'technical',
+        'complexity' => 'complex',
+        'customer' => 'Enterprise Solutions',
+        'description' => 'Sistema completo funcionando lento, afectando producción'
+    ]
+];
+
+// Procesar todos los tickets
+foreach ($requests as $request) {
+    $supportSystem->processTicket($request);
+}
+
+echo "\\n🎯 Cada solicitud se maneja por el nivel apropiado automáticamente!\\n";
+?>`
     },
     relatedPatterns: ["composite", "command"]
   },
@@ -3656,10 +4637,789 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     architectures: ["cqrs", "event-driven"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Command encapsula una petición como un objeto, permitiendo parametrizar y hacer cola de operaciones.",
+    content: "El patrón Command es como usar un control remoto: cada botón es un comando que encapsula una acción específica. Puedes presionar 'play', 'pause', 'cambiar canal' sin saber cómo funciona internamente el televisor. Además, puedes programar secuencias de comandos o deshacer acciones.\n\nEste patrón convierte solicitudes en objetos independientes que contienen toda la información necesaria.\n\n**¿Cuándo usarlo?**\n• Cuando quieres parametrizar objetos con operaciones\n• Cuando quieres poner operaciones en cola, programar su ejecución, o ejecutarlas remotamente\n• Cuando quieres implementar operaciones reversibles (undo/redo)\n• Cuando quieres registrar cambios para poder replicarlos o recuperarse de una caída\n\n**Ventajas:**\n• Desacopla las clases que invocan operaciones de las que realizan estas operaciones\n• Puedes combinar comandos simples para crear otros más complejos\n• Puedes implementar deshacer/rehacer\n• Puedes implementar ejecución diferida de operaciones\n• Principio abierto/cerrado: puedes introducir nuevos comandos sin cambiar código existente\n\n**Desventajas:**\n• El código puede volverse más complejo ya que estás introduciendo una nueva capa entre emisores y receptores",
     examples: {
-      javascript: "class Command { execute() { throw new Error('Must implement'); } } class ConcreteCommand extends Command { constructor(receiver) { super(); this.receiver = receiver; } execute() { this.receiver.action(); } }",
-      php: "interface Command { public function execute(); } class ConcreteCommand implements Command { private $receiver; public function __construct($receiver) { $this->receiver = $receiver; } public function execute() { $this->receiver->action(); } }"
+      javascript: `// Interfaz Command
+class Command {
+  execute() {
+    throw new Error('execute method must be implemented');
+  }
+  
+  undo() {
+    throw new Error('undo method must be implemented');
+  }
+  
+  getDescription() {
+    return 'Unknown command';
+  }
+}
+
+// Receiver - Smart Home Device
+class SmartLight {
+  constructor(location) {
+    this.location = location;
+    this.isOn = false;
+    this.brightness = 50;
+    this.previousBrightness = 50;
+  }
+  
+  turnOn() {
+    this.isOn = true;
+    console.log(\`💡 \${this.location}: Luz encendida (brillo: \${this.brightness}%)\`);
+  }
+  
+  turnOff() {
+    this.isOn = false;
+    console.log(\`🌙 \${this.location}: Luz apagada\`);
+  }
+  
+  setBrightness(level) {
+    this.previousBrightness = this.brightness;
+    this.brightness = level;
+    if (this.isOn) {
+      console.log(\`🔆 \${this.location}: Brillo ajustado a \${level}%\`);
+    }
+  }
+  
+  getStatus() {
+    return \`\${this.location}: \${this.isOn ? 'ON' : 'OFF'} (\${this.brightness}%)\`;
+  }
+}
+
+class SmartThermostat {
+  constructor() {
+    this.temperature = 22;
+    this.previousTemperature = 22;
+  }
+  
+  setTemperature(temp) {
+    this.previousTemperature = this.temperature;
+    this.temperature = temp;
+    console.log(\`🌡️  Termostato: Temperatura ajustada a \${temp}°C\`);
+  }
+  
+  getStatus() {
+    return \`Termostato: \${this.temperature}°C\`;
+  }
+}
+
+class SmartSpeaker {
+  constructor() {
+    this.volume = 50;
+    this.previousVolume = 50;
+    this.isPlaying = false;
+    this.currentSong = '';
+    this.previousSong = '';
+  }
+  
+  play(song) {
+    this.previousSong = this.currentSong;
+    this.currentSong = song;
+    this.isPlaying = true;
+    console.log(\`🎵 Bocina: Reproduciendo "\${song}" (volumen: \${this.volume}%)\`);
+  }
+  
+  stop() {
+    this.isPlaying = false;
+    console.log(\`⏹️  Bocina: Música detenida\`);
+  }
+  
+  setVolume(level) {
+    this.previousVolume = this.volume;
+    this.volume = level;
+    console.log(\`🔊 Bocina: Volumen ajustado a \${level}%\`);
+  }
+  
+  getStatus() {
+    return \`Bocina: \${this.isPlaying ? \`Playing "\${this.currentSong}"\` : 'Stopped'} (\${this.volume}%)\`;
+  }
+}
+
+// Comandos concretos
+class LightOnCommand extends Command {
+  constructor(light) {
+    super();
+    this.light = light;
+  }
+  
+  execute() {
+    this.light.turnOn();
+  }
+  
+  undo() {
+    this.light.turnOff();
+  }
+  
+  getDescription() {
+    return \`Encender luz \${this.light.location}\`;
+  }
+}
+
+class LightOffCommand extends Command {
+  constructor(light) {
+    super();
+    this.light = light;
+  }
+  
+  execute() {
+    this.light.turnOff();
+  }
+  
+  undo() {
+    this.light.turnOn();
+  }
+  
+  getDescription() {
+    return \`Apagar luz \${this.light.location}\`;
+  }
+}
+
+class SetBrightnessCommand extends Command {
+  constructor(light, brightness) {
+    super();
+    this.light = light;
+    this.brightness = brightness;
+  }
+  
+  execute() {
+    this.light.setBrightness(this.brightness);
+  }
+  
+  undo() {
+    this.light.setBrightness(this.light.previousBrightness);
+  }
+  
+  getDescription() {
+    return \`Ajustar brillo \${this.light.location} a \${this.brightness}%\`;
+  }
+}
+
+class SetTemperatureCommand extends Command {
+  constructor(thermostat, temperature) {
+    super();
+    this.thermostat = thermostat;
+    this.temperature = temperature;
+  }
+  
+  execute() {
+    this.thermostat.setTemperature(this.temperature);
+  }
+  
+  undo() {
+    this.thermostat.setTemperature(this.thermostat.previousTemperature);
+  }
+  
+  getDescription() {
+    return \`Ajustar temperatura a \${this.temperature}°C\`;
+  }
+}
+
+class PlayMusicCommand extends Command {
+  constructor(speaker, song) {
+    super();
+    this.speaker = speaker;
+    this.song = song;
+  }
+  
+  execute() {
+    this.speaker.play(this.song);
+  }
+  
+  undo() {
+    if (this.speaker.previousSong) {
+      this.speaker.play(this.speaker.previousSong);
+    } else {
+      this.speaker.stop();
+    }
+  }
+  
+  getDescription() {
+    return \`Reproducir "\${this.song}"\`;
+  }
+}
+
+// Comando macro - ejecuta múltiples comandos
+class MacroCommand extends Command {
+  constructor(commands, description) {
+    super();
+    this.commands = commands;
+    this.description = description;
+  }
+  
+  execute() {
+    console.log(\`\\n🎬 Ejecutando macro: \${this.description}\`);
+    this.commands.forEach(command => command.execute());
+  }
+  
+  undo() {
+    console.log(\`\\n↩️  Deshaciendo macro: \${this.description}\`);
+    // Deshacer en orden inverso
+    for (let i = this.commands.length - 1; i >= 0; i--) {
+      this.commands[i].undo();
+    }
+  }
+  
+  getDescription() {
+    return this.description;
+  }
+}
+
+// Comando nulo - patrón Null Object
+class NoCommand extends Command {
+  execute() {
+    // No hace nada
+  }
+  
+  undo() {
+    // No hace nada
+  }
+  
+  getDescription() {
+    return 'No hay comando asignado';
+  }
+}
+
+// Invoker - Control remoto inteligente
+class SmartHomeController {
+  constructor() {
+    this.commands = {};
+    this.history = [];
+    this.currentStep = -1;
+  }
+  
+  setCommand(slot, command) {
+    this.commands[slot] = command;
+    console.log(\`🎛️  Comando asignado al slot \${slot}: \${command.getDescription()}\`);
+  }
+  
+  pressButton(slot) {
+    const command = this.commands[slot] || new NoCommand();
+    console.log(\`\\n🔘 Presionando botón \${slot}: \${command.getDescription()}\`);
+    
+    command.execute();
+    
+    // Guardar en historial para undo/redo
+    this.history = this.history.slice(0, this.currentStep + 1);
+    this.history.push(command);
+    this.currentStep++;
+  }
+  
+  undo() {
+    if (this.currentStep >= 0) {
+      const command = this.history[this.currentStep];
+      console.log(\`\\n↩️  Deshaciendo: \${command.getDescription()}\`);
+      command.undo();
+      this.currentStep--;
+    } else {
+      console.log(\`\\n❌ No hay comandos para deshacer\`);
+    }
+  }
+  
+  redo() {
+    if (this.currentStep < this.history.length - 1) {
+      this.currentStep++;
+      const command = this.history[this.currentStep];
+      console.log(\`\\n↪️  Rehaciendo: \${command.getDescription()}\`);
+      command.execute();
+    } else {
+      console.log(\`\\n❌ No hay comandos para rehacer\`);
+    }
+  }
+  
+  showHistory() {
+    console.log(\`\\n📜 Historial de comandos:\`);
+    this.history.forEach((command, index) => {
+      const marker = index === this.currentStep ? '👉' : '  ';
+      console.log(\`\${marker} \${index + 1}. \${command.getDescription()}\`);
+    });
+  }
+  
+  showCurrentStatus() {
+    console.log(\`\\n📊 Estado actual del sistema:\`);
+    Object.keys(this.commands).forEach(slot => {
+      console.log(\`   Slot \${slot}: \${this.commands[slot].getDescription()}\`);
+    });
+  }
+}
+
+// Uso del patrón Command
+console.log('=== Sistema Smart Home con Patrón Command ===\\n');
+
+// Crear dispositivos (receivers)
+const livingRoomLight = new SmartLight('Sala');
+const bedroomLight = new SmartLight('Dormitorio');
+const thermostat = new SmartThermostat();
+const speaker = new SmartSpeaker();
+
+// Crear comandos
+const livingRoomOn = new LightOnCommand(livingRoomLight);
+const livingRoomOff = new LightOffCommand(livingRoomLight);
+const bedroomOn = new LightOnCommand(bedroomLight);
+const bedroomOff = new LightOffCommand(bedroomLight);
+const dimLivingRoom = new SetBrightnessCommand(livingRoomLight, 30);
+const setWarmTemp = new SetTemperatureCommand(thermostat, 24);
+const setCoolTemp = new SetTemperatureCommand(thermostat, 20);
+const playJazz = new PlayMusicCommand(speaker, 'Smooth Jazz Playlist');
+const playRock = new PlayMusicCommand(speaker, 'Classic Rock Hits');
+
+// Crear comandos macro
+const movieMode = new MacroCommand([
+  livingRoomOff,
+  bedroomOff,
+  dimLivingRoom,
+  new LightOnCommand(livingRoomLight),
+  setCoolTemp,
+  playJazz
+], 'Modo Película');
+
+const sleepMode = new MacroCommand([
+  livingRoomOff,
+  bedroomOff,
+  new SetTemperatureCommand(thermostat, 22),
+  new PlayMusicCommand(speaker, 'Rain Sounds')
+], 'Modo Dormir');
+
+// Configurar control remoto (invoker)
+const controller = new SmartHomeController();
+
+// Asignar comandos a botones
+controller.setCommand('1', livingRoomOn);
+controller.setCommand('2', livingRoomOff);
+controller.setCommand('3', bedroomOn);
+controller.setCommand('4', bedroomOff);
+controller.setCommand('5', setWarmTemp);
+controller.setCommand('6', setCoolTemp);
+controller.setCommand('7', playJazz);
+controller.setCommand('8', playRock);
+controller.setCommand('9', movieMode);
+controller.setCommand('0', sleepMode);
+
+// Simular uso del sistema
+console.log('--- Configuración inicial ---');
+controller.showCurrentStatus();
+
+console.log('\\n--- Usando el sistema ---');
+controller.pressButton('1'); // Encender sala
+controller.pressButton('3'); // Encender dormitorio
+controller.pressButton('5'); // Temperatura caliente
+controller.pressButton('7'); // Música jazz
+
+console.log('\\n--- Estado de dispositivos ---');
+console.log(livingRoomLight.getStatus());
+console.log(bedroomLight.getStatus());
+console.log(thermostat.getStatus());
+console.log(speaker.getStatus());
+
+console.log('\\n--- Probando undo/redo ---');
+controller.showHistory();
+controller.undo(); // Deshacer música
+controller.undo(); // Deshacer temperatura
+controller.redo(); // Rehacer temperatura
+
+console.log('\\n--- Activando modo película ---');
+controller.pressButton('9'); // Modo película
+
+console.log('\\n--- Deshaciendo modo película ---');
+controller.undo();
+
+console.log('\\n🎯 Los comandos encapsulan acciones y permiten undo/redo automático!');`,
+      php: `<?php
+// Interfaz Command
+interface Command {
+    public function execute(): void;
+    public function undo(): void;
+    public function getDescription(): string;
+}
+
+// Receiver - Smart Home Device
+class SmartLight {
+    private $location;
+    private $isOn = false;
+    private $brightness = 50;
+    private $previousBrightness = 50;
+    
+    public function __construct(string $location) {
+        $this->location = $location;
+    }
+    
+    public function turnOn(): void {
+        $this->isOn = true;
+        echo "💡 {$this->location}: Luz encendida (brillo: {$this->brightness}%)\\n";
+    }
+    
+    public function turnOff(): void {
+        $this->isOn = false;
+        echo "🌙 {$this->location}: Luz apagada\\n";
+    }
+    
+    public function setBrightness(int $level): void {
+        $this->previousBrightness = $this->brightness;
+        $this->brightness = $level;
+        if ($this->isOn) {
+            echo "🔆 {$this->location}: Brillo ajustado a {$level}%\\n";
+        }
+    }
+    
+    public function getStatus(): string {
+        $status = $this->isOn ? 'ON' : 'OFF';
+        return "{$this->location}: $status ({$this->brightness}%)";
+    }
+    
+    public function getLocation(): string { return $this->location; }
+    public function getPreviousBrightness(): int { return $this->previousBrightness; }
+}
+
+class SmartThermostat {
+    private $temperature = 22;
+    private $previousTemperature = 22;
+    
+    public function setTemperature(int $temp): void {
+        $this->previousTemperature = $this->temperature;
+        $this->temperature = $temp;
+        echo "🌡️  Termostato: Temperatura ajustada a {$temp}°C\\n";
+    }
+    
+    public function getStatus(): string {
+        return "Termostato: {$this->temperature}°C";
+    }
+    
+    public function getPreviousTemperature(): int { return $this->previousTemperature; }
+}
+
+class SmartSpeaker {
+    private $volume = 50;
+    private $previousVolume = 50;
+    private $isPlaying = false;
+    private $currentSong = '';
+    private $previousSong = '';
+    
+    public function play(string $song): void {
+        $this->previousSong = $this->currentSong;
+        $this->currentSong = $song;
+        $this->isPlaying = true;
+        echo "🎵 Bocina: Reproduciendo \\"$song\\" (volumen: {$this->volume}%)\\n";
+    }
+    
+    public function stop(): void {
+        $this->isPlaying = false;
+        echo "⏹️  Bocina: Música detenida\\n";
+    }
+    
+    public function setVolume(int $level): void {
+        $this->previousVolume = $this->volume;
+        $this->volume = $level;
+        echo "🔊 Bocina: Volumen ajustado a {$level}%\\n";
+    }
+    
+    public function getStatus(): string {
+        if ($this->isPlaying) {
+            return "Bocina: Playing \\"{$this->currentSong}\\" ({$this->volume}%)";
+        }
+        return "Bocina: Stopped ({$this->volume}%)";
+    }
+    
+    public function getPreviousSong(): string { return $this->previousSong; }
+}
+
+// Comandos concretos
+class LightOnCommand implements Command {
+    private $light;
+    
+    public function __construct(SmartLight $light) {
+        $this->light = $light;
+    }
+    
+    public function execute(): void {
+        $this->light->turnOn();
+    }
+    
+    public function undo(): void {
+        $this->light->turnOff();
+    }
+    
+    public function getDescription(): string {
+        return "Encender luz {$this->light->getLocation()}";
+    }
+}
+
+class LightOffCommand implements Command {
+    private $light;
+    
+    public function __construct(SmartLight $light) {
+        $this->light = $light;
+    }
+    
+    public function execute(): void {
+        $this->light->turnOff();
+    }
+    
+    public function undo(): void {
+        $this->light->turnOn();
+    }
+    
+    public function getDescription(): string {
+        return "Apagar luz {$this->light->getLocation()}";
+    }
+}
+
+class SetBrightnessCommand implements Command {
+    private $light;
+    private $brightness;
+    
+    public function __construct(SmartLight $light, int $brightness) {
+        $this->light = $light;
+        $this->brightness = $brightness;
+    }
+    
+    public function execute(): void {
+        $this->light->setBrightness($this->brightness);
+    }
+    
+    public function undo(): void {
+        $this->light->setBrightness($this->light->getPreviousBrightness());
+    }
+    
+    public function getDescription(): string {
+        return "Ajustar brillo {$this->light->getLocation()} a {$this->brightness}%";
+    }
+}
+
+class SetTemperatureCommand implements Command {
+    private $thermostat;
+    private $temperature;
+    
+    public function __construct(SmartThermostat $thermostat, int $temperature) {
+        $this->thermostat = $thermostat;
+        $this->temperature = $temperature;
+    }
+    
+    public function execute(): void {
+        $this->thermostat->setTemperature($this->temperature);
+    }
+    
+    public function undo(): void {
+        $this->thermostat->setTemperature($this->thermostat->getPreviousTemperature());
+    }
+    
+    public function getDescription(): string {
+        return "Ajustar temperatura a {$this->temperature}°C";
+    }
+}
+
+class PlayMusicCommand implements Command {
+    private $speaker;
+    private $song;
+    
+    public function __construct(SmartSpeaker $speaker, string $song) {
+        $this->speaker = $speaker;
+        $this->song = $song;
+    }
+    
+    public function execute(): void {
+        $this->speaker->play($this->song);
+    }
+    
+    public function undo(): void {
+        if ($this->speaker->getPreviousSong()) {
+            $this->speaker->play($this->speaker->getPreviousSong());
+        } else {
+            $this->speaker->stop();
+        }
+    }
+    
+    public function getDescription(): string {
+        return "Reproducir \\"{$this->song}\\"";
+    }
+}
+
+// Comando macro - ejecuta múltiples comandos
+class MacroCommand implements Command {
+    private $commands;
+    private $description;
+    
+    public function __construct(array $commands, string $description) {
+        $this->commands = $commands;
+        $this->description = $description;
+    }
+    
+    public function execute(): void {
+        echo "\\n🎬 Ejecutando macro: {$this->description}\\n";
+        foreach ($this->commands as $command) {
+            $command->execute();
+        }
+    }
+    
+    public function undo(): void {
+        echo "\\n↩️  Deshaciendo macro: {$this->description}\\n";
+        // Deshacer en orden inverso
+        for ($i = count($this->commands) - 1; $i >= 0; $i--) {
+            $this->commands[$i]->undo();
+        }
+    }
+    
+    public function getDescription(): string {
+        return $this->description;
+    }
+}
+
+// Comando nulo - patrón Null Object
+class NoCommand implements Command {
+    public function execute(): void {
+        // No hace nada
+    }
+    
+    public function undo(): void {
+        // No hace nada
+    }
+    
+    public function getDescription(): string {
+        return 'No hay comando asignado';
+    }
+}
+
+// Invoker - Control remoto inteligente
+class SmartHomeController {
+    private $commands = [];
+    private $history = [];
+    private $currentStep = -1;
+    
+    public function setCommand(string $slot, Command $command): void {
+        $this->commands[$slot] = $command;
+        echo "🎛️  Comando asignado al slot $slot: {$command->getDescription()}\\n";
+    }
+    
+    public function pressButton(string $slot): void {
+        $command = $this->commands[$slot] ?? new NoCommand();
+        echo "\\n🔘 Presionando botón $slot: {$command->getDescription()}\\n";
+        
+        $command->execute();
+        
+        // Guardar en historial para undo/redo
+        $this->history = array_slice($this->history, 0, $this->currentStep + 1);
+        $this->history[] = $command;
+        $this->currentStep++;
+    }
+    
+    public function undo(): void {
+        if ($this->currentStep >= 0) {
+            $command = $this->history[$this->currentStep];
+            echo "\\n↩️  Deshaciendo: {$command->getDescription()}\\n";
+            $command->undo();
+            $this->currentStep--;
+        } else {
+            echo "\\n❌ No hay comandos para deshacer\\n";
+        }
+    }
+    
+    public function redo(): void {
+        if ($this->currentStep < count($this->history) - 1) {
+            $this->currentStep++;
+            $command = $this->history[$this->currentStep];
+            echo "\\n↪️  Rehaciendo: {$command->getDescription()}\\n";
+            $command->execute();
+        } else {
+            echo "\\n❌ No hay comandos para rehacer\\n";
+        }
+    }
+    
+    public function showHistory(): void {
+        echo "\\n📜 Historial de comandos:\\n";
+        foreach ($this->history as $index => $command) {
+            $marker = $index === $this->currentStep ? '👉' : '  ';
+            echo "$marker " . ($index + 1) . ". {$command->getDescription()}\\n";
+        }
+    }
+    
+    public function showCurrentStatus(): void {
+        echo "\\n📊 Estado actual del sistema:\\n";
+        foreach ($this->commands as $slot => $command) {
+            echo "   Slot $slot: {$command->getDescription()}\\n";
+        }
+    }
+}
+
+// Uso del patrón Command
+echo "=== Sistema Smart Home con Patrón Command ===\\n\\n";
+
+// Crear dispositivos (receivers)
+$livingRoomLight = new SmartLight('Sala');
+$bedroomLight = new SmartLight('Dormitorio');
+$thermostat = new SmartThermostat();
+$speaker = new SmartSpeaker();
+
+// Crear comandos
+$livingRoomOn = new LightOnCommand($livingRoomLight);
+$livingRoomOff = new LightOffCommand($livingRoomLight);
+$bedroomOn = new LightOnCommand($bedroomLight);
+$bedroomOff = new LightOffCommand($bedroomLight);
+$dimLivingRoom = new SetBrightnessCommand($livingRoomLight, 30);
+$setWarmTemp = new SetTemperatureCommand($thermostat, 24);
+$setCoolTemp = new SetTemperatureCommand($thermostat, 20);
+$playJazz = new PlayMusicCommand($speaker, 'Smooth Jazz Playlist');
+$playRock = new PlayMusicCommand($speaker, 'Classic Rock Hits');
+
+// Crear comandos macro
+$movieMode = new MacroCommand([
+    $livingRoomOff,
+    $bedroomOff,
+    $dimLivingRoom,
+    new LightOnCommand($livingRoomLight),
+    $setCoolTemp,
+    $playJazz
+], 'Modo Película');
+
+$sleepMode = new MacroCommand([
+    $livingRoomOff,
+    $bedroomOff,
+    new SetTemperatureCommand($thermostat, 22),
+    new PlayMusicCommand($speaker, 'Rain Sounds')
+], 'Modo Dormir');
+
+// Configurar control remoto (invoker)
+$controller = new SmartHomeController();
+
+// Asignar comandos a botones
+$controller->setCommand('1', $livingRoomOn);
+$controller->setCommand('2', $livingRoomOff);
+$controller->setCommand('3', $bedroomOn);
+$controller->setCommand('4', $bedroomOff);
+$controller->setCommand('5', $setWarmTemp);
+$controller->setCommand('6', $setCoolTemp);
+$controller->setCommand('7', $playJazz);
+$controller->setCommand('8', $playRock);
+$controller->setCommand('9', $movieMode);
+$controller->setCommand('0', $sleepMode);
+
+// Simular uso del sistema
+echo "--- Configuración inicial ---\\n";
+$controller->showCurrentStatus();
+
+echo "\\n--- Usando el sistema ---\\n";
+$controller->pressButton('1'); // Encender sala
+$controller->pressButton('3'); // Encender dormitorio
+$controller->pressButton('5'); // Temperatura caliente
+$controller->pressButton('7'); // Música jazz
+
+echo "\\n--- Estado de dispositivos ---\\n";
+echo $livingRoomLight->getStatus() . "\\n";
+echo $bedroomLight->getStatus() . "\\n";
+echo $thermostat->getStatus() . "\\n";
+echo $speaker->getStatus() . "\\n";
+
+echo "\\n--- Probando undo/redo ---\\n";
+$controller->showHistory();
+$controller->undo(); // Deshacer música
+$controller->undo(); // Deshacer temperatura
+$controller->redo(); // Rehacer temperatura
+
+echo "\\n--- Activando modo película ---\\n";
+$controller->pressButton('9'); // Modo película
+
+echo "\\n--- Deshaciendo modo película ---\\n";
+$controller->undo();
+
+echo "\\n🎯 Los comandos encapsulan acciones y permiten undo/redo automático!\\n";
+?>`
     },
     relatedPatterns: ["observer", "memento"]
   },
@@ -3676,10 +5436,767 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Iterator proporciona una forma de acceder secuencialmente a los elementos de una colección.",
+    content: "El patrón Iterator es como usar un reproductor de música con botones 'siguiente' y 'anterior': puedes recorrer tu playlist sin saber si está almacenada en CD, streaming, o memoria interna. Solo necesitas saber cómo moverte al siguiente elemento.\n\nEste patrón proporciona una forma uniforme de recorrer diferentes tipos de colecciones.\n\n**¿Cuándo usarlo?**\n• Cuando quieres acceder a los contenidos de una colección sin exponer su representación interna\n• Cuando quieres soportar múltiples formas de recorrer la misma colección\n• Cuando quieres proporcionar una interfaz uniforme para recorrer diferentes estructuras de datos\n• Cuando quieres implementar recorridos especializados de estructuras complejas\n\n**Ventajas:**\n• Principio de responsabilidad única: limpia el código cliente y las colecciones extrayendo algoritmos de recorrido\n• Principio abierto/cerrado: puedes implementar nuevos tipos de colecciones e iteradores sin romper código existente\n• Puedes recorrer la misma colección en paralelo porque cada iterador contiene su propio estado\n• Puedes retrasar y continuar una iteración cuando sea necesario\n\n**Desventajas:**\n• Aplicar el patrón puede ser excesivo si tu aplicación solo trabaja con colecciones simples\n• Usar un iterador puede ser menos eficiente que recorrer directamente algunos tipos de colecciones especializadas",
     examples: {
-      javascript: "class Iterator { constructor(collection) { this.collection = collection; this.index = 0; } next() { return this.collection[this.index++]; } hasNext() { return this.index < this.collection.length; } }",
-      php: "class Iterator implements IteratorInterface { private $collection; private $index = 0; public function __construct($collection) { $this->collection = $collection; } public function next() { return $this->collection[$this->index++]; } }"
+      javascript: `// Interfaz Iterator
+class Iterator {
+  hasNext() {
+    throw new Error('hasNext method must be implemented');
+  }
+  
+  next() {
+    throw new Error('next method must be implemented');
+  }
+  
+  reset() {
+    throw new Error('reset method must be implemented');
+  }
+}
+
+// Colección de libros
+class Book {
+  constructor(title, author, genre, year) {
+    this.title = title;
+    this.author = author;
+    this.genre = genre;
+    this.year = year;
+  }
+  
+  toString() {
+    return \`"\${this.title}" by \${this.author} (\${this.year}) - \${this.genre}\`;
+  }
+}
+
+// Colección concreta - Biblioteca
+class Library {
+  constructor() {
+    this.books = [];
+    this.genres = new Set();
+    this.authors = new Set();
+  }
+  
+  addBook(book) {
+    this.books.push(book);
+    this.genres.add(book.genre);
+    this.authors.add(book.author);
+    console.log(\`📚 Libro agregado: \${book.title}\`);
+  }
+  
+  getBooks() {
+    return this.books;
+  }
+  
+  getGenres() {
+    return Array.from(this.genres);
+  }
+  
+  getAuthors() {
+    return Array.from(this.authors);
+  }
+  
+  // Factory methods para diferentes iteradores
+  createIterator() {
+    return new BookIterator(this.books);
+  }
+  
+  createGenreIterator(genre) {
+    return new GenreIterator(this.books, genre);
+  }
+  
+  createAuthorIterator(author) {
+    return new AuthorIterator(this.books, author);
+  }
+  
+  createReverseIterator() {
+    return new ReverseIterator(this.books);
+  }
+  
+  createYearRangeIterator(startYear, endYear) {
+    return new YearRangeIterator(this.books, startYear, endYear);
+  }
+}
+
+// Iterator concreto - Iterador básico de libros
+class BookIterator extends Iterator {
+  constructor(books) {
+    super();
+    this.books = books;
+    this.position = 0;
+  }
+  
+  hasNext() {
+    return this.position < this.books.length;
+  }
+  
+  next() {
+    if (!this.hasNext()) {
+      throw new Error('No more books to iterate');
+    }
+    return this.books[this.position++];
+  }
+  
+  reset() {
+    this.position = 0;
+  }
+  
+  current() {
+    return this.books[this.position];
+  }
+}
+
+// Iterator por género
+class GenreIterator extends Iterator {
+  constructor(books, genre) {
+    super();
+    this.books = books;
+    this.genre = genre;
+    this.position = 0;
+    this.filteredBooks = books.filter(book => book.genre === genre);
+  }
+  
+  hasNext() {
+    return this.position < this.filteredBooks.length;
+  }
+  
+  next() {
+    if (!this.hasNext()) {
+      throw new Error(\`No more \${this.genre} books to iterate\`);
+    }
+    return this.filteredBooks[this.position++];
+  }
+  
+  reset() {
+    this.position = 0;
+  }
+}
+
+// Iterator por autor
+class AuthorIterator extends Iterator {
+  constructor(books, author) {
+    super();
+    this.books = books;
+    this.author = author;
+    this.position = 0;
+    this.filteredBooks = books.filter(book => book.author === author);
+  }
+  
+  hasNext() {
+    return this.position < this.filteredBooks.length;
+  }
+  
+  next() {
+    if (!this.hasNext()) {
+      throw new Error(\`No more books by \${this.author} to iterate\`);
+    }
+    return this.filteredBooks[this.position++];
+  }
+  
+  reset() {
+    this.position = 0;
+  }
+}
+
+// Iterator reverso
+class ReverseIterator extends Iterator {
+  constructor(books) {
+    super();
+    this.books = books;
+    this.position = books.length - 1;
+  }
+  
+  hasNext() {
+    return this.position >= 0;
+  }
+  
+  next() {
+    if (!this.hasNext()) {
+      throw new Error('No more books to iterate backwards');
+    }
+    return this.books[this.position--];
+  }
+  
+  reset() {
+    this.position = this.books.length - 1;
+  }
+}
+
+// Iterator por rango de años
+class YearRangeIterator extends Iterator {
+  constructor(books, startYear, endYear) {
+    super();
+    this.books = books;
+    this.startYear = startYear;
+    this.endYear = endYear;
+    this.position = 0;
+    this.filteredBooks = books.filter(book => 
+      book.year >= startYear && book.year <= endYear
+    );
+  }
+  
+  hasNext() {
+    return this.position < this.filteredBooks.length;
+  }
+  
+  next() {
+    if (!this.hasNext()) {
+      throw new Error(\`No more books from \${this.startYear}-\${this.endYear} to iterate\`);
+    }
+    return this.filteredBooks[this.position++];
+  }
+  
+  reset() {
+    this.position = 0;
+  }
+}
+
+// Utilidad para procesar iteradores
+class IteratorProcessor {
+  static forEach(iterator, callback) {
+    iterator.reset();
+    while (iterator.hasNext()) {
+      callback(iterator.next());
+    }
+  }
+  
+  static toArray(iterator) {
+    const result = [];
+    iterator.reset();
+    while (iterator.hasNext()) {
+      result.push(iterator.next());
+    }
+    return result;
+  }
+  
+  static count(iterator) {
+    let count = 0;
+    iterator.reset();
+    while (iterator.hasNext()) {
+      iterator.next();
+      count++;
+    }
+    return count;
+  }
+  
+  static find(iterator, predicate) {
+    iterator.reset();
+    while (iterator.hasNext()) {
+      const item = iterator.next();
+      if (predicate(item)) {
+        return item;
+      }
+    }
+    return null;
+  }
+}
+
+// Cliente que usa diferentes iteradores
+class LibraryManager {
+  constructor(library) {
+    this.library = library;
+  }
+  
+  showAllBooks() {
+    console.log('\\n📚 Todos los libros:');
+    const iterator = this.library.createIterator();
+    IteratorProcessor.forEach(iterator, (book, index) => {
+      console.log(\`   \${index + 1}. \${book}\`);
+    });
+  }
+  
+  showBooksByGenre(genre) {
+    console.log(\`\\n🎭 Libros de \${genre}:\`);
+    const iterator = this.library.createGenreIterator(genre);
+    let index = 1;
+    IteratorProcessor.forEach(iterator, book => {
+      console.log(\`   \${index++}. \${book.title} by \${book.author}\`);
+    });
+  }
+  
+  showBooksByAuthor(author) {
+    console.log(\`\\n✍️  Libros de \${author}:\`);
+    const iterator = this.library.createAuthorIterator(author);
+    let index = 1;
+    IteratorProcessor.forEach(iterator, book => {
+      console.log(\`   \${index++}. \${book.title} (\${book.year})\`);
+    });
+  }
+  
+  showBooksReverse() {
+    console.log('\\n🔄 Libros en orden inverso:');
+    const iterator = this.library.createReverseIterator();
+    let index = 1;
+    IteratorProcessor.forEach(iterator, book => {
+      console.log(\`   \${index++}. \${book.title}\`);
+    });
+  }
+  
+  showBooksByYearRange(startYear, endYear) {
+    console.log(\`\\n📅 Libros de \${startYear} a \${endYear}:\`);
+    const iterator = this.library.createYearRangeIterator(startYear, endYear);
+    let index = 1;
+    IteratorProcessor.forEach(iterator, book => {
+      console.log(\`   \${index++}. \${book.title} (\${book.year})\`);
+    });
+  }
+  
+  searchBook(title) {
+    console.log(\`\\n🔍 Buscando: "\${title}"\`);
+    const iterator = this.library.createIterator();
+    const found = IteratorProcessor.find(iterator, book => 
+      book.title.toLowerCase().includes(title.toLowerCase())
+    );
+    
+    if (found) {
+      console.log(\`   ✅ Encontrado: \${found}\`);
+    } else {
+      console.log(\`   ❌ No encontrado\`);
+    }
+  }
+  
+  getStatistics() {
+    console.log('\\n📊 Estadísticas de la biblioteca:');
+    
+    const totalBooks = IteratorProcessor.count(this.library.createIterator());
+    console.log(\`   Total de libros: \${totalBooks}\`);
+    
+    this.library.getGenres().forEach(genre => {
+      const count = IteratorProcessor.count(this.library.createGenreIterator(genre));
+      console.log(\`   \${genre}: \${count} libros\`);
+    });
+  }
+}
+
+// Uso del patrón Iterator
+console.log('=== Sistema de Biblioteca con Patrón Iterator ===\\n');
+
+// Crear biblioteca y agregar libros
+const library = new Library();
+
+const books = [
+  new Book('1984', 'George Orwell', 'Ficción', 1949),
+  new Book('Brave New World', 'Aldous Huxley', 'Ficción', 1932),
+  new Book('The Catcher in the Rye', 'J.D. Salinger', 'Ficción', 1951),
+  new Book('To Kill a Mockingbird', 'Harper Lee', 'Ficción', 1960),
+  new Book('Clean Code', 'Robert Martin', 'Técnico', 2008),
+  new Book('Design Patterns', 'Gang of Four', 'Técnico', 1994),
+  new Book('The Pragmatic Programmer', 'Andy Hunt', 'Técnico', 1999),
+  new Book('A Brief History of Time', 'Stephen Hawking', 'Ciencia', 1988),
+  new Book('Cosmos', 'Carl Sagan', 'Ciencia', 1980),
+  new Book('The Selfish Gene', 'Richard Dawkins', 'Ciencia', 1976)
+];
+
+books.forEach(book => library.addBook(book));
+
+// Crear manager para demostrar diferentes iteradores
+const manager = new LibraryManager(library);
+
+// Demostrar diferentes tipos de iteración
+manager.showAllBooks();
+manager.showBooksByGenre('Ficción');
+manager.showBooksByAuthor('George Orwell');
+manager.showBooksReverse();
+manager.showBooksByYearRange(1980, 2000);
+manager.searchBook('Clean');
+manager.getStatistics();
+
+console.log('\\n🎯 Cada iterador proporciona una vista diferente de la misma colección!');`,
+      php: `<?php
+// Interfaz Iterator
+interface BookIteratorInterface {
+    public function hasNext(): bool;
+    public function next(): Book;
+    public function reset(): void;
+}
+
+// Colección de libros
+class Book {
+    private $title;
+    private $author;
+    private $genre;
+    private $year;
+    
+    public function __construct(string $title, string $author, string $genre, int $year) {
+        $this->title = $title;
+        $this->author = $author;
+        $this->genre = $genre;
+        $this->year = $year;
+    }
+    
+    public function __toString(): string {
+        return "\\"$this->title\\" by $this->author ($this->year) - $this->genre";
+    }
+    
+    public function getTitle(): string { return $this->title; }
+    public function getAuthor(): string { return $this->author; }
+    public function getGenre(): string { return $this->genre; }
+    public function getYear(): int { return $this->year; }
+}
+
+// Colección concreta - Biblioteca
+class Library {
+    private $books = [];
+    private $genres = [];
+    private $authors = [];
+    
+    public function addBook(Book $book): void {
+        $this->books[] = $book;
+        
+        if (!in_array($book->getGenre(), $this->genres)) {
+            $this->genres[] = $book->getGenre();
+        }
+        
+        if (!in_array($book->getAuthor(), $this->authors)) {
+            $this->authors[] = $book->getAuthor();
+        }
+        
+        echo "📚 Libro agregado: {$book->getTitle()}\\n";
+    }
+    
+    public function getBooks(): array {
+        return $this->books;
+    }
+    
+    public function getGenres(): array {
+        return $this->genres;
+    }
+    
+    public function getAuthors(): array {
+        return $this->authors;
+    }
+    
+    // Factory methods para diferentes iteradores
+    public function createIterator(): BookIteratorInterface {
+        return new BookIterator($this->books);
+    }
+    
+    public function createGenreIterator(string $genre): BookIteratorInterface {
+        return new GenreIterator($this->books, $genre);
+    }
+    
+    public function createAuthorIterator(string $author): BookIteratorInterface {
+        return new AuthorIterator($this->books, $author);
+    }
+    
+    public function createReverseIterator(): BookIteratorInterface {
+        return new ReverseIterator($this->books);
+    }
+    
+    public function createYearRangeIterator(int $startYear, int $endYear): BookIteratorInterface {
+        return new YearRangeIterator($this->books, $startYear, $endYear);
+    }
+}
+
+// Iterator concreto - Iterador básico de libros
+class BookIterator implements BookIteratorInterface {
+    private $books;
+    private $position = 0;
+    
+    public function __construct(array $books) {
+        $this->books = $books;
+    }
+    
+    public function hasNext(): bool {
+        return $this->position < count($this->books);
+    }
+    
+    public function next(): Book {
+        if (!$this->hasNext()) {
+            throw new Exception('No more books to iterate');
+        }
+        return $this->books[$this->position++];
+    }
+    
+    public function reset(): void {
+        $this->position = 0;
+    }
+}
+
+// Iterator por género
+class GenreIterator implements BookIteratorInterface {
+    private $books;
+    private $genre;
+    private $position = 0;
+    private $filteredBooks;
+    
+    public function __construct(array $books, string $genre) {
+        $this->books = $books;
+        $this->genre = $genre;
+        $this->filteredBooks = array_filter($books, function($book) use ($genre) {
+            return $book->getGenre() === $genre;
+        });
+        $this->filteredBooks = array_values($this->filteredBooks);
+    }
+    
+    public function hasNext(): bool {
+        return $this->position < count($this->filteredBooks);
+    }
+    
+    public function next(): Book {
+        if (!$this->hasNext()) {
+            throw new Exception("No more {$this->genre} books to iterate");
+        }
+        return $this->filteredBooks[$this->position++];
+    }
+    
+    public function reset(): void {
+        $this->position = 0;
+    }
+}
+
+// Iterator por autor
+class AuthorIterator implements BookIteratorInterface {
+    private $books;
+    private $author;
+    private $position = 0;
+    private $filteredBooks;
+    
+    public function __construct(array $books, string $author) {
+        $this->books = $books;
+        $this->author = $author;
+        $this->filteredBooks = array_filter($books, function($book) use ($author) {
+            return $book->getAuthor() === $author;
+        });
+        $this->filteredBooks = array_values($this->filteredBooks);
+    }
+    
+    public function hasNext(): bool {
+        return $this->position < count($this->filteredBooks);
+    }
+    
+    public function next(): Book {
+        if (!$this->hasNext()) {
+            throw new Exception("No more books by {$this->author} to iterate");
+        }
+        return $this->filteredBooks[$this->position++];
+    }
+    
+    public function reset(): void {
+        $this->position = 0;
+    }
+}
+
+// Iterator reverso
+class ReverseIterator implements BookIteratorInterface {
+    private $books;
+    private $position;
+    
+    public function __construct(array $books) {
+        $this->books = $books;
+        $this->position = count($books) - 1;
+    }
+    
+    public function hasNext(): bool {
+        return $this->position >= 0;
+    }
+    
+    public function next(): Book {
+        if (!$this->hasNext()) {
+            throw new Exception('No more books to iterate backwards');
+        }
+        return $this->books[$this->position--];
+    }
+    
+    public function reset(): void {
+        $this->position = count($this->books) - 1;
+    }
+}
+
+// Iterator por rango de años
+class YearRangeIterator implements BookIteratorInterface {
+    private $books;
+    private $startYear;
+    private $endYear;
+    private $position = 0;
+    private $filteredBooks;
+    
+    public function __construct(array $books, int $startYear, int $endYear) {
+        $this->books = $books;
+        $this->startYear = $startYear;
+        $this->endYear = $endYear;
+        $this->filteredBooks = array_filter($books, function($book) use ($startYear, $endYear) {
+            return $book->getYear() >= $startYear && $book->getYear() <= $endYear;
+        });
+        $this->filteredBooks = array_values($this->filteredBooks);
+    }
+    
+    public function hasNext(): bool {
+        return $this->position < count($this->filteredBooks);
+    }
+    
+    public function next(): Book {
+        if (!$this->hasNext()) {
+            throw new Exception("No more books from {$this->startYear}-{$this->endYear} to iterate");
+        }
+        return $this->filteredBooks[$this->position++];
+    }
+    
+    public function reset(): void {
+        $this->position = 0;
+    }
+}
+
+// Utilidad para procesar iteradores
+class IteratorProcessor {
+    public static function forEach(BookIteratorInterface $iterator, callable $callback): void {
+        $iterator->reset();
+        while ($iterator->hasNext()) {
+            $callback($iterator->next());
+        }
+    }
+    
+    public static function toArray(BookIteratorInterface $iterator): array {
+        $result = [];
+        $iterator->reset();
+        while ($iterator->hasNext()) {
+            $result[] = $iterator->next();
+        }
+        return $result;
+    }
+    
+    public static function count(BookIteratorInterface $iterator): int {
+        $count = 0;
+        $iterator->reset();
+        while ($iterator->hasNext()) {
+            $iterator->next();
+            $count++;
+        }
+        return $count;
+    }
+    
+    public static function find(BookIteratorInterface $iterator, callable $predicate): ?Book {
+        $iterator->reset();
+        while ($iterator->hasNext()) {
+            $item = $iterator->next();
+            if ($predicate($item)) {
+                return $item;
+            }
+        }
+        return null;
+    }
+}
+
+// Cliente que usa diferentes iteradores
+class LibraryManager {
+    private $library;
+    
+    public function __construct(Library $library) {
+        $this->library = $library;
+    }
+    
+    public function showAllBooks(): void {
+        echo "\\n📚 Todos los libros:\\n";
+        $iterator = $this->library->createIterator();
+        $index = 1;
+        IteratorProcessor::forEach($iterator, function($book) use (&$index) {
+            echo "   $index. $book\\n";
+            $index++;
+        });
+    }
+    
+    public function showBooksByGenre(string $genre): void {
+        echo "\\n🎭 Libros de $genre:\\n";
+        $iterator = $this->library->createGenreIterator($genre);
+        $index = 1;
+        IteratorProcessor::forEach($iterator, function($book) use (&$index) {
+            echo "   $index. {$book->getTitle()} by {$book->getAuthor()}\\n";
+            $index++;
+        });
+    }
+    
+    public function showBooksByAuthor(string $author): void {
+        echo "\\n✍️  Libros de $author:\\n";
+        $iterator = $this->library->createAuthorIterator($author);
+        $index = 1;
+        IteratorProcessor::forEach($iterator, function($book) use (&$index) {
+            echo "   $index. {$book->getTitle()} ({$book->getYear()})\\n";
+            $index++;
+        });
+    }
+    
+    public function showBooksReverse(): void {
+        echo "\\n🔄 Libros en orden inverso:\\n";
+        $iterator = $this->library->createReverseIterator();
+        $index = 1;
+        IteratorProcessor::forEach($iterator, function($book) use (&$index) {
+            echo "   $index. {$book->getTitle()}\\n";
+            $index++;
+        });
+    }
+    
+    public function showBooksByYearRange(int $startYear, int $endYear): void {
+        echo "\\n📅 Libros de $startYear a $endYear:\\n";
+        $iterator = $this->library->createYearRangeIterator($startYear, $endYear);
+        $index = 1;
+        IteratorProcessor::forEach($iterator, function($book) use (&$index) {
+            echo "   $index. {$book->getTitle()} ({$book->getYear()})\\n";
+            $index++;
+        });
+    }
+    
+    public function searchBook(string $title): void {
+        echo "\\n🔍 Buscando: \\"$title\\"\\n";
+        $iterator = $this->library->createIterator();
+        $found = IteratorProcessor::find($iterator, function($book) use ($title) {
+            return strpos(strtolower($book->getTitle()), strtolower($title)) !== false;
+        });
+        
+        if ($found) {
+            echo "   ✅ Encontrado: $found\\n";
+        } else {
+            echo "   ❌ No encontrado\\n";
+        }
+    }
+    
+    public function getStatistics(): void {
+        echo "\\n📊 Estadísticas de la biblioteca:\\n";
+        
+        $totalBooks = IteratorProcessor::count($this->library->createIterator());
+        echo "   Total de libros: $totalBooks\\n";
+        
+        foreach ($this->library->getGenres() as $genre) {
+            $count = IteratorProcessor::count($this->library->createGenreIterator($genre));
+            echo "   $genre: $count libros\\n";
+        }
+    }
+}
+
+// Uso del patrón Iterator
+echo "=== Sistema de Biblioteca con Patrón Iterator ===\\n\\n";
+
+// Crear biblioteca y agregar libros
+$library = new Library();
+
+$books = [
+    new Book('1984', 'George Orwell', 'Ficción', 1949),
+    new Book('Brave New World', 'Aldous Huxley', 'Ficción', 1932),
+    new Book('The Catcher in the Rye', 'J.D. Salinger', 'Ficción', 1951),
+    new Book('To Kill a Mockingbird', 'Harper Lee', 'Ficción', 1960),
+    new Book('Clean Code', 'Robert Martin', 'Técnico', 2008),
+    new Book('Design Patterns', 'Gang of Four', 'Técnico', 1994),
+    new Book('The Pragmatic Programmer', 'Andy Hunt', 'Técnico', 1999),
+    new Book('A Brief History of Time', 'Stephen Hawking', 'Ciencia', 1988),
+    new Book('Cosmos', 'Carl Sagan', 'Ciencia', 1980),
+    new Book('The Selfish Gene', 'Richard Dawkins', 'Ciencia', 1976)
+];
+
+foreach ($books as $book) {
+    $library->addBook($book);
+}
+
+// Crear manager para demostrar diferentes iteradores
+$manager = new LibraryManager($library);
+
+// Demostrar diferentes tipos de iteración
+$manager->showAllBooks();
+$manager->showBooksByGenre('Ficción');
+$manager->showBooksByAuthor('George Orwell');
+$manager->showBooksReverse();
+$manager->showBooksByYearRange(1980, 2000);
+$manager->searchBook('Clean');
+$manager->getStatistics();
+
+echo "\\n🎯 Cada iterador proporciona una vista diferente de la misma colección!\\n";
+?>`
     },
     relatedPatterns: ["composite", "factory-method"]
   },
@@ -3696,10 +6213,777 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     architectures: ["event-driven"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Mediator define cómo un conjunto de objetos interactúan entre sí mediante un objeto mediador.",
+    content: "El patrón Mediator es como un controlador de tráfico aéreo: en lugar de que cada avión se comunique directamente con otros aviones (lo cual sería caótico), todos se comunican con la torre de control, que coordina todo el tráfico de manera centralizada.\n\nEste patrón define cómo un conjunto de objetos interactúan entre sí a través de un mediador central.\n\n**¿Cuándo usarlo?**\n• Cuando es difícil cambiar algunas clases porque están fuertemente acopladas a muchas otras clases\n• Cuando no puedes reutilizar un componente en un programa diferente porque es demasiado dependiente de otros componentes\n• Cuando te encuentras creando toneladas de subclases de componente solo para reutilizar algún comportamiento básico en varios contextos\n• Cuando hay muchas relaciones complejas y bien definidas entre objetos\n\n**Ventajas:**\n• Principio de responsabilidad única: puedes extraer las comunicaciones entre varios componentes en un solo lugar\n• Principio abierto/cerrado: puedes introducir nuevos mediadores sin cambiar los componentes reales\n• Puedes reducir el acoplamiento entre varios componentes de un programa\n• Puedes reutilizar componentes individuales más fácilmente\n\n**Desventajas:**\n• Con el tiempo, un mediador puede evolucionar hacia un objeto dios",
     examples: {
-      javascript: "class Mediator { notify(sender, event) { if (event === 'A') { this.componentB.doC(); } } } class Component { constructor(mediator) { this.mediator = mediator; } }",
-      php: "interface Mediator { public function notify($sender, $event); } class ConcreteMediator implements Mediator { public function notify($sender, $event) { if ($event === 'A') { $this->componentB->doC(); } } }"
+      javascript: `// Interfaz del mediador
+class DialogMediator {
+  notify(sender, event) {
+    throw new Error('notify method must be implemented');
+  }
+}
+
+// Componentes base
+class Component {
+  constructor(mediator = null) {
+    this.mediator = mediator;
+  }
+  
+  setMediator(mediator) {
+    this.mediator = mediator;
+  }
+}
+
+// Componentes concretos del formulario
+class TextBox extends Component {
+  constructor(name, placeholder = '') {
+    super();
+    this.name = name;
+    this.value = '';
+    this.placeholder = placeholder;
+    this.isVisible = true;
+    this.isEnabled = true;
+  }
+  
+  setValue(value) {
+    this.value = value;
+    console.log(\`📝 \${this.name}: Valor establecido a "\${value}"\`);
+    if (this.mediator) {
+      this.mediator.notify(this, 'valueChanged');
+    }
+  }
+  
+  getValue() {
+    return this.value;
+  }
+  
+  setEnabled(enabled) {
+    this.isEnabled = enabled;
+    console.log(\`\${enabled ? '🔓' : '🔒'} \${this.name}: \${enabled ? 'Habilitado' : 'Deshabilitado'}\`);
+  }
+  
+  setVisible(visible) {
+    this.isVisible = visible;
+    console.log(\`\${visible ? '👁️' : '🙈'} \${this.name}: \${visible ? 'Visible' : 'Oculto'}\`);
+  }
+  
+  focus() {
+    if (this.isEnabled && this.isVisible) {
+      console.log(\`🎯 \${this.name}: Enfocado\`);
+      if (this.mediator) {
+        this.mediator.notify(this, 'focused');
+      }
+    }
+  }
+}
+
+class CheckBox extends Component {
+  constructor(name, label) {
+    super();
+    this.name = name;
+    this.label = label;
+    this.isChecked = false;
+    this.isEnabled = true;
+  }
+  
+  setChecked(checked) {
+    this.isChecked = checked;
+    console.log(\`\${checked ? '☑️' : '☐'} \${this.name}: \${checked ? 'Marcado' : 'Desmarcado'}\`);
+    if (this.mediator) {
+      this.mediator.notify(this, 'stateChanged');
+    }
+  }
+  
+  isChecked() {
+    return this.isChecked;
+  }
+  
+  setEnabled(enabled) {
+    this.isEnabled = enabled;
+    console.log(\`\${enabled ? '🔓' : '🔒'} \${this.name}: \${enabled ? 'Habilitado' : 'Deshabilitado'}\`);
+  }
+}
+
+class Button extends Component {
+  constructor(name, label) {
+    super();
+    this.name = name;
+    this.label = label;
+    this.isEnabled = true;
+    this.isVisible = true;
+  }
+  
+  click() {
+    if (this.isEnabled && this.isVisible) {
+      console.log(\`🔘 \${this.name}: Clic en "\${this.label}"\`);
+      if (this.mediator) {
+        this.mediator.notify(this, 'clicked');
+      }
+    }
+  }
+  
+  setEnabled(enabled) {
+    this.isEnabled = enabled;
+    console.log(\`\${enabled ? '🔓' : '🔒'} \${this.name}: \${enabled ? 'Habilitado' : 'Deshabilitado'}\`);
+  }
+  
+  setVisible(visible) {
+    this.isVisible = visible;
+    console.log(\`\${visible ? '👁️' : '🙈'} \${this.name}: \${visible ? 'Visible' : 'Oculto'}\`);
+  }
+}
+
+class DropDown extends Component {
+  constructor(name, options = []) {
+    super();
+    this.name = name;
+    this.options = options;
+    this.selectedValue = '';
+    this.isEnabled = true;
+  }
+  
+  selectOption(value) {
+    if (this.options.includes(value)) {
+      this.selectedValue = value;
+      console.log(\`📋 \${this.name}: Seleccionado "\${value}"\`);
+      if (this.mediator) {
+        this.mediator.notify(this, 'selectionChanged');
+      }
+    }
+  }
+  
+  getSelectedValue() {
+    return this.selectedValue;
+  }
+  
+  setEnabled(enabled) {
+    this.isEnabled = enabled;
+    console.log(\`\${enabled ? '🔓' : '🔒'} \${this.name}: \${enabled ? 'Habilitado' : 'Deshabilitado'}\`);
+  }
+}
+
+// Mediador concreto - Formulario de registro
+class RegistrationFormMediator extends DialogMediator {
+  constructor() {
+    super();
+    this.setupComponents();
+    this.setupMediatorReferences();
+  }
+  
+  setupComponents() {
+    // Crear componentes
+    this.usernameField = new TextBox('username', 'Ingrese nombre de usuario');
+    this.emailField = new TextBox('email', 'Ingrese email');
+    this.passwordField = new TextBox('password', 'Ingrese contraseña');
+    this.confirmPasswordField = new TextBox('confirmPassword', 'Confirme contraseña');
+    this.countryDropdown = new DropDown('country', ['USA', 'Canada', 'Mexico', 'Spain', 'France']);
+    this.agreeTermsCheckbox = new CheckBox('agreeTerms', 'Acepto términos y condiciones');
+    this.newsletterCheckbox = new CheckBox('newsletter', 'Suscribirse al newsletter');
+    this.submitButton = new Button('submit', 'Registrarse');
+    this.resetButton = new Button('reset', 'Limpiar');
+  }
+  
+  setupMediatorReferences() {
+    // Asignar mediador a todos los componentes
+    const components = [
+      this.usernameField, this.emailField, this.passwordField, 
+      this.confirmPasswordField, this.countryDropdown, 
+      this.agreeTermsCheckbox, this.newsletterCheckbox,
+      this.submitButton, this.resetButton
+    ];
+    
+    components.forEach(component => component.setMediator(this));
+  }
+  
+  notify(sender, event) {
+    console.log(\`\\n🔔 Mediador notificado: \${sender.name} -> \${event}\`);
+    
+    if (sender === this.usernameField && event === 'valueChanged') {
+      this.validateUsername();
+    }
+    
+    if (sender === this.emailField && event === 'valueChanged') {
+      this.validateEmail();
+    }
+    
+    if (sender === this.passwordField && event === 'valueChanged') {
+      this.validatePassword();
+      this.validatePasswordMatch();
+    }
+    
+    if (sender === this.confirmPasswordField && event === 'valueChanged') {
+      this.validatePasswordMatch();
+    }
+    
+    if (sender === this.countryDropdown && event === 'selectionChanged') {
+      this.handleCountrySelection();
+    }
+    
+    if (sender === this.agreeTermsCheckbox && event === 'stateChanged') {
+      this.updateSubmitButtonState();
+    }
+    
+    if (sender === this.submitButton && event === 'clicked') {
+      this.handleSubmit();
+    }
+    
+    if (sender === this.resetButton && event === 'clicked') {
+      this.handleReset();
+    }
+    
+    // Siempre validar el estado general del formulario
+    this.updateSubmitButtonState();
+  }
+  
+  validateUsername() {
+    const username = this.usernameField.getValue();
+    if (username.length < 3) {
+      console.log(\`❌ Validación: Nombre de usuario debe tener al menos 3 caracteres\`);
+      return false;
+    }
+    console.log(\`✅ Validación: Nombre de usuario válido\`);
+    return true;
+  }
+  
+  validateEmail() {
+    const email = this.emailField.getValue();
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+    if (!emailRegex.test(email)) {
+      console.log(\`❌ Validación: Email inválido\`);
+      return false;
+    }
+    console.log(\`✅ Validación: Email válido\`);
+    return true;
+  }
+  
+  validatePassword() {
+    const password = this.passwordField.getValue();
+    if (password.length < 6) {
+      console.log(\`❌ Validación: Contraseña debe tener al menos 6 caracteres\`);
+      return false;
+    }
+    console.log(\`✅ Validación: Contraseña válida\`);
+    return true;
+  }
+  
+  validatePasswordMatch() {
+    const password = this.passwordField.getValue();
+    const confirmPassword = this.confirmPasswordField.getValue();
+    
+    if (confirmPassword && password !== confirmPassword) {
+      console.log(\`❌ Validación: Las contraseñas no coinciden\`);
+      return false;
+    }
+    
+    if (confirmPassword && password === confirmPassword) {
+      console.log(\`✅ Validación: Las contraseñas coinciden\`);
+    }
+    return true;
+  }
+  
+  handleCountrySelection() {
+    const country = this.countryDropdown.getSelectedValue();
+    
+    // Lógica específica por país
+    if (country === 'USA' || country === 'Canada') {
+      this.newsletterCheckbox.setChecked(true);
+      console.log(\`🌎 País seleccionado: \${country} - Newsletter habilitado por defecto\`);
+    }
+  }
+  
+  updateSubmitButtonState() {
+    const isFormValid = 
+      this.validateUsername() &&
+      this.validateEmail() &&
+      this.validatePassword() &&
+      this.validatePasswordMatch() &&
+      this.agreeTermsCheckbox.isChecked() &&
+      this.countryDropdown.getSelectedValue() !== '';
+    
+    this.submitButton.setEnabled(isFormValid);
+    
+    if (isFormValid) {
+      console.log(\`✅ Formulario válido - Botón de envío habilitado\`);
+    } else {
+      console.log(\`❌ Formulario inválido - Botón de envío deshabilitado\`);
+    }
+  }
+  
+  handleSubmit() {
+    console.log(\`\\n🚀 Enviando formulario...\`);
+    console.log(\`   Usuario: \${this.usernameField.getValue()}\`);
+    console.log(\`   Email: \${this.emailField.getValue()}\`);
+    console.log(\`   País: \${this.countryDropdown.getSelectedValue()}\`);
+    console.log(\`   Newsletter: \${this.newsletterCheckbox.isChecked() ? 'Sí' : 'No'}\`);
+    console.log(\`✅ Registro completado exitosamente!\`);
+  }
+  
+  handleReset() {
+    console.log(\`\\n🔄 Limpiando formulario...\`);
+    this.usernameField.setValue('');
+    this.emailField.setValue('');
+    this.passwordField.setValue('');
+    this.confirmPasswordField.setValue('');
+    this.countryDropdown.selectOption('');
+    this.agreeTermsCheckbox.setChecked(false);
+    this.newsletterCheckbox.setChecked(false);
+    console.log(\`✅ Formulario limpiado\`);
+  }
+  
+  getFormSummary() {
+    console.log(\`\\n📊 Estado actual del formulario:\`);
+    console.log(\`   Username: "\${this.usernameField.getValue()}"\`);
+    console.log(\`   Email: "\${this.emailField.getValue()}"\`);
+    console.log(\`   Password: \${this.passwordField.getValue() ? '[HIDDEN]' : '[EMPTY]'}\`);
+    console.log(\`   Country: "\${this.countryDropdown.getSelectedValue()}"\`);
+    console.log(\`   Terms Agreed: \${this.agreeTermsCheckbox.isChecked()}\`);
+    console.log(\`   Newsletter: \${this.newsletterCheckbox.isChecked()}\`);
+  }
+}
+
+// Uso del patrón Mediator
+console.log('=== Formulario de Registro con Patrón Mediator ===\\n');
+
+const registrationForm = new RegistrationFormMediator();
+
+console.log('--- Llenando formulario paso a paso ---');
+
+// Simular llenado del formulario
+registrationForm.usernameField.setValue('john_doe');
+registrationForm.emailField.setValue('john@email.com');
+registrationForm.passwordField.setValue('password123');
+registrationForm.confirmPasswordField.setValue('password123');
+registrationForm.countryDropdown.selectOption('USA');
+registrationForm.agreeTermsCheckbox.setChecked(true);
+
+console.log('\\n--- Estado del formulario ---');
+registrationForm.getFormSummary();
+
+console.log('\\n--- Intentando enviar ---');
+registrationForm.submitButton.click();
+
+console.log('\\n--- Limpiando formulario ---');
+registrationForm.resetButton.click();
+
+console.log('\\n--- Estado después de limpiar ---');
+registrationForm.getFormSummary();
+
+console.log('\\n🎯 El mediador coordina todas las interacciones entre componentes!');`,
+      php: `<?php
+// Interfaz del mediador
+interface DialogMediator {
+    public function notify(Component $sender, string $event): void;
+}
+
+// Componente base
+abstract class Component {
+    protected $mediator;
+    
+    public function __construct(DialogMediator $mediator = null) {
+        $this->mediator = $mediator;
+    }
+    
+    public function setMediator(DialogMediator $mediator): void {
+        $this->mediator = $mediator;
+    }
+}
+
+// Componentes concretos del formulario
+class TextBox extends Component {
+    private $name;
+    private $value = '';
+    private $placeholder;
+    private $isVisible = true;
+    private $isEnabled = true;
+    
+    public function __construct(string $name, string $placeholder = '') {
+        parent::__construct();
+        $this->name = $name;
+        $this->placeholder = $placeholder;
+    }
+    
+    public function setValue(string $value): void {
+        $this->value = $value;
+        echo "📝 {$this->name}: Valor establecido a \\"$value\\"\\n";
+        if ($this->mediator) {
+            $this->mediator->notify($this, 'valueChanged');
+        }
+    }
+    
+    public function getValue(): string {
+        return $this->value;
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function setEnabled(bool $enabled): void {
+        $this->isEnabled = $enabled;
+        $status = $enabled ? 'Habilitado' : 'Deshabilitado';
+        $icon = $enabled ? '🔓' : '🔒';
+        echo "$icon {$this->name}: $status\\n";
+    }
+    
+    public function setVisible(bool $visible): void {
+        $this->isVisible = $visible;
+        $status = $visible ? 'Visible' : 'Oculto';
+        $icon = $visible ? '👁️' : '🙈';
+        echo "$icon {$this->name}: $status\\n";
+    }
+    
+    public function focus(): void {
+        if ($this->isEnabled && $this->isVisible) {
+            echo "🎯 {$this->name}: Enfocado\\n";
+            if ($this->mediator) {
+                $this->mediator->notify($this, 'focused');
+            }
+        }
+    }
+}
+
+class CheckBox extends Component {
+    private $name;
+    private $label;
+    private $isChecked = false;
+    private $isEnabled = true;
+    
+    public function __construct(string $name, string $label) {
+        parent::__construct();
+        $this->name = $name;
+        $this->label = $label;
+    }
+    
+    public function setChecked(bool $checked): void {
+        $this->isChecked = $checked;
+        $icon = $checked ? '☑️' : '☐';
+        $status = $checked ? 'Marcado' : 'Desmarcado';
+        echo "$icon {$this->name}: $status\\n";
+        if ($this->mediator) {
+            $this->mediator->notify($this, 'stateChanged');
+        }
+    }
+    
+    public function isChecked(): bool {
+        return $this->isChecked;
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function setEnabled(bool $enabled): void {
+        $this->isEnabled = $enabled;
+        $status = $enabled ? 'Habilitado' : 'Deshabilitado';
+        $icon = $enabled ? '🔓' : '🔒';
+        echo "$icon {$this->name}: $status\\n";
+    }
+}
+
+class Button extends Component {
+    private $name;
+    private $label;
+    private $isEnabled = true;
+    private $isVisible = true;
+    
+    public function __construct(string $name, string $label) {
+        parent::__construct();
+        $this->name = $name;
+        $this->label = $label;
+    }
+    
+    public function click(): void {
+        if ($this->isEnabled && $this->isVisible) {
+            echo "🔘 {$this->name}: Clic en \\"{$this->label}\\"\\n";
+            if ($this->mediator) {
+                $this->mediator->notify($this, 'clicked');
+            }
+        }
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function setEnabled(bool $enabled): void {
+        $this->isEnabled = $enabled;
+        $status = $enabled ? 'Habilitado' : 'Deshabilitado';
+        $icon = $enabled ? '🔓' : '🔒';
+        echo "$icon {$this->name}: $status\\n";
+    }
+    
+    public function setVisible(bool $visible): void {
+        $this->isVisible = $visible;
+        $status = $visible ? 'Visible' : 'Oculto';
+        $icon = $visible ? '👁️' : '🙈';
+        echo "$icon {$this->name}: $status\\n";
+    }
+}
+
+class DropDown extends Component {
+    private $name;
+    private $options;
+    private $selectedValue = '';
+    private $isEnabled = true;
+    
+    public function __construct(string $name, array $options = []) {
+        parent::__construct();
+        $this->name = $name;
+        $this->options = $options;
+    }
+    
+    public function selectOption(string $value): void {
+        if (in_array($value, $this->options) || $value === '') {
+            $this->selectedValue = $value;
+            if ($value !== '') {
+                echo "📋 {$this->name}: Seleccionado \\"$value\\"\\n";
+            }
+            if ($this->mediator) {
+                $this->mediator->notify($this, 'selectionChanged');
+            }
+        }
+    }
+    
+    public function getSelectedValue(): string {
+        return $this->selectedValue;
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+    
+    public function setEnabled(bool $enabled): void {
+        $this->isEnabled = $enabled;
+        $status = $enabled ? 'Habilitado' : 'Deshabilitado';
+        $icon = $enabled ? '🔓' : '🔒';
+        echo "$icon {$this->name}: $status\\n";
+    }
+}
+
+// Mediador concreto - Formulario de registro
+class RegistrationFormMediator implements DialogMediator {
+    private $usernameField;
+    private $emailField;
+    private $passwordField;
+    private $confirmPasswordField;
+    private $countryDropdown;
+    private $agreeTermsCheckbox;
+    private $newsletterCheckbox;
+    private $submitButton;
+    private $resetButton;
+    
+    public function __construct() {
+        $this->setupComponents();
+        $this->setupMediatorReferences();
+    }
+    
+    private function setupComponents(): void {
+        $this->usernameField = new TextBox('username', 'Ingrese nombre de usuario');
+        $this->emailField = new TextBox('email', 'Ingrese email');
+        $this->passwordField = new TextBox('password', 'Ingrese contraseña');
+        $this->confirmPasswordField = new TextBox('confirmPassword', 'Confirme contraseña');
+        $this->countryDropdown = new DropDown('country', ['USA', 'Canada', 'Mexico', 'Spain', 'France']);
+        $this->agreeTermsCheckbox = new CheckBox('agreeTerms', 'Acepto términos y condiciones');
+        $this->newsletterCheckbox = new CheckBox('newsletter', 'Suscribirse al newsletter');
+        $this->submitButton = new Button('submit', 'Registrarse');
+        $this->resetButton = new Button('reset', 'Limpiar');
+    }
+    
+    private function setupMediatorReferences(): void {
+        $components = [
+            $this->usernameField, $this->emailField, $this->passwordField,
+            $this->confirmPasswordField, $this->countryDropdown,
+            $this->agreeTermsCheckbox, $this->newsletterCheckbox,
+            $this->submitButton, $this->resetButton
+        ];
+        
+        foreach ($components as $component) {
+            $component->setMediator($this);
+        }
+    }
+    
+    public function notify(Component $sender, string $event): void {
+        echo "\\n🔔 Mediador notificado: {$sender->getName()} -> $event\\n";
+        
+        if ($sender === $this->usernameField && $event === 'valueChanged') {
+            $this->validateUsername();
+        }
+        
+        if ($sender === $this->emailField && $event === 'valueChanged') {
+            $this->validateEmail();
+        }
+        
+        if ($sender === $this->passwordField && $event === 'valueChanged') {
+            $this->validatePassword();
+            $this->validatePasswordMatch();
+        }
+        
+        if ($sender === $this->confirmPasswordField && $event === 'valueChanged') {
+            $this->validatePasswordMatch();
+        }
+        
+        if ($sender === $this->countryDropdown && $event === 'selectionChanged') {
+            $this->handleCountrySelection();
+        }
+        
+        if ($sender === $this->agreeTermsCheckbox && $event === 'stateChanged') {
+            $this->updateSubmitButtonState();
+        }
+        
+        if ($sender === $this->submitButton && $event === 'clicked') {
+            $this->handleSubmit();
+        }
+        
+        if ($sender === $this->resetButton && $event === 'clicked') {
+            $this->handleReset();
+        }
+        
+        $this->updateSubmitButtonState();
+    }
+    
+    private function validateUsername(): bool {
+        $username = $this->usernameField->getValue();
+        if (strlen($username) < 3) {
+            echo "❌ Validación: Nombre de usuario debe tener al menos 3 caracteres\\n";
+            return false;
+        }
+        echo "✅ Validación: Nombre de usuario válido\\n";
+        return true;
+    }
+    
+    private function validateEmail(): bool {
+        $email = $this->emailField->getValue();
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo "❌ Validación: Email inválido\\n";
+            return false;
+        }
+        echo "✅ Validación: Email válido\\n";
+        return true;
+    }
+    
+    private function validatePassword(): bool {
+        $password = $this->passwordField->getValue();
+        if (strlen($password) < 6) {
+            echo "❌ Validación: Contraseña debe tener al menos 6 caracteres\\n";
+            return false;
+        }
+        echo "✅ Validación: Contraseña válida\\n";
+        return true;
+    }
+    
+    private function validatePasswordMatch(): bool {
+        $password = $this->passwordField->getValue();
+        $confirmPassword = $this->confirmPasswordField->getValue();
+        
+        if ($confirmPassword && $password !== $confirmPassword) {
+            echo "❌ Validación: Las contraseñas no coinciden\\n";
+            return false;
+        }
+        
+        if ($confirmPassword && $password === $confirmPassword) {
+            echo "✅ Validación: Las contraseñas coinciden\\n";
+        }
+        return true;
+    }
+    
+    private function handleCountrySelection(): void {
+        $country = $this->countryDropdown->getSelectedValue();
+        
+        if ($country === 'USA' || $country === 'Canada') {
+            $this->newsletterCheckbox->setChecked(true);
+            echo "🌎 País seleccionado: $country - Newsletter habilitado por defecto\\n";
+        }
+    }
+    
+    private function updateSubmitButtonState(): void {
+        $isFormValid = 
+            $this->validateUsername() &&
+            $this->validateEmail() &&
+            $this->validatePassword() &&
+            $this->validatePasswordMatch() &&
+            $this->agreeTermsCheckbox->isChecked() &&
+            $this->countryDropdown->getSelectedValue() !== '';
+        
+        $this->submitButton->setEnabled($isFormValid);
+        
+        if ($isFormValid) {
+            echo "✅ Formulario válido - Botón de envío habilitado\\n";
+        } else {
+            echo "❌ Formulario inválido - Botón de envío deshabilitado\\n";
+        }
+    }
+    
+    private function handleSubmit(): void {
+        echo "\\n🚀 Enviando formulario...\\n";
+        echo "   Usuario: {$this->usernameField->getValue()}\\n";
+        echo "   Email: {$this->emailField->getValue()}\\n";
+        echo "   País: {$this->countryDropdown->getSelectedValue()}\\n";
+        echo "   Newsletter: " . ($this->newsletterCheckbox->isChecked() ? 'Sí' : 'No') . "\\n";
+        echo "✅ Registro completado exitosamente!\\n";
+    }
+    
+    private function handleReset(): void {
+        echo "\\n🔄 Limpiando formulario...\\n";
+        $this->usernameField->setValue('');
+        $this->emailField->setValue('');
+        $this->passwordField->setValue('');
+        $this->confirmPasswordField->setValue('');
+        $this->countryDropdown->selectOption('');
+        $this->agreeTermsCheckbox->setChecked(false);
+        $this->newsletterCheckbox->setChecked(false);
+        echo "✅ Formulario limpiado\\n";
+    }
+    
+    public function getFormSummary(): void {
+        echo "\\n📊 Estado actual del formulario:\\n";
+        echo "   Username: \\"{$this->usernameField->getValue()}\\"\\n";
+        echo "   Email: \\"{$this->emailField->getValue()}\\"\\n";
+        echo "   Password: " . ($this->passwordField->getValue() ? '[HIDDEN]' : '[EMPTY]') . "\\n";
+        echo "   Country: \\"{$this->countryDropdown->getSelectedValue()}\\"\\n";
+        echo "   Terms Agreed: " . ($this->agreeTermsCheckbox->isChecked() ? 'true' : 'false') . "\\n";
+        echo "   Newsletter: " . ($this->newsletterCheckbox->isChecked() ? 'true' : 'false') . "\\n";
+    }
+    
+    // Métodos públicos para acceso a componentes (para testing)
+    public function getUsernameField(): TextBox { return $this->usernameField; }
+    public function getEmailField(): TextBox { return $this->emailField; }
+    public function getPasswordField(): TextBox { return $this->passwordField; }
+    public function getConfirmPasswordField(): TextBox { return $this->confirmPasswordField; }
+    public function getCountryDropdown(): DropDown { return $this->countryDropdown; }
+    public function getAgreeTermsCheckbox(): CheckBox { return $this->agreeTermsCheckbox; }
+    public function getNewsletterCheckbox(): CheckBox { return $this->newsletterCheckbox; }
+    public function getSubmitButton(): Button { return $this->submitButton; }
+    public function getResetButton(): Button { return $this->resetButton; }
+}
+
+// Uso del patrón Mediator
+echo "=== Formulario de Registro con Patrón Mediator ===\\n\\n";
+
+$registrationForm = new RegistrationFormMediator();
+
+echo "--- Llenando formulario paso a paso ---\\n";
+
+// Simular llenado del formulario
+$registrationForm->getUsernameField()->setValue('john_doe');
+$registrationForm->getEmailField()->setValue('john@email.com');
+$registrationForm->getPasswordField()->setValue('password123');
+$registrationForm->getConfirmPasswordField()->setValue('password123');
+$registrationForm->getCountryDropdown()->selectOption('USA');
+$registrationForm->getAgreeTermsCheckbox()->setChecked(true);
+
+echo "\\n--- Estado del formulario ---\\n";
+$registrationForm->getFormSummary();
+
+echo "\\n--- Intentando enviar ---\\n";
+$registrationForm->getSubmitButton()->click();
+
+echo "\\n--- Limpiando formulario ---\\n";
+$registrationForm->getResetButton()->click();
+
+echo "\\n--- Estado después de limpiar ---\\n";
+$registrationForm->getFormSummary();
+
+echo "\\n🎯 El mediador coordina todas las interacciones entre componentes!\\n";
+?>`
     },
     relatedPatterns: ["facade", "observer"]
   },
