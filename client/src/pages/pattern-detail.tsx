@@ -10,6 +10,60 @@ import { useQuery } from "@tanstack/react-query";
 import type { Pattern } from "@shared/schema";
 import { useState } from "react";
 
+// Simple syntax highlighting function
+function highlightSyntax(code: string, language: string): string {
+  if (language.toLowerCase() === 'javascript') {
+    return code
+      // Keywords
+      .replace(/\b(class|const|let|var|function|return|if|else|for|while|try|catch|throw|new|this|super|extends|import|export|default|async|await|constructor|static|get|set|public|private|protected)\b/g, '<span class="text-purple-400 font-medium">$1</span>')
+      // Strings
+      .replace(/(['"`])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="text-green-400">$1$2$1</span>')
+      // Comments
+      .replace(/\/\/.*$/gm, '<span class="text-gray-500 italic">$&</span>')
+      .replace(/\/\*[\s\S]*?\*\//g, '<span class="text-gray-500 italic">$&</span>')
+      // Numbers
+      .replace(/\b\d+\.?\d*\b/g, '<span class="text-orange-400">$&</span>')
+      // Function calls
+      .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="text-blue-400">$1</span>(')
+      // Console methods
+      .replace(/\bconsole\.(log|error|warn|info)\b/g, '<span class="text-yellow-400">console</span>.<span class="text-blue-400">$1</span>')
+      // Template literals
+      .replace(/`([^`]*)`/g, '<span class="text-green-400">`$1`</span>')
+      // Arrow functions
+      .replace(/=>/g, '<span class="text-purple-400">=></span>');
+  } else if (language.toLowerCase() === 'php') {
+    return code
+      // PHP tags
+      .replace(/(&lt;\?php|\?&gt;)/g, '<span class="text-purple-400 font-medium">$1</span>')
+      // Keywords
+      .replace(/\b(class|const|function|return|if|else|elseif|for|foreach|while|try|catch|throw|new|this|parent|self|extends|implements|interface|abstract|final|public|private|protected|static|namespace|use|as|echo|print|require|include|require_once|include_once|isset|empty|array|null|true|false)\b/g, '<span class="text-purple-400 font-medium">$1</span>')
+      // Variables
+      .replace(/\$[a-zA-Z_][a-zA-Z0-9_]*/g, '<span class="text-blue-300">$&</span>')
+      // Strings
+      .replace(/(['"])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="text-green-400">$1$2$1</span>')
+      // Comments
+      .replace(/\/\/.*$/gm, '<span class="text-gray-500 italic">$&</span>')
+      .replace(/\/\*[\s\S]*?\*\//g, '<span class="text-gray-500 italic">$&</span>')
+      .replace(/#.*$/gm, '<span class="text-gray-500 italic">$&</span>')
+      // Numbers
+      .replace(/\b\d+\.?\d*\b/g, '<span class="text-orange-400">$&</span>')
+      // Function calls
+      .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, '<span class="text-blue-400">$1</span>(')
+      // Arrow operator
+      .replace(/->/g, '<span class="text-purple-400">-></span>')
+      // Double colon
+      .replace(/::/g, '<span class="text-purple-400">::</span>');
+  }
+  
+  // Fallback - return code with basic HTML escaping
+  return code
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function CodeBlock({ language, code }: { language: string; code: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -46,11 +100,19 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
   };
 
   return (
-    <div className="relative group">
-      <div className="flex items-center justify-between bg-gray-800 dark:bg-gray-900 px-4 py-3 rounded-t-lg border border-gray-700">
-        <div className="flex items-center gap-2">
+    <div className="relative group mb-6">
+      {/* Header Bar - IDE-like */}
+      <div className="flex items-center justify-between bg-slate-800 dark:bg-slate-900 px-4 py-3 rounded-t-lg border border-slate-700/50 shadow-sm">
+        <div className="flex items-center gap-3">
+          {/* Traffic Light Buttons */}
+          <div className="flex gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full shadow-sm"></div>
+            <div className="w-3 h-3 bg-yellow-500 rounded-full shadow-sm"></div>
+            <div className="w-3 h-3 bg-green-500 rounded-full shadow-sm"></div>
+          </div>
+          <div className="w-px h-4 bg-slate-600"></div>
           {getLanguageIcon(language)}
-          <span className="text-sm font-medium text-gray-200">
+          <span className="text-sm font-medium text-slate-200">
             {getLanguageLabel(language)}
           </span>
         </div>
@@ -58,22 +120,43 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
           variant="ghost"
           size="sm"
           onClick={copyToClipboard}
-          className="h-8 w-8 p-0 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+          className="h-8 w-8 p-0 text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-all duration-200"
+          title={copied ? "Copiado!" : "Copiar código"}
         >
-          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+          {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
         </Button>
       </div>
-      <div className="relative">
-        <pre className="bg-gray-900 dark:bg-black text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed font-mono shadow-inner border-x border-b border-gray-700">
-          <code className="text-gray-100">
-            {code}
+      
+      {/* Code Content */}
+      <div className="relative bg-slate-900 dark:bg-slate-950 rounded-b-lg border-x border-b border-slate-700/50 shadow-lg">
+        {/* Line Numbers Background */}
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-800/50 dark:bg-slate-900/50 border-r border-slate-700/30 rounded-bl-lg"></div>
+        
+        <pre className="relative bg-transparent text-slate-100 p-0 overflow-x-auto text-sm leading-relaxed font-mono">
+          <code className="block p-6 pl-16 min-h-[200px]" style={{
+            fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace"
+          }}>
+            {/* Line Numbers */}
+            <span className="absolute left-0 top-6 text-slate-500 text-xs select-none pointer-events-none">
+              {code.split('\n').map((_, index) => (
+                <span key={index} className="block text-right pr-3 w-12 leading-relaxed">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+              ))}
+            </span>
+            
+            {/* Syntax-highlighted code */}
+            <span 
+              className="syntax-highlight"
+              dangerouslySetInnerHTML={{ 
+                __html: highlightSyntax(code, language) 
+              }}
+            />
           </code>
         </pre>
-        <div className="absolute top-3 right-3 flex gap-1 opacity-60">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-        </div>
+        
+        {/* Bottom border accent */}
+        <div className="h-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 rounded-b-lg"></div>
       </div>
     </div>
   );
