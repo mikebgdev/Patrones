@@ -15,10 +15,112 @@ export const mockPatterns: Pattern[] = [
     architectures: ["hexagonal", "ddd"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Factory Method define una interfaz para crear objetos sin especificar sus clases exactas.",
+    content: "El patrón Factory Method es una solución elegante cuando necesitas crear objetos pero no sabes exactamente qué tipo hasta el momento de la ejecución.\n\nImagínate que estás construyendo una aplicación de logística que maneja diferentes tipos de transporte (camiones, barcos, aviones). En lugar de decidir directamente qué tipo crear, defines un 'método fábrica' que se encarga de la creación.\n\n**¿Cuándo usarlo?**\n• Cuando no sabes de antemano qué tipos exactos de objetos necesitarás\n• Cuando quieres que los usuarios de tu biblioteca puedan extender sus componentes internos\n• Cuando quieres reutilizar objetos existentes en lugar de reconstruirlos\n\n**Ventajas:**\n• Evita el acoplamiento fuerte entre el creador y los productos concretos\n• Principio de responsabilidad única: mueves la creación de productos a un lugar específico\n• Principio abierto/cerrado: puedes introducir nuevos tipos sin romper el código existente\n\n**Desventajas:**\n• El código puede volverse más complicado al introducir muchas subclases nuevas",
     examples: {
-      javascript: "class Creator { factoryMethod() { throw new Error('Must implement'); } } class ConcreteCreator extends Creator { factoryMethod() { return new ConcreteProduct(); } }",
-      php: "abstract class Creator { abstract public function factoryMethod(); } class ConcreteCreator extends Creator { public function factoryMethod() { return new ConcreteProduct(); } }"
+      javascript: `// Interfaz común para todos los productos
+class Transport {
+  deliver() {
+    throw new Error('Must implement deliver method');
+  }
+}
+
+// Productos concretos
+class Truck extends Transport {
+  deliver() {
+    return 'Entrega por tierra en cajas';
+  }
+}
+
+class Ship extends Transport {
+  deliver() {
+    return 'Entrega por mar en contenedores';
+  }
+}
+
+// Creador base con el Factory Method
+class Logistics {
+  // Este es el Factory Method que las subclases deben implementar
+  createTransport() {
+    throw new Error('Must implement createTransport method');
+  }
+  
+  // Lógica de negocio que usa el Factory Method
+  planDelivery() {
+    const transport = this.createTransport();
+    return transport.deliver();
+  }
+}
+
+// Creadores concretos
+class RoadLogistics extends Logistics {
+  createTransport() {
+    return new Truck();
+  }
+}
+
+class SeaLogistics extends Logistics {
+  createTransport() {
+    return new Ship();
+  }
+}
+
+// Uso del patrón
+const roadLogistics = new RoadLogistics();
+console.log(roadLogistics.planDelivery()); // "Entrega por tierra en cajas"
+
+const seaLogistics = new SeaLogistics();
+console.log(seaLogistics.planDelivery()); // "Entrega por mar en contenedores"`,
+      php: `<?php
+// Interfaz común para todos los productos
+interface Transport {
+    public function deliver(): string;
+}
+
+// Productos concretos
+class Truck implements Transport {
+    public function deliver(): string {
+        return 'Entrega por tierra en cajas';
+    }
+}
+
+class Ship implements Transport {
+    public function deliver(): string {
+        return 'Entrega por mar en contenedores';
+    }
+}
+
+// Creador base con el Factory Method
+abstract class Logistics {
+    // Este es el Factory Method que las subclases deben implementar
+    abstract public function createTransport(): Transport;
+    
+    // Lógica de negocio que usa el Factory Method
+    public function planDelivery(): string {
+        $transport = $this->createTransport();
+        return $transport->deliver();
+    }
+}
+
+// Creadores concretos
+class RoadLogistics extends Logistics {
+    public function createTransport(): Transport {
+        return new Truck();
+    }
+}
+
+class SeaLogistics extends Logistics {
+    public function createTransport(): Transport {
+        return new Ship();
+    }
+}
+
+// Uso del patrón
+$roadLogistics = new RoadLogistics();
+echo $roadLogistics->planDelivery(); // "Entrega por tierra en cajas"
+
+$seaLogistics = new SeaLogistics();
+echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
+?>`
     },
     relatedPatterns: ["abstract-factory", "singleton"]
   },
@@ -95,10 +197,175 @@ export const mockPatterns: Pattern[] = [
     architectures: ["hexagonal", "ddd"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Singleton garantiza que una clase tenga solo una instancia y proporciona acceso global a ella.",
+    content: "El patrón Singleton es uno de los más simples pero controvertidos. Su objetivo es garantizar que una clase tenga exactamente una instancia durante toda la ejecución del programa.\n\nPiensa en el Singleton como el 'CEO de una empresa': solo puede haber uno al mando. Casos típicos incluyen configuraciones de aplicación, conexiones a base de datos, o loggers.\n\n**¿Cuándo usarlo?**\n• Cuando necesitas exactamente una instancia de una clase (como configuración global)\n• Cuando quieres un punto de acceso global a esa instancia\n• Cuando la instancia debe ser accesible desde cualquier parte del código\n\n**Ventajas:**\n• Garantiza una sola instancia\n• Acceso global controlado\n• Inicialización perezosa (lazy initialization)\n• Ahorra memoria al reutilizar la misma instancia\n\n**Desventajas:**\n• Viola el principio de responsabilidad única\n• Dificulta las pruebas unitarias\n• Puede crear dependencias ocultas\n• Problemático en aplicaciones multihilo\n\n**⚠️ Advertencia:** Muchos consideran el Singleton un antipatrón. Úsalo con precaución y considera alternativas como inyección de dependencias.",
     examples: {
-      javascript: "class Singleton { static instance = null; static getInstance() { if (!this.instance) this.instance = new Singleton(); return this.instance; } }",
-      php: "class Singleton { private static $instance = null; public static function getInstance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; } }"
+      javascript: `// Implementación básica del Singleton
+class DatabaseConnection {
+  constructor() {
+    if (DatabaseConnection.instance) {
+      throw new Error('Solo puede existir una instancia de DatabaseConnection');
+    }
+    
+    // Simular configuración de conexión
+    this.host = 'localhost';
+    this.port = 5432;
+    this.connected = false;
+    
+    DatabaseConnection.instance = this;
+  }
+  
+  static getInstance() {
+    if (!DatabaseConnection.instance) {
+      DatabaseConnection.instance = new DatabaseConnection();
+    }
+    return DatabaseConnection.instance;
+  }
+  
+  connect() {
+    if (!this.connected) {
+      console.log(\`Conectando a \${this.host}:\${this.port}\`);
+      this.connected = true;
+    }
+    return this;
+  }
+  
+  query(sql) {
+    if (!this.connected) {
+      throw new Error('Debes conectarte primero');
+    }
+    console.log(\`Ejecutando: \${sql}\`);
+    return { results: [] };
+  }
+}
+
+// Uso del Singleton
+const db1 = DatabaseConnection.getInstance();
+const db2 = DatabaseConnection.getInstance();
+
+console.log(db1 === db2); // true - Es la misma instancia
+
+db1.connect().query('SELECT * FROM users');
+db2.query('SELECT * FROM products'); // Usa la misma conexión
+
+// Versión más moderna con módulos ES6
+class ConfigManager {
+  constructor() {
+    this.settings = {
+      apiUrl: 'https://api.ejemplo.com',
+      timeout: 5000,
+      retries: 3
+    };
+  }
+  
+  static getInstance() {
+    if (!ConfigManager.instance) {
+      ConfigManager.instance = new ConfigManager();
+    }
+    return ConfigManager.instance;
+  }
+  
+  getSetting(key) {
+    return this.settings[key];
+  }
+  
+  setSetting(key, value) {
+    this.settings[key] = value;
+  }
+}
+
+// Exportar la instancia directamente (patrón de módulo)
+export const config = ConfigManager.getInstance();`,
+      php: `<?php
+// Implementación clásica del Singleton
+class DatabaseConnection {
+    private static $instance = null;
+    private $host;
+    private $port;
+    private $connected;
+    
+    // Constructor privado para prevenir instanciación directa
+    private function __construct() {
+        $this->host = 'localhost';
+        $this->port = 5432;
+        $this->connected = false;
+    }
+    
+    // Prevenir clonación
+    private function __clone() {}
+    
+    // Prevenir deserialización
+    public function __wakeup() {
+        throw new Exception("No se puede deserializar un Singleton");
+    }
+    
+    public static function getInstance(): DatabaseConnection {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    public function connect(): self {
+        if (!$this->connected) {
+            echo "Conectando a {$this->host}:{$this->port}\\n";
+            $this->connected = true;
+        }
+        return $this;
+    }
+    
+    public function query(string $sql): array {
+        if (!$this->connected) {
+            throw new Exception('Debes conectarte primero');
+        }
+        echo "Ejecutando: {$sql}\\n";
+        return ['results' => []];
+    }
+}
+
+// Uso del Singleton
+$db1 = DatabaseConnection::getInstance();
+$db2 = DatabaseConnection::getInstance();
+
+var_dump($db1 === $db2); // bool(true) - Es la misma instancia
+
+$db1->connect()->query('SELECT * FROM users');
+$db2->query('SELECT * FROM products'); // Usa la misma conexión
+
+// Implementación thread-safe (más avanzada)
+class ThreadSafeSingleton {
+    private static $instance = null;
+    private static $lock = false;
+    
+    private function __construct() {
+        // Inicialización costosa aquí
+    }
+    
+    public static function getInstance(): self {
+        if (self::$instance === null) {
+            if (self::$lock) {
+                // Esperar si otro hilo está creando la instancia
+                while (self::$lock) {
+                    usleep(1000); // Esperar 1ms
+                }
+                return self::$instance;
+            }
+            
+            self::$lock = true;
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            self::$lock = false;
+        }
+        
+        return self::$instance;
+    }
+    
+    private function __clone() {}
+    public function __wakeup() {
+        throw new Exception("No se puede deserializar un Singleton");
+    }
+}
+?>`
     },
     relatedPatterns: ["factory-method", "abstract-factory"]
   },
@@ -359,10 +626,226 @@ export const mockPatterns: Pattern[] = [
     architectures: ["event-driven"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Observer define una dependencia de uno a muchos entre objetos para notificar cambios automáticamente.",
+    content: "El patrón Observer es como un sistema de suscripciones a un periódico. Los lectores (observadores) se suscriben al periódico (sujeto), y cuando sale una nueva edición, todos los suscriptores reciben automáticamente una copia.\n\nEste patrón es fundamental en programación porque resuelve el problema de mantener sincronizados múltiples objetos cuando uno de ellos cambia.\n\n**¿Cuándo usarlo?**\n• Cuando cambios en un objeto requieren cambiar otros objetos\n• Cuando no sabes de antemano cuántos objetos necesitan ser notificados\n• Cuando quieres que el acoplamiento entre objetos sea mínimo\n• En interfaces de usuario (el modelo notifica a las vistas)\n\n**Ventajas:**\n• Principio abierto/cerrado: puedes agregar nuevos observadores sin modificar el sujeto\n• Puedes establecer relaciones entre objetos en tiempo de ejecución\n• Bajo acoplamiento entre el sujeto y los observadores\n\n**Desventajas:**\n• Los observadores son notificados en orden aleatorio\n• Si no se manejan bien, pueden crear ciclos de dependencias\n• Dificultad para debuggear el flujo de notificaciones",
     examples: {
-      javascript: "class Subject { constructor() { this.observers = []; } attach(observer) { this.observers.push(observer); } notify(data) { this.observers.forEach(observer => observer.update(data)); } }",
-      php: "class Subject { private $observers = []; public function attach($observer) { $this->observers[] = $observer; } public function notify($data) { foreach ($this->observers as $observer) { $observer->update($data); } } }"
+      javascript: `// Interfaz para observadores
+class Observer {
+  update(data) {
+    throw new Error('Método update debe ser implementado');
+  }
+}
+
+// Sujeto que será observado
+class Newsletter {
+  constructor() {
+    this.observers = [];
+    this.articles = [];
+  }
+  
+  // Suscribir un observador
+  subscribe(observer) {
+    if (!this.observers.includes(observer)) {
+      this.observers.push(observer);
+      console.log('Nuevo suscriptor agregado');
+    }
+  }
+  
+  // Desuscribir un observador
+  unsubscribe(observer) {
+    const index = this.observers.indexOf(observer);
+    if (index > -1) {
+      this.observers.splice(index, 1);
+      console.log('Suscriptor removido');
+    }
+  }
+  
+  // Notificar a todos los observadores
+  notify(article) {
+    console.log('Notificando a todos los suscriptores...');
+    this.observers.forEach(observer => {
+      observer.update(article);
+    });
+  }
+  
+  // Agregar nuevo artículo y notificar
+  addArticle(title, content) {
+    const article = { title, content, date: new Date() };
+    this.articles.push(article);
+    this.notify(article);
+  }
+}
+
+// Observadores concretos
+class EmailSubscriber extends Observer {
+  constructor(email) {
+    super();
+    this.email = email;
+  }
+  
+  update(article) {
+    console.log(\`📧 Email enviado a \${this.email}:\`);
+    console.log(\`   Nuevo artículo: "\${article.title}"\`);
+  }
+}
+
+class SMSSubscriber extends Observer {
+  constructor(phone) {
+    super();
+    this.phone = phone;
+  }
+  
+  update(article) {
+    console.log(\`📱 SMS enviado a \${this.phone}:\`);
+    console.log(\`   Nuevo artículo disponible: "\${article.title}"\`);
+  }
+}
+
+class WebNotificationSubscriber extends Observer {
+  update(article) {
+    console.log(\`🔔 Notificación web:\`);
+    console.log(\`   \${article.title} - \${article.content.substring(0, 50)}...\`);
+  }
+}
+
+// Uso del patrón
+const newsletter = new Newsletter();
+
+// Crear suscriptores
+const emailUser = new EmailSubscriber('juan@email.com');
+const smsUser = new SMSSubscriber('+34 123 456 789');
+const webUser = new WebNotificationSubscriber();
+
+// Suscribir observadores
+newsletter.subscribe(emailUser);
+newsletter.subscribe(smsUser);
+newsletter.subscribe(webUser);
+
+// Publicar nuevo artículo - todos los suscriptores serán notificados
+newsletter.addArticle(
+  'Nuevas funciones en JavaScript 2024',
+  'Descubre las últimas características que han llegado a JavaScript...'
+);
+
+// Un usuario se desuscribe
+newsletter.unsubscribe(smsUser);
+
+// Publicar otro artículo - solo email y web recibirán notificación
+newsletter.addArticle(
+  'Patrones de diseño explicados',
+  'Una guía completa sobre los patrones de diseño más importantes...'
+);`,
+      php: `<?php
+// Interfaz para observadores
+interface Observer {
+    public function update($data): void;
+}
+
+// Sujeto observable
+class Newsletter {
+    private $observers = [];
+    private $articles = [];
+    
+    public function subscribe(Observer $observer): void {
+        if (!in_array($observer, $this->observers, true)) {
+            $this->observers[] = $observer;
+            echo "Nuevo suscriptor agregado\\n";
+        }
+    }
+    
+    public function unsubscribe(Observer $observer): void {
+        $key = array_search($observer, $this->observers, true);
+        if ($key !== false) {
+            unset($this->observers[$key]);
+            echo "Suscriptor removido\\n";
+        }
+    }
+    
+    public function notify(array $article): void {
+        echo "Notificando a todos los suscriptores...\\n";
+        foreach ($this->observers as $observer) {
+            $observer->update($article);
+        }
+    }
+    
+    public function addArticle(string $title, string $content): void {
+        $article = [
+            'title' => $title,
+            'content' => $content,
+            'date' => new DateTime()
+        ];
+        
+        $this->articles[] = $article;
+        $this->notify($article);
+    }
+    
+    public function getArticles(): array {
+        return $this->articles;
+    }
+}
+
+// Observadores concretos
+class EmailSubscriber implements Observer {
+    private $email;
+    
+    public function __construct(string $email) {
+        $this->email = $email;
+    }
+    
+    public function update($article): void {
+        echo "📧 Email enviado a {$this->email}:\\n";
+        echo "   Nuevo artículo: \\"{$article['title']}\\"\\n";
+    }
+}
+
+class SMSSubscriber implements Observer {
+    private $phone;
+    
+    public function __construct(string $phone) {
+        $this->phone = $phone;
+    }
+    
+    public function update($article): void {
+        echo "📱 SMS enviado a {$this->phone}:\\n";
+        echo "   Nuevo artículo disponible: \\"{$article['title']}\\"\\n";
+    }
+}
+
+class WebNotificationSubscriber implements Observer {
+    public function update($article): void {
+        $preview = substr($article['content'], 0, 50) . '...';
+        echo "🔔 Notificación web:\\n";
+        echo "   {$article['title']} - {$preview}\\n";
+    }
+}
+
+// Uso del patrón
+$newsletter = new Newsletter();
+
+// Crear suscriptores
+$emailUser = new EmailSubscriber('juan@email.com');
+$smsUser = new SMSSubscriber('+34 123 456 789');
+$webUser = new WebNotificationSubscriber();
+
+// Suscribir observadores
+$newsletter->subscribe($emailUser);
+$newsletter->subscribe($smsUser);
+$newsletter->subscribe($webUser);
+
+// Publicar nuevo artículo
+$newsletter->addArticle(
+    'Nuevas funciones en PHP 8.3',
+    'Descubre las últimas características que han llegado a PHP...'
+);
+
+// Un usuario se desuscribe
+$newsletter->unsubscribe($smsUser);
+
+// Publicar otro artículo
+$newsletter->addArticle(
+    'Patrones de diseño en PHP',
+    'Una guía completa sobre los patrones de diseño más importantes...'
+);
+?>`
     },
     relatedPatterns: ["mediator", "command"]
   },
@@ -399,10 +882,307 @@ export const mockPatterns: Pattern[] = [
     architectures: ["ddd"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Strategy define una familia de algoritmos, los encapsula y los hace intercambiables.",
+    content: "El patrón Strategy es como tener diferentes rutas para llegar al mismo destino. Imagina una aplicación de navegación: puedes elegir la ruta más rápida, la más corta, o la que evita peajes. Cada ruta es una 'estrategia' diferente para resolver el mismo problema.\n\nEste patrón es perfecto cuando tienes múltiples formas de hacer la misma tarea y quieres poder cambiar entre ellas fácilmente.\n\n**¿Cuándo usarlo?**\n• Cuando tienes múltiples formas de realizar una tarea\n• Cuando quieres cambiar algoritmos en tiempo de ejecución\n• Cuando quieres evitar condicionales complejas (if/else o switch)\n• Cuando diferentes clientes necesitan diferentes variantes de un algoritmo\n\n**Ventajas:**\n• Puedes intercambiar algoritmos en tiempo de ejecución\n• Puedes aislar los detalles de implementación de un algoritmo\n• Puedes introducir nuevas estrategias sin cambiar el contexto\n• Principio abierto/cerrado: abierto para extensión, cerrado para modificación\n\n**Desventajas:**\n• Los clientes deben conocer las diferencias entre estrategias\n• Muchas estrategias modernas pueden ser reemplazadas por funciones lambda\n• Incrementa el número de objetos en la aplicación",
     examples: {
-      javascript: "class Strategy { execute() { throw new Error('Must implement'); } } class ConcreteStrategy extends Strategy { execute() { console.log('Executing strategy A'); } }",
-      php: "interface Strategy { public function execute(); } class ConcreteStrategy implements Strategy { public function execute() { echo 'Executing strategy A'; } }"
+      javascript: `// Interfaz común para todas las estrategias
+class PaymentStrategy {
+  pay(amount) {
+    throw new Error('Método pay debe ser implementado');
+  }
+}
+
+// Estrategias concretas
+class CreditCardPayment extends PaymentStrategy {
+  constructor(cardNumber, expiryDate, cvv) {
+    super();
+    this.cardNumber = cardNumber;
+    this.expiryDate = expiryDate;
+    this.cvv = cvv;
+  }
+  
+  pay(amount) {
+    console.log(\`Procesando pago de $\${amount} con tarjeta de crédito\`);
+    console.log(\`Tarjeta: ****-****-****-\${this.cardNumber.slice(-4)}\`);
+    
+    // Simular validación y procesamiento
+    if (this.validateCard()) {
+      console.log('✅ Pago con tarjeta de crédito exitoso');
+      return { success: true, transactionId: 'CC' + Date.now() };
+    }
+    
+    return { success: false, error: 'Tarjeta inválida' };
+  }
+  
+  validateCard() {
+    return this.cardNumber.length === 16 && this.cvv.length === 3;
+  }
+}
+
+class PayPalPayment extends PaymentStrategy {
+  constructor(email, password) {
+    super();
+    this.email = email;
+    this.password = password;
+  }
+  
+  pay(amount) {
+    console.log(\`Procesando pago de $\${amount} con PayPal\`);
+    console.log(\`Email: \${this.email}\`);
+    
+    if (this.authenticate()) {
+      console.log('✅ Pago con PayPal exitoso');
+      return { success: true, transactionId: 'PP' + Date.now() };
+    }
+    
+    return { success: false, error: 'Credenciales de PayPal inválidas' };
+  }
+  
+  authenticate() {
+    return this.email.includes('@') && this.password.length > 6;
+  }
+}
+
+class CryptoPayment extends PaymentStrategy {
+  constructor(walletAddress, privateKey) {
+    super();
+    this.walletAddress = walletAddress;
+    this.privateKey = privateKey;
+  }
+  
+  pay(amount) {
+    console.log(\`Procesando pago de $\${amount} con criptomoneda\`);
+    console.log(\`Wallet: \${this.walletAddress.slice(0, 6)}...\${this.walletAddress.slice(-4)}\`);
+    
+    if (this.validateWallet()) {
+      console.log('✅ Pago con criptomoneda exitoso');
+      return { success: true, transactionId: 'CRYPTO' + Date.now() };
+    }
+    
+    return { success: false, error: 'Wallet inválida' };
+  }
+  
+  validateWallet() {
+    return this.walletAddress.length === 42 && this.walletAddress.startsWith('0x');
+  }
+}
+
+// Contexto que usa las estrategias
+class ShoppingCart {
+  constructor() {
+    this.items = [];
+    this.paymentStrategy = null;
+  }
+  
+  addItem(name, price) {
+    this.items.push({ name, price });
+    console.log(\`Agregado: \${name} - $\${price}\`);
+  }
+  
+  setPaymentStrategy(strategy) {
+    this.paymentStrategy = strategy;
+    console.log('Método de pago configurado');
+  }
+  
+  getTotal() {
+    return this.items.reduce((total, item) => total + item.price, 0);
+  }
+  
+  checkout() {
+    if (!this.paymentStrategy) {
+      throw new Error('Debe seleccionar un método de pago');
+    }
+    
+    const total = this.getTotal();
+    console.log(\`\\n--- Checkout ---\`);
+    console.log(\`Total a pagar: $\${total}\`);
+    
+    return this.paymentStrategy.pay(total);
+  }
+}
+
+// Uso del patrón Strategy
+const cart = new ShoppingCart();
+
+// Agregar productos
+cart.addItem('Laptop', 1200);
+cart.addItem('Mouse', 25);
+cart.addItem('Teclado', 75);
+
+// Estrategia 1: Pago con tarjeta de crédito
+console.log('\\n=== Pago con Tarjeta ===');
+cart.setPaymentStrategy(
+  new CreditCardPayment('1234567890123456', '12/25', '123')
+);
+let result = cart.checkout();
+console.log('Resultado:', result);
+
+// Estrategia 2: Pago con PayPal
+console.log('\\n=== Pago con PayPal ===');
+cart.setPaymentStrategy(
+  new PayPalPayment('usuario@email.com', 'password123')
+);
+result = cart.checkout();
+console.log('Resultado:', result);
+
+// Estrategia 3: Pago con criptomoneda
+console.log('\\n=== Pago con Crypto ===');
+cart.setPaymentStrategy(
+  new CryptoPayment('0x742d35Cc6634C0532925a3b8D45d2C5c5C8fC542', 'private_key')
+);
+result = cart.checkout();
+console.log('Resultado:', result);`,
+      php: `<?php
+// Interfaz para todas las estrategias
+interface PaymentStrategy {
+    public function pay(float $amount): array;
+}
+
+// Estrategias concretas
+class CreditCardPayment implements PaymentStrategy {
+    private $cardNumber;
+    private $expiryDate;
+    private $cvv;
+    
+    public function __construct(string $cardNumber, string $expiryDate, string $cvv) {
+        $this->cardNumber = $cardNumber;
+        $this->expiryDate = $expiryDate;
+        $this->cvv = $cvv;
+    }
+    
+    public function pay(float $amount): array {
+        echo "Procesando pago de $$amount con tarjeta de crédito\\n";
+        echo "Tarjeta: ****-****-****-" . substr($this->cardNumber, -4) . "\\n";
+        
+        if ($this->validateCard()) {
+            echo "✅ Pago con tarjeta de crédito exitoso\\n";
+            return ['success' => true, 'transactionId' => 'CC' . time()];
+        }
+        
+        return ['success' => false, 'error' => 'Tarjeta inválida'];
+    }
+    
+    private function validateCard(): bool {
+        return strlen($this->cardNumber) === 16 && strlen($this->cvv) === 3;
+    }
+}
+
+class PayPalPayment implements PaymentStrategy {
+    private $email;
+    private $password;
+    
+    public function __construct(string $email, string $password) {
+        $this->email = $email;
+        $this->password = $password;
+    }
+    
+    public function pay(float $amount): array {
+        echo "Procesando pago de $$amount con PayPal\\n";
+        echo "Email: {$this->email}\\n";
+        
+        if ($this->authenticate()) {
+            echo "✅ Pago con PayPal exitoso\\n";
+            return ['success' => true, 'transactionId' => 'PP' . time()];
+        }
+        
+        return ['success' => false, 'error' => 'Credenciales de PayPal inválidas'];
+    }
+    
+    private function authenticate(): bool {
+        return strpos($this->email, '@') !== false && strlen($this->password) > 6;
+    }
+}
+
+class CryptoPayment implements PaymentStrategy {
+    private $walletAddress;
+    private $privateKey;
+    
+    public function __construct(string $walletAddress, string $privateKey) {
+        $this->walletAddress = $walletAddress;
+        $this->privateKey = $privateKey;
+    }
+    
+    public function pay(float $amount): array {
+        echo "Procesando pago de $$amount con criptomoneda\\n";
+        $shortWallet = substr($this->walletAddress, 0, 6) . '...' . substr($this->walletAddress, -4);
+        echo "Wallet: $shortWallet\\n";
+        
+        if ($this->validateWallet()) {
+            echo "✅ Pago con criptomoneda exitoso\\n";
+            return ['success' => true, 'transactionId' => 'CRYPTO' . time()];
+        }
+        
+        return ['success' => false, 'error' => 'Wallet inválida'];
+    }
+    
+    private function validateWallet(): bool {
+        return strlen($this->walletAddress) === 42 && strpos($this->walletAddress, '0x') === 0;
+    }
+}
+
+// Contexto que usa las estrategias
+class ShoppingCart {
+    private $items = [];
+    private $paymentStrategy;
+    
+    public function addItem(string $name, float $price): void {
+        $this->items[] = ['name' => $name, 'price' => $price];
+        echo "Agregado: $name - $$price\\n";
+    }
+    
+    public function setPaymentStrategy(PaymentStrategy $strategy): void {
+        $this->paymentStrategy = $strategy;
+        echo "Método de pago configurado\\n";
+    }
+    
+    public function getTotal(): float {
+        return array_sum(array_column($this->items, 'price'));
+    }
+    
+    public function checkout(): array {
+        if ($this->paymentStrategy === null) {
+            throw new Exception('Debe seleccionar un método de pago');
+        }
+        
+        $total = $this->getTotal();
+        echo "\\n--- Checkout ---\\n";
+        echo "Total a pagar: $$total\\n";
+        
+        return $this->paymentStrategy->pay($total);
+    }
+}
+
+// Uso del patrón Strategy
+$cart = new ShoppingCart();
+
+// Agregar productos
+$cart->addItem('Laptop', 1200);
+$cart->addItem('Mouse', 25);
+$cart->addItem('Teclado', 75);
+
+// Estrategia 1: Pago con tarjeta de crédito
+echo "\\n=== Pago con Tarjeta ===\\n";
+$cart->setPaymentStrategy(
+    new CreditCardPayment('1234567890123456', '12/25', '123')
+);
+$result = $cart->checkout();
+print_r($result);
+
+// Estrategia 2: Pago con PayPal
+echo "\\n=== Pago con PayPal ===\\n";
+$cart->setPaymentStrategy(
+    new PayPalPayment('usuario@email.com', 'password123')
+);
+$result = $cart->checkout();
+print_r($result);
+
+// Estrategia 3: Pago con criptomoneda
+echo "\\n=== Pago con Crypto ===\\n";
+$cart->setPaymentStrategy(
+    new CryptoPayment('0x742d35Cc6634C0532925a3b8D45d2C5c5C8fC542', 'private_key')
+);
+$result = $cart->checkout();
+print_r($result);
+?>`
     },
     relatedPatterns: ["state", "template-method"]
   },

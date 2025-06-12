@@ -167,9 +167,37 @@ export function PatternDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {pattern.content}
-                  </p>
+                  <div className="text-gray-700 dark:text-gray-300 prose prose-sm max-w-none dark:prose-invert">
+                    {pattern.content.split('\n').map((paragraph, index) => {
+                      if (paragraph.trim() === '') return <br key={index} />;
+                      
+                      // Handle bold markdown **text**
+                      if (paragraph.includes('**')) {
+                        const parts = paragraph.split(/(\*\*.*?\*\*)/);
+                        return (
+                          <p key={index} className="mb-3">
+                            {parts.map((part, partIndex) => {
+                              if (part.startsWith('**') && part.endsWith('**')) {
+                                return <strong key={partIndex}>{part.slice(2, -2)}</strong>;
+                              }
+                              return part;
+                            })}
+                          </p>
+                        );
+                      }
+                      
+                      // Handle bullet points
+                      if (paragraph.trim().startsWith('•')) {
+                        return (
+                          <li key={index} className="ml-4 mb-1">
+                            {paragraph.trim().substring(1).trim()}
+                          </li>
+                        );
+                      }
+                      
+                      return <p key={index} className="mb-3">{paragraph}</p>;
+                    })}
+                  </div>
                 </CardContent>
               </Card>
 
