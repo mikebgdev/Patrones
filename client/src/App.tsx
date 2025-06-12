@@ -7,6 +7,12 @@ import { ThemeProvider } from "@/contexts/theme-context";
 import { FilterProvider } from "@/contexts/filter-context";
 import { Home } from "@/pages/home";
 import { PatternDetail } from "@/pages/pattern-detail";
+import { Architectures } from "@/pages/architectures";
+import { Languages } from "@/pages/languages";
+import { Creational } from "@/pages/creational";
+import { Structural } from "@/pages/structural";
+import { Behavioral } from "@/pages/behavioral";
+import { Architectural } from "@/pages/architectural";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -14,6 +20,12 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/pattern/:slug" component={PatternDetail} />
+      <Route path="/architectures" component={Architectures} />
+      <Route path="/languages" component={Languages} />
+      <Route path="/creational" component={Creational} />
+      <Route path="/structural" component={Structural} />
+      <Route path="/behavioral" component={Behavioral} />
+      <Route path="/architectural" component={Architectural} />
       <Route component={NotFound} />
     </Switch>
   );
