@@ -1,6 +1,26 @@
-import { mockArchitectures } from "@/lib/patterns-data";
+import { useQuery } from "@tanstack/react-query";
+import type { Architecture } from "@shared/schema";
 
 export function ArchitectureShowcase() {
+  const { data: architectures = [], isLoading } = useQuery<Architecture[]>({
+    queryKey: ["/api/architectures"],
+    queryFn: async () => {
+      const response = await fetch("/api/architectures");
+      if (!response.ok) throw new Error("Failed to fetch architectures");
+      return response.json();
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-gray-50 dark:bg-slate-800/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-500 dark:text-gray-400">Cargando arquitecturas...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-16 bg-gray-50 dark:bg-slate-800/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +34,7 @@ export function ArchitectureShowcase() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {mockArchitectures.map((architecture) => (
+          {architectures.map((architecture) => (
             <div
               key={architecture.id}
               className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow cursor-pointer"

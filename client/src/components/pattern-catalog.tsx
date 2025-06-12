@@ -4,15 +4,25 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatternCard } from "./pattern-card";
 import { useFilters } from "@/contexts/filter-context";
-import { mockPatterns } from "@/lib/patterns-data";
+import { useQuery } from "@tanstack/react-query";
+import type { Pattern } from "@shared/schema";
 
 export function PatternCatalog() {
   const { filters, searchQuery } = useFilters();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
 
+  const { data: patterns = [], isLoading } = useQuery<Pattern[]>({
+    queryKey: ["/api/patterns"],
+    queryFn: async () => {
+      const response = await fetch("/api/patterns");
+      if (!response.ok) throw new Error("Failed to fetch patterns");
+      return response.json();
+    }
+  });
+
   const filteredPatterns = useMemo(() => {
-    let filtered = mockPatterns;
+    let filtered = patterns;
 
     // Apply category filter
     if (filters.category) {
@@ -107,7 +117,13 @@ export function PatternCatalog() {
         </div>
 
         {/* Pattern Grid */}
-        {filteredPatterns.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 dark:text-gray-400 text-lg">
+              Cargando patrones...
+            </p>
+          </div>
+        ) : filteredPatterns.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400 text-lg">
               No se encontraron patrones que coincidan con los filtros seleccionados.

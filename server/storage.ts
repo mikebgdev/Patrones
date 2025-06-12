@@ -1,4 +1,6 @@
 import { patterns, architectures, type Pattern, type Architecture, type InsertPattern, type InsertArchitecture } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Pattern operations
@@ -13,60 +15,44 @@ export interface IStorage {
   createArchitecture(architecture: InsertArchitecture): Promise<Architecture>;
 }
 
-export class MemStorage implements IStorage {
-  private patterns: Map<number, Pattern>;
-  private architectures: Map<number, Architecture>;
-  private currentPatternId: number;
-  private currentArchitectureId: number;
-
-  constructor() {
-    this.patterns = new Map();
-    this.architectures = new Map();
-    this.currentPatternId = 1;
-    this.currentArchitectureId = 1;
-    
-    // Initialize with some default data
-    this.initializeDefaultData();
-  }
-
-  private async initializeDefaultData() {
-    // This would be populated with real data in a production app
-    // For now, we'll rely on the frontend mock data
-  }
-
+export class DatabaseStorage implements IStorage {
   async getAllPatterns(): Promise<Pattern[]> {
-    return Array.from(this.patterns.values());
+    return await db.select().from(patterns);
   }
 
   async getPatternBySlug(slug: string): Promise<Pattern | undefined> {
-    return Array.from(this.patterns.values()).find(pattern => pattern.slug === slug);
+    const [pattern] = await db.select().from(patterns).where(eq(patterns.slug, slug));
+    return pattern || undefined;
   }
 
   async getPatternsByCategory(category: string): Promise<Pattern[]> {
-    return Array.from(this.patterns.values()).filter(pattern => pattern.category === category);
+    return await db.select().from(patterns).where(eq(patterns.category, category));
   }
 
   async createPattern(insertPattern: InsertPattern): Promise<Pattern> {
-    const id = this.currentPatternId++;
-    const pattern: Pattern = { ...insertPattern, id };
-    this.patterns.set(id, pattern);
+    const [pattern] = await db
+      .insert(patterns)
+      .values(insertPattern)
+      .returning();
     return pattern;
   }
 
   async getAllArchitectures(): Promise<Architecture[]> {
-    return Array.from(this.architectures.values());
+    return await db.select().from(architectures);
   }
 
   async getArchitectureBySlug(slug: string): Promise<Architecture | undefined> {
-    return Array.from(this.architectures.values()).find(arch => arch.slug === slug);
+    const [architecture] = await db.select().from(architectures).where(eq(architectures.slug, slug));
+    return architecture || undefined;
   }
 
   async createArchitecture(insertArchitecture: InsertArchitecture): Promise<Architecture> {
-    const id = this.currentArchitectureId++;
-    const architecture: Architecture = { ...insertArchitecture, id };
-    this.architectures.set(id, architecture);
+    const [architecture] = await db
+      .insert(architectures)
+      .values(insertArchitecture)
+      .returning();
     return architecture;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
