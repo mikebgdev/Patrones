@@ -6,11 +6,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { mockPatterns } from "@/lib/patterns-data";
+import { useQuery } from "@tanstack/react-query";
+import type { Pattern } from "@shared/schema";
 
 export function PatternDetail() {
   const { slug } = useParams();
-  const pattern = mockPatterns.find(p => p.slug === slug);
+  
+  const { data: patterns = [], isLoading } = useQuery<Pattern[]>({
+    queryKey: ["/api/patterns"],
+    queryFn: async () => {
+      const response = await fetch("/api/patterns");
+      if (!response.ok) throw new Error("Failed to fetch patterns");
+      return response.json();
+    }
+  });
+
+  const pattern = patterns.find(p => p.slug === slug);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <main className="py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-gray-600 dark:text-gray-400">Cargando patrón...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!pattern) {
     return (
@@ -32,7 +57,7 @@ export function PatternDetail() {
     );
   }
 
-  const categoryLabels = {
+  const categoryLabels: Record<string, string> = {
     creational: "Creacional",
     structural: "Estructural",
     behavioral: "Comportamiento",
@@ -182,8 +207,8 @@ export function PatternDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {pattern.relatedPatterns.map((relatedSlug) => {
-                      const relatedPattern = mockPatterns.find(p => p.slug === relatedSlug);
+                    {pattern.relatedPatterns.map((relatedSlug: string) => {
+                      const relatedPattern = patterns.find(p => p.slug === relatedSlug);
                       return relatedPattern ? (
                         <Link key={relatedSlug} href={`/pattern/${relatedSlug}`}>
                           <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
