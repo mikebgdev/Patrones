@@ -32,9 +32,6 @@ export function Header() {
             <Link href="/languages" className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">
               Lenguajes
             </Link>
-            <Link href="/examples" className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">
-              Ejemplos
-            </Link>
           </div>
 
           {/* Dark Mode Toggle */}

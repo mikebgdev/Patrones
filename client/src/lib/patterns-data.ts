@@ -16,8 +16,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Singleton garantiza que una clase tenga solo una instancia...",
     examples: {
-      java: "public class Singleton { private static Singleton instance; }",
-      python: "class Singleton: _instance = None"
+      javascript: "class Singleton { static instance = null; static getInstance() { if (!this.instance) this.instance = new Singleton(); return this.instance; } }",
+      php: "class Singleton { private static $instance = null; public static function getInstance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; } }"
     },
     relatedPatterns: ["factory", "abstract-factory"]
   },
@@ -36,8 +36,8 @@ export const mockPatterns: Pattern[] = [
     frameworks: ["vue3", "symfony"],
     content: "El patrón Factory Method define una interfaz para crear objetos...",
     examples: {
-      java: "public abstract class Creator { public abstract Product factoryMethod(); }",
-      javascript: "class Creator { factoryMethod() { throw new Error('Must implement'); } }"
+      javascript: "class Creator { factoryMethod() { throw new Error('Must implement'); } } class ConcreteCreator extends Creator { factoryMethod() { return new ConcreteProduct(); } }",
+      php: "abstract class Creator { abstract public function factoryMethod(); } class ConcreteCreator extends Creator { public function factoryMethod() { return new ConcreteProduct(); } }"
     },
     relatedPatterns: ["abstract-factory", "singleton"]
   },
@@ -72,8 +72,8 @@ export const mockPatterns: Pattern[] = [
     color: "from-purple-400 to-pink-500",
     tags: ["interface", "compatibility", "wrapper"],
     architectures: ["hexagonal", "layered"],
-    languages: ["java", "python", "csharp"],
-    frameworks: ["spring", "django"],
+    languages: ["javascript", "php"],
+    frameworks: ["vue3", "symfony"],
     content: "El patrón Adapter permite que interfaces incompatibles trabajen juntas...",
     examples: {
       java: "public class Adapter implements Target { private Adaptee adaptee; }",
@@ -152,8 +152,8 @@ export const mockPatterns: Pattern[] = [
     color: "from-yellow-400 to-orange-500",
     tags: ["algorithm", "family", "interchangeable"],
     architectures: ["layered", "hexagonal"],
-    languages: ["java", "python", "csharp"],
-    frameworks: ["spring", "django"],
+    languages: ["javascript", "php"],
+    frameworks: ["vue3", "symfony"],
     content: "El patrón Strategy define una familia de algoritmos...",
     examples: {
       java: "public interface Strategy { void execute(); }",

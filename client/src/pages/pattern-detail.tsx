@@ -205,26 +205,12 @@ export function PatternDetail() {
                   <CardTitle>Enlaces Útiles</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                      <a href="#" target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Documentación oficial
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                      <a href="#" target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Ejemplos en GitHub
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start" asChild>
-                      <a href="#" target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Ejercicios prácticos
-                      </a>
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                    <a href={`https://refactoring.guru/es/design-patterns/${pattern.slug}`} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Ver en Refactoring Guru
+                    </a>
+                  </Button>
                 </CardContent>
               </Card>
             </div>

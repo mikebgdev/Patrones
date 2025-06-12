@@ -19,12 +19,10 @@ const architectures = [
 ];
 
 const technologies = [
-  { key: "java", label: "Java" },
-  { key: "python", label: "Python" },
   { key: "javascript", label: "JavaScript" },
-  { key: "csharp", label: "C#" },
-  { key: "spring", label: "Spring" },
-  { key: "react", label: "React" }
+  { key: "php", label: "PHP" },
+  { key: "vue3", label: "Vue 3" },
+  { key: "symfony", label: "Symfony" }
 ];
 
 export function FilterSection() {

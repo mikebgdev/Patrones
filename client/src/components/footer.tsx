@@ -16,17 +16,6 @@ export function Footer() {
             <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
               La guía más completa de patrones de diseño y arquitecturas modernas de software. Aprende, practica y domina los conceptos fundamentales.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
-                <Github className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-primary transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
           </div>
           
           <div>
@@ -63,11 +52,6 @@ export function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/examples" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Ejemplos
-                </Link>
-              </li>
-              <li>
                 <Link href="/exercises" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
                   Ejercicios
                 </Link>
@@ -91,15 +75,9 @@ export function Footer() {
             © 2024 Design Patterns. Todos los derechos reservados.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <Link href="/privacy" className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors">
-              Privacidad
-            </Link>
-            <Link href="/terms" className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors">
-              Términos
-            </Link>
-            <Link href="/contact" className="text-gray-500 dark:text-gray-400 hover:text-primary text-sm transition-colors">
-              Contacto
-            </Link>
+            <span className="text-gray-500 dark:text-gray-400 text-sm">
+              Construido con ❤️ para desarrolladores
+            </span>
           </div>
         </div>
       </div>
