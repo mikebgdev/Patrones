@@ -137,10 +137,189 @@ echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Abstract Factory proporciona una interfaz para crear familias de objetos relacionados.",
+    content: "El patrón Abstract Factory es como una 'super fábrica' que produce familias completas de objetos relacionados. Imagina una fábrica de muebles que puede producir diferentes estilos: moderno, clásico, rústico. Cada estilo requiere una silla, mesa y sofá que combinen entre sí.\n\nEste patrón es útil cuando necesitas asegurar que los objetos creados sean compatibles entre sí y pertenezcan a la misma 'familia'.\n\n**¿Cuándo usarlo?**\n• Cuando tu sistema debe ser independiente de cómo se crean sus objetos\n• Cuando quieres proporcionar una biblioteca de objetos revelando solo sus interfaces\n• Cuando una familia de objetos relacionados debe usarse conjuntamente\n• Cuando quieres imponer esta restricción a nivel de diseño\n\n**Ventajas:**\n• Aísla las clases concretas del cliente\n• Facilita el intercambio de familias de productos\n• Promueve la consistencia entre productos relacionados\n• Soporta nuevas variedades de productos fácilmente\n\n**Desventajas:**\n• Difícil extender para soportar nuevos tipos de productos\n• Puede resultar en muchas clases e interfaces\n• Complejidad adicional cuando solo necesitas un tipo de objeto",
     examples: {
-      javascript: "class AbstractFactory { createProductA() {} createProductB() {} } class ConcreteFactory extends AbstractFactory { createProductA() { return new ConcreteProductA(); } }",
-      php: "interface AbstractFactory { public function createProductA(); public function createProductB(); } class ConcreteFactory implements AbstractFactory { public function createProductA() { return new ConcreteProductA(); } }"
+      javascript: `// Productos abstractos - interfaces comunes
+class Button {
+  render() {
+    throw new Error('Must implement render method');
+  }
+}
+
+class Input {
+  render() {
+    throw new Error('Must implement render method');
+  }
+}
+
+// Productos concretos para tema oscuro
+class DarkButton extends Button {
+  render() {
+    return '<button class="dark-btn">Dark Button</button>';
+  }
+}
+
+class DarkInput extends Input {
+  render() {
+    return '<input class="dark-input" type="text" />';
+  }
+}
+
+// Productos concretos para tema claro
+class LightButton extends Button {
+  render() {
+    return '<button class="light-btn">Light Button</button>';
+  }
+}
+
+class LightInput extends Input {
+  render() {
+    return '<input class="light-input" type="text" />';
+  }
+}
+
+// Abstract Factory
+class UIFactory {
+  createButton() {
+    throw new Error('Must implement createButton');
+  }
+  
+  createInput() {
+    throw new Error('Must implement createInput');
+  }
+}
+
+// Factorías concretas
+class DarkThemeFactory extends UIFactory {
+  createButton() {
+    return new DarkButton();
+  }
+  
+  createInput() {
+    return new DarkInput();
+  }
+}
+
+class LightThemeFactory extends UIFactory {
+  createButton() {
+    return new LightButton();
+  }
+  
+  createInput() {
+    return new LightInput();
+  }
+}
+
+// Cliente que usa la factory
+class Application {
+  constructor(factory) {
+    this.factory = factory;
+    this.button = factory.createButton();
+    this.input = factory.createInput();
+  }
+  
+  render() {
+    return this.button.render() + this.input.render();
+  }
+}
+
+// Uso del patrón
+const userPrefersDark = true;
+const factory = userPrefersDark 
+  ? new DarkThemeFactory() 
+  : new LightThemeFactory();
+
+const app = new Application(factory);
+console.log(app.render()); // Renderiza elementos del tema correspondiente`,
+      php: `<?php
+// Productos abstractos
+interface Button {
+    public function render(): string;
+}
+
+interface Input {
+    public function render(): string;
+}
+
+// Productos concretos para tema oscuro
+class DarkButton implements Button {
+    public function render(): string {
+        return '<button class="dark-btn">Dark Button</button>';
+    }
+}
+
+class DarkInput implements Input {
+    public function render(): string {
+        return '<input class="dark-input" type="text" />';
+    }
+}
+
+// Productos concretos para tema claro
+class LightButton implements Button {
+    public function render(): string {
+        return '<button class="light-btn">Light Button</button>';
+    }
+}
+
+class LightInput implements Input {
+    public function render(): string {
+        return '<input class="light-input" type="text" />';
+    }
+}
+
+// Abstract Factory
+interface UIFactory {
+    public function createButton(): Button;
+    public function createInput(): Input;
+}
+
+// Factorías concretas
+class DarkThemeFactory implements UIFactory {
+    public function createButton(): Button {
+        return new DarkButton();
+    }
+    
+    public function createInput(): Input {
+        return new DarkInput();
+    }
+}
+
+class LightThemeFactory implements UIFactory {
+    public function createButton(): Button {
+        return new LightButton();
+    }
+    
+    public function createInput(): Input {
+        return new LightInput();
+    }
+}
+
+// Cliente que usa la factory
+class Application {
+    private $factory;
+    private $button;
+    private $input;
+    
+    public function __construct(UIFactory $factory) {
+        $this->factory = $factory;
+        $this->button = $factory->createButton();
+        $this->input = $factory->createInput();
+    }
+    
+    public function render(): string {
+        return $this->button->render() . $this->input->render();
+    }
+}
+
+// Uso del patrón
+$userPrefersDark = true;
+$factory = $userPrefersDark 
+    ? new DarkThemeFactory() 
+    : new LightThemeFactory();
+
+$app = new Application($factory);
+echo $app->render(); // Renderiza elementos del tema correspondiente
+?>`
     },
     relatedPatterns: ["factory-method", "singleton"]
   },
@@ -157,10 +336,315 @@ echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
     architectures: ["ddd"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Builder permite construir objetos complejos paso a paso utilizando el mismo proceso de construcción.",
+    content: "El patrón Builder es como construir una casa: no puedes hacerlo de una vez, necesitas seguir pasos específicos. Primero los cimientos, luego las paredes, después el techo, etc. Este patrón te permite construir objetos complejos paso a paso.\n\nEs especialmente útil cuando tienes objetos con muchas configuraciones opcionales o cuando el proceso de construcción es complejo.\n\n**¿Cuándo usarlo?**\n• Cuando quieres crear objetos complejos con muchos parámetros opcionales\n• Cuando el algoritmo de construcción debe ser independiente de las partes del objeto\n• Cuando quieres construir diferentes representaciones del mismo objeto\n• Cuando quieres evitar constructores telescópicos (muchos parámetros)\n\n**Ventajas:**\n• Permite construir objetos paso a paso\n• Puedes crear diferentes representaciones del mismo producto\n• Aísla el código de construcción de la representación\n• Te da mejor control sobre el proceso de construcción\n\n**Desventajas:**\n• Aumenta la complejidad del código al crear múltiples clases nuevas\n• Puede ser overkill para objetos simples",
     examples: {
-      javascript: "class Builder { reset() {} buildStepA() {} buildStepB() {} getResult() {} } class ConcreteBuilder extends Builder { buildStepA() { this.product.addPart('A'); } }",
-      php: "interface Builder { public function reset(); public function buildStepA(); public function getResult(); } class ConcreteBuilder implements Builder { public function buildStepA() { $this->product->addPart('A'); } }"
+      javascript: `// Producto complejo que queremos construir
+class House {
+  constructor() {
+    this.walls = '';
+    this.roof = '';
+    this.windows = '';
+    this.doors = '';
+    this.garage = false;
+    this.garden = false;
+    this.pool = false;
+  }
+  
+  showHouse() {
+    console.log(\`Casa construida:\`);
+    console.log(\`- Paredes: \${this.walls}\`);
+    console.log(\`- Techo: \${this.roof}\`);
+    console.log(\`- Ventanas: \${this.windows}\`);
+    console.log(\`- Puertas: \${this.doors}\`);
+    console.log(\`- Garaje: \${this.garage ? 'Sí' : 'No'}\`);
+    console.log(\`- Jardín: \${this.garden ? 'Sí' : 'No'}\`);
+    console.log(\`- Piscina: \${this.pool ? 'Sí' : 'No'}\`);
+  }
+}
+
+// Builder interface
+class HouseBuilder {
+  constructor() {
+    this.house = new House();
+  }
+  
+  reset() {
+    this.house = new House();
+    return this;
+  }
+  
+  buildWalls(material) {
+    this.house.walls = material;
+    return this;
+  }
+  
+  buildRoof(type) {
+    this.house.roof = type;
+    return this;
+  }
+  
+  buildWindows(count, type) {
+    this.house.windows = \`\${count} ventanas de \${type}\`;
+    return this;
+  }
+  
+  buildDoors(count, type) {
+    this.house.doors = \`\${count} puertas de \${type}\`;
+    return this;
+  }
+  
+  addGarage() {
+    this.house.garage = true;
+    return this;
+  }
+  
+  addGarden() {
+    this.house.garden = true;
+    return this;
+  }
+  
+  addPool() {
+    this.house.pool = true;
+    return this;
+  }
+  
+  getResult() {
+    return this.house;
+  }
+}
+
+// Director - conoce cómo construir casas específicas
+class HouseDirector {
+  constructor(builder) {
+    this.builder = builder;
+  }
+  
+  buildMinimalHouse() {
+    return this.builder
+      .reset()
+      .buildWalls('Ladrillo básico')
+      .buildRoof('Tejas de barro')
+      .buildWindows(4, 'aluminio')
+      .buildDoors(1, 'madera')
+      .getResult();
+  }
+  
+  buildLuxuryHouse() {
+    return this.builder
+      .reset()
+      .buildWalls('Piedra natural')
+      .buildRoof('Tejas de pizarra')
+      .buildWindows(12, 'doble cristal')
+      .buildDoors(3, 'roble macizo')
+      .addGarage()
+      .addGarden()
+      .addPool()
+      .getResult();
+  }
+  
+  buildModernHouse() {
+    return this.builder
+      .reset()
+      .buildWalls('Cristal y acero')
+      .buildRoof('Plano con paneles solares')
+      .buildWindows(8, 'cristal inteligente')
+      .buildDoors(2, 'automáticas')
+      .addGarage()
+      .getResult();
+  }
+}
+
+// Uso del patrón
+const builder = new HouseBuilder();
+const director = new HouseDirector(builder);
+
+// Construir diferentes tipos de casas
+console.log('=== Casa Básica ===');
+const basicHouse = director.buildMinimalHouse();
+basicHouse.showHouse();
+
+console.log('\\n=== Casa de Lujo ===');
+const luxuryHouse = director.buildLuxuryHouse();
+luxuryHouse.showHouse();
+
+console.log('\\n=== Casa Moderna ===');
+const modernHouse = director.buildModernHouse();
+modernHouse.showHouse();
+
+// También puedes usar el builder directamente para personalizaciones
+console.log('\\n=== Casa Personalizada ===');
+const customHouse = builder
+  .reset()
+  .buildWalls('Madera sostenible')
+  .buildRoof('Verde con vegetación')
+  .buildWindows(6, 'triple cristal')
+  .buildDoors(2, 'reciclada')
+  .addGarden()
+  .getResult();
+
+customHouse.showHouse();`,
+      php: `<?php
+// Producto complejo que queremos construir
+class House {
+    public $walls = '';
+    public $roof = '';
+    public $windows = '';
+    public $doors = '';
+    public $garage = false;
+    public $garden = false;
+    public $pool = false;
+    
+    public function showHouse(): void {
+        echo "Casa construida:\\n";
+        echo "- Paredes: {$this->walls}\\n";
+        echo "- Techo: {$this->roof}\\n";
+        echo "- Ventanas: {$this->windows}\\n";
+        echo "- Puertas: {$this->doors}\\n";
+        echo "- Garaje: " . ($this->garage ? 'Sí' : 'No') . "\\n";
+        echo "- Jardín: " . ($this->garden ? 'Sí' : 'No') . "\\n";
+        echo "- Piscina: " . ($this->pool ? 'Sí' : 'No') . "\\n";
+    }
+}
+
+// Builder interface
+interface HouseBuilderInterface {
+    public function reset(): self;
+    public function buildWalls(string $material): self;
+    public function buildRoof(string $type): self;
+    public function buildWindows(int $count, string $type): self;
+    public function buildDoors(int $count, string $type): self;
+    public function addGarage(): self;
+    public function addGarden(): self;
+    public function addPool(): self;
+    public function getResult(): House;
+}
+
+// Builder concreto
+class HouseBuilder implements HouseBuilderInterface {
+    private $house;
+    
+    public function __construct() {
+        $this->house = new House();
+    }
+    
+    public function reset(): self {
+        $this->house = new House();
+        return $this;
+    }
+    
+    public function buildWalls(string $material): self {
+        $this->house->walls = $material;
+        return $this;
+    }
+    
+    public function buildRoof(string $type): self {
+        $this->house->roof = $type;
+        return $this;
+    }
+    
+    public function buildWindows(int $count, string $type): self {
+        $this->house->windows = "{$count} ventanas de {$type}";
+        return $this;
+    }
+    
+    public function buildDoors(int $count, string $type): self {
+        $this->house->doors = "{$count} puertas de {$type}";
+        return $this;
+    }
+    
+    public function addGarage(): self {
+        $this->house->garage = true;
+        return $this;
+    }
+    
+    public function addGarden(): self {
+        $this->house->garden = true;
+        return $this;
+    }
+    
+    public function addPool(): self {
+        $this->house->pool = true;
+        return $this;
+    }
+    
+    public function getResult(): House {
+        return $this->house;
+    }
+}
+
+// Director - conoce cómo construir casas específicas
+class HouseDirector {
+    private $builder;
+    
+    public function __construct(HouseBuilderInterface $builder) {
+        $this->builder = $builder;
+    }
+    
+    public function buildMinimalHouse(): House {
+        return $this->builder
+            ->reset()
+            ->buildWalls('Ladrillo básico')
+            ->buildRoof('Tejas de barro')
+            ->buildWindows(4, 'aluminio')
+            ->buildDoors(1, 'madera')
+            ->getResult();
+    }
+    
+    public function buildLuxuryHouse(): House {
+        return $this->builder
+            ->reset()
+            ->buildWalls('Piedra natural')
+            ->buildRoof('Tejas de pizarra')
+            ->buildWindows(12, 'doble cristal')
+            ->buildDoors(3, 'roble macizo')
+            ->addGarage()
+            ->addGarden()
+            ->addPool()
+            ->getResult();
+    }
+    
+    public function buildModernHouse(): House {
+        return $this->builder
+            ->reset()
+            ->buildWalls('Cristal y acero')
+            ->buildRoof('Plano con paneles solares')
+            ->buildWindows(8, 'cristal inteligente')
+            ->buildDoors(2, 'automáticas')
+            ->addGarage()
+            ->getResult();
+    }
+}
+
+// Uso del patrón
+$builder = new HouseBuilder();
+$director = new HouseDirector($builder);
+
+// Construir diferentes tipos de casas
+echo "=== Casa Básica ===\\n";
+$basicHouse = $director->buildMinimalHouse();
+$basicHouse->showHouse();
+
+echo "\\n=== Casa de Lujo ===\\n";
+$luxuryHouse = $director->buildLuxuryHouse();
+$luxuryHouse->showHouse();
+
+echo "\\n=== Casa Moderna ===\\n";
+$modernHouse = $director->buildModernHouse();
+$modernHouse->showHouse();
+
+// También puedes usar el builder directamente
+echo "\\n=== Casa Personalizada ===\\n";
+$customHouse = $builder
+    ->reset()
+    ->buildWalls('Madera sostenible')
+    ->buildRoof('Verde con vegetación')
+    ->buildWindows(6, 'triple cristal')
+    ->buildDoors(2, 'reciclada')
+    ->addGarden()
+    ->getResult();
+
+$customHouse->showHouse();
+?>`
     },
     relatedPatterns: ["abstract-factory", "composite"]
   },
@@ -168,7 +652,7 @@ echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
     id: 4,
     name: "Prototype",
     slug: "prototype",
-    description: "Permite copiar objetos existentes sin que el código dependa de sus clases.",
+    description: "Permite copiar objetos existientes sin que el código dependa de sus clases.",
     category: "creational",
     difficulty: 2,
     icon: "copy",
@@ -177,10 +661,399 @@ echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
     architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Prototype permite copiar objetos existentes sin hacer que el código dependa de sus clases.",
+    content: "El patrón Prototype es como usar una fotocopiadora: en lugar de crear documentos desde cero, copias uno existente y lo modificas según necesites. Esto es especialmente útil cuando crear un objeto es costoso o complejo.\n\nPiensa en un videojuego donde tienes enemigos: en lugar de crear cada enemigo desde cero, puedes tener un 'prototipo' de cada tipo y clonarlo cuando necesites más.\n\n**¿Cuándo usarlo?**\n• Cuando crear un objeto es más costoso que copiarlo\n• Cuando quieres evitar subclases de un Factory (como en Abstract Factory)\n• Cuando las instancias pueden tener solo unas pocas combinaciones de estado\n• Cuando quieres reducir el número de clases\n\n**Ventajas:**\n• Puede agregar y quitar productos en tiempo de ejecución\n• Especifica nuevos objetos variando valores\n• Especifica nuevos objetos variando estructura\n• Reduce el número de subclases\n• Configura dinámicamente una aplicación con clases\n\n**Desventajas:**\n• Implementar el método clone puede ser difícil si los objetos tienen referencias circulares\n• Cada subclase debe implementar la operación de clonado",
     examples: {
-      javascript: "class Prototype { clone() { return Object.create(this); } } class ConcretePrototype extends Prototype { constructor(value) { super(); this.value = value; } }",
-      php: "interface Prototype { public function clone(); } class ConcretePrototype implements Prototype { public function clone() { return clone $this; } }"
+      javascript: `// Prototipo base para documentos
+class DocumentPrototype {
+  constructor() {
+    this.title = '';
+    this.content = '';
+    this.author = '';
+    this.template = '';
+    this.metadata = {};
+  }
+  
+  // Método de clonado que debe implementar cada tipo
+  clone() {
+    throw new Error('Clone method must be implemented');
+  }
+  
+  setTitle(title) {
+    this.title = title;
+    return this;
+  }
+  
+  setContent(content) {
+    this.content = content;
+    return this;
+  }
+  
+  setAuthor(author) {
+    this.author = author;
+    return this;
+  }
+  
+  display() {
+    console.log(\`📄 \${this.template}\`);
+    console.log(\`Título: \${this.title}\`);
+    console.log(\`Autor: \${this.author}\`);
+    console.log(\`Contenido: \${this.content.substring(0, 50)}...\`);
+    console.log('---');
+  }
+}
+
+// Prototipos concretos
+class ReportPrototype extends DocumentPrototype {
+  constructor() {
+    super();
+    this.template = 'Informe Ejecutivo';
+    this.content = 'RESUMEN EJECUTIVO\\n\\n1. Introducción\\n2. Análisis\\n3. Conclusiones\\n4. Recomendaciones';
+    this.metadata = {
+      sections: ['resumen', 'análisis', 'conclusiones'],
+      format: 'formal',
+      confidentiality: 'internal'
+    };
+  }
+  
+  clone() {
+    const cloned = new ReportPrototype();
+    cloned.title = this.title;
+    cloned.content = this.content;
+    cloned.author = this.author;
+    cloned.template = this.template;
+    cloned.metadata = { ...this.metadata };
+    return cloned;
+  }
+}
+
+class ProposalPrototype extends DocumentPrototype {
+  constructor() {
+    super();
+    this.template = 'Propuesta de Proyecto';
+    this.content = 'PROPUESTA\\n\\n1. Objetivo\\n2. Alcance\\n3. Metodología\\n4. Cronograma\\n5. Presupuesto';
+    this.metadata = {
+      sections: ['objetivo', 'alcance', 'metodología', 'cronograma', 'presupuesto'],
+      format: 'business',
+      status: 'draft'
+    };
+  }
+  
+  clone() {
+    const cloned = new ProposalPrototype();
+    cloned.title = this.title;
+    cloned.content = this.content;
+    cloned.author = this.author;
+    cloned.template = this.template;
+    cloned.metadata = { ...this.metadata };
+    return cloned;
+  }
+}
+
+class ContractPrototype extends DocumentPrototype {
+  constructor() {
+    super();
+    this.template = 'Contrato de Servicios';
+    this.content = 'CONTRATO\\n\\nPARTES:\\nContratante: [NOMBRE]\\nContratista: [NOMBRE]\\n\\nCLÁUSULAS:\\n1. Objeto del contrato\\n2. Obligaciones\\n3. Términos de pago';
+    this.metadata = {
+      sections: ['partes', 'objeto', 'obligaciones', 'pagos', 'firma'],
+      format: 'legal',
+      requiresSignature: true
+    };
+  }
+  
+  clone() {
+    const cloned = new ContractPrototype();
+    cloned.title = this.title;
+    cloned.content = this.content;
+    cloned.author = this.author;
+    cloned.template = this.template;
+    cloned.metadata = { ...this.metadata };
+    return cloned;
+  }
+}
+
+// Gestor de prototipos (Registry)
+class DocumentPrototypeRegistry {
+  constructor() {
+    this.prototypes = new Map();
+    this.initializePrototypes();
+  }
+  
+  initializePrototypes() {
+    this.prototypes.set('report', new ReportPrototype());
+    this.prototypes.set('proposal', new ProposalPrototype());
+    this.prototypes.set('contract', new ContractPrototype());
+  }
+  
+  getPrototype(type) {
+    const prototype = this.prototypes.get(type);
+    if (!prototype) {
+      throw new Error(\`Prototype type '\${type}' not found\`);
+    }
+    return prototype.clone();
+  }
+  
+  addPrototype(type, prototype) {
+    this.prototypes.set(type, prototype);
+  }
+}
+
+// Cliente que usa prototipos
+class DocumentFactory {
+  constructor() {
+    this.registry = new DocumentPrototypeRegistry();
+  }
+  
+  createDocument(type, title, author, customContent = null) {
+    const doc = this.registry.getPrototype(type);
+    doc.setTitle(title).setAuthor(author);
+    
+    if (customContent) {
+      doc.setContent(customContent);
+    }
+    
+    return doc;
+  }
+}
+
+// Uso del patrón
+const factory = new DocumentFactory();
+
+// Crear diferentes documentos basados en prototipos
+console.log('=== Creando documentos usando prototipos ===\\n');
+
+const monthlyReport = factory.createDocument(
+  'report',
+  'Informe Mensual de Ventas',
+  'Ana García'
+);
+monthlyReport.display();
+
+const projectProposal = factory.createDocument(
+  'proposal',
+  'Propuesta de Modernización IT',
+  'Carlos López',
+  'Propuesta para modernizar la infraestructura tecnológica de la empresa...'
+);
+projectProposal.display();
+
+const serviceContract = factory.createDocument(
+  'contract',
+  'Contrato de Desarrollo Web',
+  'Legal Department'
+);
+serviceContract.display();
+
+// Crear múltiples documentos del mismo tipo rápidamente
+console.log('=== Clonación rápida para múltiples documentos ===\\n');
+
+const reports = [
+  'Informe Q1 2024',
+  'Informe Q2 2024', 
+  'Informe Q3 2024'
+].map(title => factory.createDocument('report', title, 'Departamento Financiero'));
+
+reports.forEach(report => report.display());`,
+      php: `<?php
+// Interfaz de prototipo
+interface DocumentPrototype {
+    public function clone(): self;
+    public function setTitle(string $title): self;
+    public function setContent(string $content): self;
+    public function setAuthor(string $author): self;
+    public function display(): void;
+}
+
+// Clase base abstracta para documentos
+abstract class BaseDocument implements DocumentPrototype {
+    protected $title = '';
+    protected $content = '';
+    protected $author = '';
+    protected $template = '';
+    protected $metadata = [];
+    
+    public function setTitle(string $title): self {
+        $this->title = $title;
+        return $this;
+    }
+    
+    public function setContent(string $content): self {
+        $this->content = $content;
+        return $this;
+    }
+    
+    public function setAuthor(string $author): self {
+        $this->author = $author;
+        return $this;
+    }
+    
+    public function display(): void {
+        echo "📄 {$this->template}\\n";
+        echo "Título: {$this->title}\\n";
+        echo "Autor: {$this->author}\\n";
+        echo "Contenido: " . substr($this->content, 0, 50) . "...\\n";
+        echo "---\\n";
+    }
+    
+    abstract public function clone(): self;
+}
+
+// Prototipos concretos
+class ReportPrototype extends BaseDocument {
+    public function __construct() {
+        $this->template = 'Informe Ejecutivo';
+        $this->content = "RESUMEN EJECUTIVO\\n\\n1. Introducción\\n2. Análisis\\n3. Conclusiones\\n4. Recomendaciones";
+        $this->metadata = [
+            'sections' => ['resumen', 'análisis', 'conclusiones'],
+            'format' => 'formal',
+            'confidentiality' => 'internal'
+        ];
+    }
+    
+    public function clone(): self {
+        $cloned = new ReportPrototype();
+        $cloned->title = $this->title;
+        $cloned->content = $this->content;
+        $cloned->author = $this->author;
+        $cloned->template = $this->template;
+        $cloned->metadata = $this->metadata;
+        return $cloned;
+    }
+}
+
+class ProposalPrototype extends BaseDocument {
+    public function __construct() {
+        $this->template = 'Propuesta de Proyecto';
+        $this->content = "PROPUESTA\\n\\n1. Objetivo\\n2. Alcance\\n3. Metodología\\n4. Cronograma\\n5. Presupuesto";
+        $this->metadata = [
+            'sections' => ['objetivo', 'alcance', 'metodología', 'cronograma', 'presupuesto'],
+            'format' => 'business',
+            'status' => 'draft'
+        ];
+    }
+    
+    public function clone(): self {
+        $cloned = new ProposalPrototype();
+        $cloned->title = $this->title;
+        $cloned->content = $this->content;
+        $cloned->author = $this->author;
+        $cloned->template = $this->template;
+        $cloned->metadata = $this->metadata;
+        return $cloned;
+    }
+}
+
+class ContractPrototype extends BaseDocument {
+    public function __construct() {
+        $this->template = 'Contrato de Servicios';
+        $this->content = "CONTRATO\\n\\nPARTES:\\nContratante: [NOMBRE]\\nContratista: [NOMBRE]\\n\\nCLÁUSULAS:\\n1. Objeto del contrato\\n2. Obligaciones\\n3. Términos de pago";
+        $this->metadata = [
+            'sections' => ['partes', 'objeto', 'obligaciones', 'pagos', 'firma'],
+            'format' => 'legal',
+            'requiresSignature' => true
+        ];
+    }
+    
+    public function clone(): self {
+        $cloned = new ContractPrototype();
+        $cloned->title = $this->title;
+        $cloned->content = $this->content;
+        $cloned->author = $this->author;
+        $cloned->template = $this->template;
+        $cloned->metadata = $this->metadata;
+        return $cloned;
+    }
+}
+
+// Gestor de prototipos (Registry)
+class DocumentPrototypeRegistry {
+    private $prototypes = [];
+    
+    public function __construct() {
+        $this->initializePrototypes();
+    }
+    
+    private function initializePrototypes(): void {
+        $this->prototypes['report'] = new ReportPrototype();
+        $this->prototypes['proposal'] = new ProposalPrototype();
+        $this->prototypes['contract'] = new ContractPrototype();
+    }
+    
+    public function getPrototype(string $type): DocumentPrototype {
+        if (!isset($this->prototypes[$type])) {
+            throw new Exception("Prototype type '$type' not found");
+        }
+        
+        return $this->prototypes[$type]->clone();
+    }
+    
+    public function addPrototype(string $type, DocumentPrototype $prototype): void {
+        $this->prototypes[$type] = $prototype;
+    }
+}
+
+// Cliente que usa prototipos
+class DocumentFactory {
+    private $registry;
+    
+    public function __construct() {
+        $this->registry = new DocumentPrototypeRegistry();
+    }
+    
+    public function createDocument(string $type, string $title, string $author, ?string $customContent = null): DocumentPrototype {
+        $doc = $this->registry->getPrototype($type);
+        $doc->setTitle($title)->setAuthor($author);
+        
+        if ($customContent !== null) {
+            $doc->setContent($customContent);
+        }
+        
+        return $doc;
+    }
+}
+
+// Uso del patrón
+$factory = new DocumentFactory();
+
+// Crear diferentes documentos basados en prototipos
+echo "=== Creando documentos usando prototipos ===\\n\\n";
+
+$monthlyReport = $factory->createDocument(
+    'report',
+    'Informe Mensual de Ventas',
+    'Ana García'
+);
+$monthlyReport->display();
+
+$projectProposal = $factory->createDocument(
+    'proposal',
+    'Propuesta de Modernización IT',
+    'Carlos López',
+    'Propuesta para modernizar la infraestructura tecnológica de la empresa...'
+);
+$projectProposal->display();
+
+$serviceContract = $factory->createDocument(
+    'contract',
+    'Contrato de Desarrollo Web',
+    'Legal Department'
+);
+$serviceContract->display();
+
+// Crear múltiples documentos del mismo tipo rápidamente
+echo "=== Clonación rápida para múltiples documentos ===\\n\\n";
+
+$reportTitles = [
+    'Informe Q1 2024',
+    'Informe Q2 2024', 
+    'Informe Q3 2024'
+];
+
+foreach ($reportTitles as $title) {
+    $report = $factory->createDocument('report', $title, 'Departamento Financiero');
+    $report->display();
+}
+?>`
     },
     relatedPatterns: ["abstract-factory", "memento"]
   },
@@ -384,10 +1257,289 @@ class ThreadSafeSingleton {
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Adapter permite que interfaces incompatibles trabajen juntas mediante un objeto intermediario.",
+    content: "El patrón Adapter es como un adaptador de enchufe para viajar: te permite conectar un aparato con un tipo de enchufe a una toma de corriente diferente. En programación, permite que clases con interfaces incompatibles trabajen juntas.\n\nEste patrón es especialmente útil cuando quieres usar bibliotecas externas o sistemas legacy que tienen interfaces diferentes a las que espera tu código.\n\n**¿Cuándo usarlo?**\n• Cuando quieres usar una clase existente con una interfaz incompatible\n• Cuando quieres crear una clase reutilizable que coopere con clases no relacionadas\n• Cuando necesitas usar varias subclases existentes, pero es impracticable adaptar sus interfaces por subclasificación\n• Cuando quieres integrar componentes de terceros\n\n**Ventajas:**\n• Permite que clases incompatibles trabajen juntas\n• Aumenta la reutilización de clases existentes\n• Separa la conversión de interfaz de la lógica de negocio\n• Principio de responsabilidad única: separas la conversión de datos\n\n**Desventajas:**\n• Aumenta la complejidad del código al introducir nuevas interfaces y clases\n• A veces es más simple cambiar la clase de servicio para que coincida con el resto del código",
     examples: {
-      javascript: "class Adapter { constructor(adaptee) { this.adaptee = adaptee; } request() { return this.adaptee.specificRequest(); } }",
-      php: "class Adapter implements Target { private $adaptee; public function __construct($adaptee) { $this->adaptee = $adaptee; } public function request() { return $this->adaptee->specificRequest(); } }"
+      javascript: `// Sistema de pago legacy que no podemos modificar
+class PayPalGateway {
+  makePayment(amount) {
+    console.log(\`Procesando $\${amount} a través de PayPal\`);
+    return {
+      transactionId: 'PP_' + Date.now(),
+      status: 'completed',
+      gateway: 'paypal'
+    };
+  }
+  
+  getTransactionStatus(transactionId) {
+    console.log(\`Consultando estado de transacción PayPal: \${transactionId}\`);
+    return 'completed';
+  }
+}
+
+class StripeGateway {
+  charge(amountInCents) {
+    console.log(\`Cargando \${amountInCents} centavos via Stripe\`);
+    return {
+      id: 'ch_' + Date.now(),
+      paid: true,
+      service: 'stripe'
+    };
+  }
+  
+  retrieveCharge(chargeId) {
+    console.log(\`Recuperando cargo de Stripe: \${chargeId}\`);
+    return { id: chargeId, paid: true };
+  }
+}
+
+// Interfaz que nuestro sistema espera
+class PaymentProcessor {
+  pay(amount) {
+    throw new Error('Método pay debe ser implementado');
+  }
+  
+  getStatus(transactionId) {
+    throw new Error('Método getStatus debe ser implementado');
+  }
+}
+
+// Adapter para PayPal
+class PayPalAdapter extends PaymentProcessor {
+  constructor() {
+    super();
+    this.paypalGateway = new PayPalGateway();
+  }
+  
+  pay(amount) {
+    // Adaptamos la interfaz de PayPal a nuestra interfaz esperada
+    const result = this.paypalGateway.makePayment(amount);
+    
+    return {
+      transactionId: result.transactionId,
+      success: result.status === 'completed',
+      provider: 'paypal'
+    };
+  }
+  
+  getStatus(transactionId) {
+    const status = this.paypalGateway.getTransactionStatus(transactionId);
+    return status === 'completed' ? 'success' : 'pending';
+  }
+}
+
+// Adapter para Stripe
+class StripeAdapter extends PaymentProcessor {
+  constructor() {
+    super();
+    this.stripeGateway = new StripeGateway();
+  }
+  
+  pay(amount) {
+    // Convertimos dollars a centavos como espera Stripe
+    const amountInCents = Math.round(amount * 100);
+    const result = this.stripeGateway.charge(amountInCents);
+    
+    return {
+      transactionId: result.id,
+      success: result.paid,
+      provider: 'stripe'
+    };
+  }
+  
+  getStatus(transactionId) {
+    const charge = this.stripeGateway.retrieveCharge(transactionId);
+    return charge.paid ? 'success' : 'pending';
+  }
+}
+
+// Cliente que usa los adaptadores
+class ECommerceSystem {
+  constructor(paymentProcessor) {
+    this.paymentProcessor = paymentProcessor;
+  }
+  
+  processOrder(orderAmount) {
+    console.log(\`\\nProcesando orden por $\${orderAmount}\`);
+    
+    try {
+      const result = this.paymentProcessor.pay(orderAmount);
+      
+      if (result.success) {
+        console.log(\`✅ Pago exitoso con \${result.provider}\`);
+        console.log(\`   ID de transacción: \${result.transactionId}\`);
+        
+        // Verificar estado
+        const status = this.paymentProcessor.getStatus(result.transactionId);
+        console.log(\`   Estado: \${status}\`);
+        
+        return result;
+      } else {
+        console.log(\`❌ Pago fallido\`);
+        return null;
+      }
+    } catch (error) {
+      console.log(\`❌ Error procesando pago: \${error.message}\`);
+      return null;
+    }
+  }
+}
+
+// Uso del patrón Adapter
+console.log('=== Sistema de E-Commerce con diferentes gateways de pago ===');
+
+// Usando PayPal
+const paypalProcessor = new PayPalAdapter();
+const storeWithPayPal = new ECommerceSystem(paypalProcessor);
+storeWithPayPal.processOrder(99.99);
+
+// Usando Stripe
+const stripeProcessor = new StripeAdapter();
+const storeWithStripe = new ECommerceSystem(stripeProcessor);
+storeWithStripe.processOrder(149.50);
+
+// El cliente (ECommerceSystem) no sabe qué gateway está usando
+// Ambos adapters implementan la misma interfaz PaymentProcessor`,
+      php: `<?php
+// Sistema de pago legacy que no podemos modificar
+class PayPalGateway {
+    public function makePayment(float $amount): array {
+        echo "Procesando $$amount a través de PayPal\\n";
+        return [
+            'transactionId' => 'PP_' . time(),
+            'status' => 'completed',
+            'gateway' => 'paypal'
+        ];
+    }
+    
+    public function getTransactionStatus(string $transactionId): string {
+        echo "Consultando estado de transacción PayPal: $transactionId\\n";
+        return 'completed';
+    }
+}
+
+class StripeGateway {
+    public function charge(int $amountInCents): array {
+        echo "Cargando $amountInCents centavos via Stripe\\n";
+        return [
+            'id' => 'ch_' . time(),
+            'paid' => true,
+            'service' => 'stripe'
+        ];
+    }
+    
+    public function retrieveCharge(string $chargeId): array {
+        echo "Recuperando cargo de Stripe: $chargeId\\n";
+        return ['id' => $chargeId, 'paid' => true];
+    }
+}
+
+// Interfaz que nuestro sistema espera
+interface PaymentProcessor {
+    public function pay(float $amount): array;
+    public function getStatus(string $transactionId): string;
+}
+
+// Adapter para PayPal
+class PayPalAdapter implements PaymentProcessor {
+    private $paypalGateway;
+    
+    public function __construct() {
+        $this->paypalGateway = new PayPalGateway();
+    }
+    
+    public function pay(float $amount): array {
+        // Adaptamos la interfaz de PayPal a nuestra interfaz esperada
+        $result = $this->paypalGateway->makePayment($amount);
+        
+        return [
+            'transactionId' => $result['transactionId'],
+            'success' => $result['status'] === 'completed',
+            'provider' => 'paypal'
+        ];
+    }
+    
+    public function getStatus(string $transactionId): string {
+        $status = $this->paypalGateway->getTransactionStatus($transactionId);
+        return $status === 'completed' ? 'success' : 'pending';
+    }
+}
+
+// Adapter para Stripe
+class StripeAdapter implements PaymentProcessor {
+    private $stripeGateway;
+    
+    public function __construct() {
+        $this->stripeGateway = new StripeGateway();
+    }
+    
+    public function pay(float $amount): array {
+        // Convertimos dollars a centavos como espera Stripe
+        $amountInCents = round($amount * 100);
+        $result = $this->stripeGateway->charge($amountInCents);
+        
+        return [
+            'transactionId' => $result['id'],
+            'success' => $result['paid'],
+            'provider' => 'stripe'
+        ];
+    }
+    
+    public function getStatus(string $transactionId): string {
+        $charge = $this->stripeGateway->retrieveCharge($transactionId);
+        return $charge['paid'] ? 'success' : 'pending';
+    }
+}
+
+// Cliente que usa los adaptadores
+class ECommerceSystem {
+    private $paymentProcessor;
+    
+    public function __construct(PaymentProcessor $paymentProcessor) {
+        $this->paymentProcessor = $paymentProcessor;
+    }
+    
+    public function processOrder(float $orderAmount): ?array {
+        echo "\\nProcesando orden por $$orderAmount\\n";
+        
+        try {
+            $result = $this->paymentProcessor->pay($orderAmount);
+            
+            if ($result['success']) {
+                echo "✅ Pago exitoso con {$result['provider']}\\n";
+                echo "   ID de transacción: {$result['transactionId']}\\n";
+                
+                // Verificar estado
+                $status = $this->paymentProcessor->getStatus($result['transactionId']);
+                echo "   Estado: $status\\n";
+                
+                return $result;
+            } else {
+                echo "❌ Pago fallido\\n";
+                return null;
+            }
+        } catch (Exception $error) {
+            echo "❌ Error procesando pago: {$error->getMessage()}\\n";
+            return null;
+        }
+    }
+}
+
+// Uso del patrón Adapter
+echo "=== Sistema de E-Commerce con diferentes gateways de pago ===\\n";
+
+// Usando PayPal
+$paypalProcessor = new PayPalAdapter();
+$storeWithPayPal = new ECommerceSystem($paypalProcessor);
+$storeWithPayPal->processOrder(99.99);
+
+// Usando Stripe
+$stripeProcessor = new StripeAdapter();
+$storeWithStripe = new ECommerceSystem($stripeProcessor);
+$storeWithStripe->processOrder(149.50);
+
+// El cliente (ECommerceSystem) no sabe qué gateway está usando
+// Ambos adapters implementan la misma interfaz PaymentProcessor
+?>`
     },
     relatedPatterns: ["facade", "decorator"]
   },
