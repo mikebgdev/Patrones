@@ -109,9 +109,17 @@ export function FilterSection() {
                   key={tech.key}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleFilterClick("language", tech.key)}
+                  onClick={() => {
+                    const currentValue = filters.language || filters.framework;
+                    const filterKey = ['javascript', 'php'].includes(tech.key) ? 'language' : 'framework';
+                    updateFilter('language', undefined);
+                    updateFilter('framework', undefined);
+                    if (currentValue !== tech.key) {
+                      updateFilter(filterKey, tech.key);
+                    }
+                  }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isFilterActive("language", tech.key)
+                    isFilterActive("language", tech.key) || isFilterActive("framework", tech.key)
                       ? "filter-button-active"
                       : "filter-button-inactive"
                   }`}

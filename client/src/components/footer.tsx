@@ -46,28 +46,7 @@ export function Footer() {
             </ul>
           </div>
           
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Recursos
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/exercises" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Ejercicios
-                </Link>
-              </li>
-              <li>
-                <Link href="/docs" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Documentación
-                </Link>
-              </li>
-              <li>
-                <Link href="/api" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  API Reference
-                </Link>
-              </li>
-            </ul>
-          </div>
+
         </div>
         
         <div className="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">

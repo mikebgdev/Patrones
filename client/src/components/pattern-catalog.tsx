@@ -36,11 +36,16 @@ export function PatternCatalog() {
       );
     }
 
-    // Apply language filter
+    // Apply language/framework filter
     if (filters.language) {
       filtered = filtered.filter(pattern => 
-        pattern.languages.includes(filters.language!) || 
-        pattern.frameworks.includes(filters.language!)
+        pattern.languages.includes(filters.language!)
+      );
+    }
+    
+    if (filters.framework) {
+      filtered = filtered.filter(pattern => 
+        pattern.frameworks.includes(filters.framework!)
       );
     }
 
