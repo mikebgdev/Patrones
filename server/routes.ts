@@ -1,0 +1,64 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Get all patterns
+  app.get("/api/patterns", async (req, res) => {
+    try {
+      const patterns = await storage.getAllPatterns();
+      res.json(patterns);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching patterns" });
+    }
+  });
+
+  // Get pattern by slug
+  app.get("/api/patterns/:slug", async (req, res) => {
+    try {
+      const pattern = await storage.getPatternBySlug(req.params.slug);
+      if (!pattern) {
+        return res.status(404).json({ message: "Pattern not found" });
+      }
+      res.json(pattern);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching pattern" });
+    }
+  });
+
+  // Get patterns by category
+  app.get("/api/patterns/category/:category", async (req, res) => {
+    try {
+      const patterns = await storage.getPatternsByCategory(req.params.category);
+      res.json(patterns);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching patterns by category" });
+    }
+  });
+
+  // Get all architectures
+  app.get("/api/architectures", async (req, res) => {
+    try {
+      const architectures = await storage.getAllArchitectures();
+      res.json(architectures);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching architectures" });
+    }
+  });
+
+  // Get architecture by slug
+  app.get("/api/architectures/:slug", async (req, res) => {
+    try {
+      const architecture = await storage.getArchitectureBySlug(req.params.slug);
+      if (!architecture) {
+        return res.status(404).json({ message: "Architecture not found" });
+      }
+      res.json(architecture);
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching architecture" });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
