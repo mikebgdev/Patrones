@@ -1895,10 +1895,434 @@ $batchSlack->sendBatch();
     architectures: ["ddd"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Composite permite componer objetos en estructuras de árbol para representar jerarquías parte-todo.",
+    content: "El patrón Composite es como organizar archivos en carpetas: puedes tener archivos individuales y carpetas que contienen más archivos y carpetas. Tanto archivos como carpetas se pueden mover, copiar o eliminar de la misma manera.\n\nEste patrón te permite tratar objetos individuales y composiciones de objetos de forma uniforme.\n\n**¿Cuándo usarlo?**\n• Cuando quieres representar jerarquías parte-todo de objetos\n• Cuando quieres que los clientes ignoren la diferencia entre composiciones de objetos y objetos individuales\n• Cuando tienes estructuras de árbol complejas\n• Cuando necesitas aplicar operaciones uniformemente sobre elementos individuales y compuestos\n\n**Ventajas:**\n• Puedes trabajar con estructuras de árbol complejas más fácilmente\n• Principio Abierto/Cerrado: puedes introducir nuevos tipos de elementos sin romper código existente\n• Los clientes pueden tratar de manera uniforme objetos individuales y compuestos\n• Simplifica el código cliente al eliminar condicionales complejas\n\n**Desventajas:**\n• Puede ser difícil proporcionar una interfaz común para clases cuya funcionalidad difiere demasiado\n• Puede hacer el diseño demasiado general en algunos casos",
     examples: {
-      javascript: "class Component { operation() {} } class Composite extends Component { constructor() { super(); this.children = []; } operation() { this.children.forEach(child => child.operation()); } }",
-      php: "abstract class Component { abstract public function operation(); } class Composite extends Component { private $children = []; public function operation() { foreach ($this->children as $child) { $child->operation(); } } }"
+      javascript: `// Componente base - interfaz común para objetos simples y compuestos
+class FileSystemComponent {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  // Operaciones que deben implementar tanto archivos como carpetas
+  getSize() {
+    throw new Error('getSize must be implemented');
+  }
+  
+  display(indent = 0) {
+    throw new Error('display must be implemented');
+  }
+  
+  // Operaciones para manejo de estructura de árbol
+  add(component) {
+    throw new Error('add not supported');
+  }
+  
+  remove(component) {
+    throw new Error('remove not supported');
+  }
+  
+  getChild(index) {
+    throw new Error('getChild not supported');
+  }
+}
+
+// Hoja - representa objetos finales del árbol
+class File extends FileSystemComponent {
+  constructor(name, size) {
+    super(name);
+    this.size = size;
+  }
+  
+  getSize() {
+    return this.size;
+  }
+  
+  display(indent = 0) {
+    const spaces = '  '.repeat(indent);
+    console.log(\`\${spaces}📄 \${this.name} (\${this.size} KB)\`);
+  }
+}
+
+// Compuesto - puede contener otros componentes
+class Folder extends FileSystemComponent {
+  constructor(name) {
+    super(name);
+    this.children = [];
+  }
+  
+  add(component) {
+    this.children.push(component);
+    console.log(\`➕ Agregado \${component.name} a la carpeta \${this.name}\`);
+  }
+  
+  remove(component) {
+    const index = this.children.indexOf(component);
+    if (index > -1) {
+      this.children.splice(index, 1);
+      console.log(\`➖ Eliminado \${component.name} de la carpeta \${this.name}\`);
+    }
+  }
+  
+  getChild(index) {
+    return this.children[index];
+  }
+  
+  getSize() {
+    // El tamaño de una carpeta es la suma de todos sus contenidos
+    return this.children.reduce((total, child) => total + child.getSize(), 0);
+  }
+  
+  display(indent = 0) {
+    const spaces = '  '.repeat(indent);
+    console.log(\`\${spaces}📁 \${this.name}/ (\${this.getSize()} KB total)\`);
+    
+    // Mostrar todos los elementos hijos
+    this.children.forEach(child => {
+      child.display(indent + 1);
+    });
+  }
+  
+  // Métodos adicionales específicos para carpetas
+  getFileCount() {
+    return this.children.reduce((count, child) => {
+      if (child instanceof File) {
+        return count + 1;
+      } else if (child instanceof Folder) {
+        return count + child.getFileCount();
+      }
+      return count;
+    }, 0);
+  }
+  
+  getFolderCount() {
+    return this.children.reduce((count, child) => {
+      if (child instanceof Folder) {
+        return count + 1 + child.getFolderCount();
+      }
+      return count;
+    }, 0);
+  }
+  
+  findByName(name) {
+    // Buscar en la carpeta actual
+    for (let child of this.children) {
+      if (child.name === name) {
+        return child;
+      }
+      
+      // Si es una carpeta, buscar recursivamente
+      if (child instanceof Folder) {
+        const found = child.findByName(name);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+}
+
+// Cliente que usa el patrón Composite
+class FileManager {
+  constructor() {
+    this.root = new Folder('Sistema');
+  }
+  
+  createStructure() {
+    console.log('🏗️  Creando estructura de archivos...\\n');
+    
+    // Crear archivos
+    const readme = new File('README.md', 2);
+    const config = new File('config.json', 1);
+    const mainJs = new File('main.js', 15);
+    const stylesCss = new File('styles.css', 8);
+    const indexHtml = new File('index.html', 5);
+    const appJs = new File('app.js', 25);
+    const utilsJs = new File('utils.js', 12);
+    const testJs = new File('test.js', 18);
+    
+    // Crear carpetas
+    const srcFolder = new Folder('src');
+    const publicFolder = new Folder('public');
+    const testsFolder = new Folder('tests');
+    const assetsFolder = new Folder('assets');
+    const imagesFolder = new Folder('images');
+    
+    // Construir estructura
+    this.root.add(readme);
+    this.root.add(config);
+    this.root.add(srcFolder);
+    this.root.add(publicFolder);
+    this.root.add(testsFolder);
+    
+    srcFolder.add(mainJs);
+    srcFolder.add(appJs);
+    srcFolder.add(utilsJs);
+    
+    publicFolder.add(indexHtml);
+    publicFolder.add(stylesCss);
+    publicFolder.add(assetsFolder);
+    
+    assetsFolder.add(imagesFolder);
+    imagesFolder.add(new File('logo.png', 45));
+    imagesFolder.add(new File('background.jpg', 120));
+    
+    testsFolder.add(testJs);
+  }
+  
+  showStatistics() {
+    console.log('\\n📊 Estadísticas del sistema:');
+    console.log(\`   Archivos totales: \${this.root.getFileCount()}\`);
+    console.log(\`   Carpetas totales: \${this.root.getFolderCount()}\`);
+    console.log(\`   Tamaño total: \${this.root.getSize()} KB\`);
+  }
+  
+  searchFile(name) {
+    console.log(\`\\n🔍 Buscando archivo: \${name}\`);
+    const found = this.root.findByName(name);
+    if (found) {
+      console.log(\`   ✅ Encontrado: \${found.name} (\${found.getSize()} KB)\`);
+    } else {
+      console.log(\`   ❌ No encontrado: \${name}\`);
+    }
+  }
+}
+
+// Uso del patrón Composite
+console.log('=== Sistema de Archivos con Patrón Composite ===\\n');
+
+const fileManager = new FileManager();
+fileManager.createStructure();
+
+console.log('\\n🌳 Estructura completa:');
+fileManager.root.display();
+
+fileManager.showStatistics();
+fileManager.searchFile('app.js');
+fileManager.searchFile('missing.txt');
+
+console.log('\\n🎯 El patrón Composite permite tratar archivos y carpetas uniformemente!');`,
+      php: `<?php
+// Componente base - interfaz común para objetos simples y compuestos
+abstract class FileSystemComponent {
+    protected $name;
+    
+    public function __construct(string $name) {
+        $this->name = $name;
+    }
+    
+    // Operaciones que deben implementar tanto archivos como carpetas
+    abstract public function getSize(): int;
+    abstract public function display(int $indent = 0): void;
+    
+    // Operaciones para manejo de estructura de árbol
+    public function add(FileSystemComponent $component): void {
+        throw new Exception('add not supported');
+    }
+    
+    public function remove(FileSystemComponent $component): void {
+        throw new Exception('remove not supported');
+    }
+    
+    public function getChild(int $index): FileSystemComponent {
+        throw new Exception('getChild not supported');
+    }
+    
+    public function getName(): string {
+        return $this->name;
+    }
+}
+
+// Hoja - representa objetos finales del árbol
+class File extends FileSystemComponent {
+    private $size;
+    
+    public function __construct(string $name, int $size) {
+        parent::__construct($name);
+        $this->size = $size;
+    }
+    
+    public function getSize(): int {
+        return $this->size;
+    }
+    
+    public function display(int $indent = 0): void {
+        $spaces = str_repeat('  ', $indent);
+        echo "{$spaces}📄 {$this->name} ({$this->size} KB)\\n";
+    }
+}
+
+// Compuesto - puede contener otros componentes
+class Folder extends FileSystemComponent {
+    private $children = [];
+    
+    public function add(FileSystemComponent $component): void {
+        $this->children[] = $component;
+        echo "➕ Agregado {$component->getName()} a la carpeta {$this->name}\\n";
+    }
+    
+    public function remove(FileSystemComponent $component): void {
+        $index = array_search($component, $this->children);
+        if ($index !== false) {
+            unset($this->children[$index]);
+            $this->children = array_values($this->children); // Re-indexar
+            echo "➖ Eliminado {$component->getName()} de la carpeta {$this->name}\\n";
+        }
+    }
+    
+    public function getChild(int $index): FileSystemComponent {
+        if (isset($this->children[$index])) {
+            return $this->children[$index];
+        }
+        throw new Exception("Child at index $index not found");
+    }
+    
+    public function getSize(): int {
+        // El tamaño de una carpeta es la suma de todos sus contenidos
+        $total = 0;
+        foreach ($this->children as $child) {
+            $total += $child->getSize();
+        }
+        return $total;
+    }
+    
+    public function display(int $indent = 0): void {
+        $spaces = str_repeat('  ', $indent);
+        echo "{$spaces}📁 {$this->name}/ ({$this->getSize()} KB total)\\n";
+        
+        // Mostrar todos los elementos hijos
+        foreach ($this->children as $child) {
+            $child->display($indent + 1);
+        }
+    }
+    
+    // Métodos adicionales específicos para carpetas
+    public function getFileCount(): int {
+        $count = 0;
+        foreach ($this->children as $child) {
+            if ($child instanceof File) {
+                $count++;
+            } elseif ($child instanceof Folder) {
+                $count += $child->getFileCount();
+            }
+        }
+        return $count;
+    }
+    
+    public function getFolderCount(): int {
+        $count = 0;
+        foreach ($this->children as $child) {
+            if ($child instanceof Folder) {
+                $count += 1 + $child->getFolderCount();
+            }
+        }
+        return $count;
+    }
+    
+    public function findByName(string $name): ?FileSystemComponent {
+        // Buscar en la carpeta actual
+        foreach ($this->children as $child) {
+            if ($child->getName() === $name) {
+                return $child;
+            }
+            
+            // Si es una carpeta, buscar recursivamente
+            if ($child instanceof Folder) {
+                $found = $child->findByName($name);
+                if ($found !== null) {
+                    return $found;
+                }
+            }
+        }
+        return null;
+    }
+}
+
+// Cliente que usa el patrón Composite
+class FileManager {
+    private $root;
+    
+    public function __construct() {
+        $this->root = new Folder('Sistema');
+    }
+    
+    public function createStructure(): void {
+        echo "🏗️  Creando estructura de archivos...\\n\\n";
+        
+        // Crear archivos
+        $readme = new File('README.md', 2);
+        $config = new File('config.json', 1);
+        $mainJs = new File('main.js', 15);
+        $stylesCss = new File('styles.css', 8);
+        $indexHtml = new File('index.html', 5);
+        $appJs = new File('app.js', 25);
+        $utilsJs = new File('utils.js', 12);
+        $testJs = new File('test.js', 18);
+        
+        // Crear carpetas
+        $srcFolder = new Folder('src');
+        $publicFolder = new Folder('public');
+        $testsFolder = new Folder('tests');
+        $assetsFolder = new Folder('assets');
+        $imagesFolder = new Folder('images');
+        
+        // Construir estructura
+        $this->root->add($readme);
+        $this->root->add($config);
+        $this->root->add($srcFolder);
+        $this->root->add($publicFolder);
+        $this->root->add($testsFolder);
+        
+        $srcFolder->add($mainJs);
+        $srcFolder->add($appJs);
+        $srcFolder->add($utilsJs);
+        
+        $publicFolder->add($indexHtml);
+        $publicFolder->add($stylesCss);
+        $publicFolder->add($assetsFolder);
+        
+        $assetsFolder->add($imagesFolder);
+        $imagesFolder->add(new File('logo.png', 45));
+        $imagesFolder->add(new File('background.jpg', 120));
+        
+        $testsFolder->add($testJs);
+    }
+    
+    public function showStatistics(): void {
+        echo "\\n📊 Estadísticas del sistema:\\n";
+        echo "   Archivos totales: {$this->root->getFileCount()}\\n";
+        echo "   Carpetas totales: {$this->root->getFolderCount()}\\n";
+        echo "   Tamaño total: {$this->root->getSize()} KB\\n";
+    }
+    
+    public function searchFile(string $name): void {
+        echo "\\n🔍 Buscando archivo: $name\\n";
+        $found = $this->root->findByName($name);
+        if ($found !== null) {
+            echo "   ✅ Encontrado: {$found->getName()} ({$found->getSize()} KB)\\n";
+        } else {
+            echo "   ❌ No encontrado: $name\\n";
+        }
+    }
+    
+    public function getRoot(): Folder {
+        return $this->root;
+    }
+}
+
+// Uso del patrón Composite
+echo "=== Sistema de Archivos con Patrón Composite ===\\n\\n";
+
+$fileManager = new FileManager();
+$fileManager->createStructure();
+
+echo "\\n🌳 Estructura completa:\\n";
+$fileManager->getRoot()->display();
+
+$fileManager->showStatistics();
+$fileManager->searchFile('app.js');
+$fileManager->searchFile('missing.txt');
+
+echo "\\n🎯 El patrón Composite permite tratar archivos y carpetas uniformemente!\\n";
+?>`
     },
     relatedPatterns: ["decorator", "visitor"]
   },
@@ -1915,10 +2339,426 @@ $batchSlack->sendBatch();
     architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Decorator permite añadir nuevas funcionalidades a objetos colocándolos dentro de objetos envolventes especiales.",
+    content: "El patrón Decorator es como vestir a una persona: puedes agregar capas de ropa (funcionalidades) sin cambiar a la persona en sí. Cada prenda añade una función específica: abrigo, protección, estilo.\n\nEste patrón te permite añadir comportamientos a objetos de forma dinámica sin alterar su estructura.\n\n**¿Cuándo usarlo?**\n• Cuando quieres añadir responsabilidades a objetos de forma dinámica y transparente\n• Cuando la extensión por herencia es impracticable (muchas combinaciones posibles)\n• Cuando quieres añadir o quitar responsabilidades de un objeto dinámicamente\n• Cuando las responsabilidades opcionales requieren muchas subclases\n\n**Ventajas:**\n• Más flexibilidad que la herencia estática\n• Evita clases con muchas características en los niveles superiores de la jerarquía\n• Puedes añadir o quitar responsabilidades en tiempo de ejecución\n• Puedes combinar varios comportamientos envolviendo un objeto en múltiples decoradores\n\n**Desventajas:**\n• Los decoradores y sus componentes no son idénticos\n• Muchos objetos pequeños que pueden ser difíciles de debuggear\n• Es difícil remover un decorador específico de la pila de decoradores",
     examples: {
-      javascript: "class Decorator { constructor(component) { this.component = component; } operation() { return this.component.operation(); } } class ConcreteDecorator extends Decorator { operation() { return 'Decorated(' + super.operation() + ')'; } }",
-      php: "class Decorator { protected $component; public function __construct($component) { $this->component = $component; } public function operation() { return $this->component->operation(); } }"
+      javascript: `// Componente base - interfaz común
+class Coffee {
+  cost() {
+    throw new Error('cost method must be implemented');
+  }
+  
+  description() {
+    throw new Error('description method must be implemented');
+  }
+}
+
+// Componente concreto - implementación base
+class SimpleCoffee extends Coffee {
+  cost() {
+    return 2.0;
+  }
+  
+  description() {
+    return 'Café simple';
+  }
+}
+
+// Decorador base - mantiene una referencia al componente
+class CoffeeDecorator extends Coffee {
+  constructor(coffee) {
+    super();
+    this.coffee = coffee;
+  }
+  
+  cost() {
+    return this.coffee.cost();
+  }
+  
+  description() {
+    return this.coffee.description();
+  }
+}
+
+// Decoradores concretos - añaden funcionalidades específicas
+class MilkDecorator extends CoffeeDecorator {
+  constructor(coffee) {
+    super(coffee);
+  }
+  
+  cost() {
+    return this.coffee.cost() + 0.5;
+  }
+  
+  description() {
+    return this.coffee.description() + ', Leche';
+  }
+}
+
+class SugarDecorator extends CoffeeDecorator {
+  constructor(coffee) {
+    super(coffee);
+  }
+  
+  cost() {
+    return this.coffee.cost() + 0.2;
+  }
+  
+  description() {
+    return this.coffee.description() + ', Azúcar';
+  }
+}
+
+class WhipCreamDecorator extends CoffeeDecorator {
+  constructor(coffee) {
+    super(coffee);
+  }
+  
+  cost() {
+    return this.coffee.cost() + 0.7;
+  }
+  
+  description() {
+    return this.coffee.description() + ', Crema batida';
+  }
+}
+
+class VanillaDecorator extends CoffeeDecorator {
+  constructor(coffee) {
+    super(coffee);
+  }
+  
+  cost() {
+    return this.coffee.cost() + 0.6;
+  }
+  
+  description() {
+    return this.coffee.description() + ', Vainilla';
+  }
+}
+
+class ExtraShotDecorator extends CoffeeDecorator {
+  constructor(coffee) {
+    super(coffee);
+  }
+  
+  cost() {
+    return this.coffee.cost() + 1.2;
+  }
+  
+  description() {
+    return this.coffee.description() + ', Shot extra';
+  }
+}
+
+// Sistema de pedidos que usa decoradores
+class CoffeeShop {
+  constructor() {
+    this.orders = [];
+  }
+  
+  createOrder(customerName) {
+    return new Order(customerName, this);
+  }
+  
+  addOrder(order) {
+    this.orders.push(order);
+    console.log(\`📝 Pedido agregado para \${order.customerName}\`);
+  }
+  
+  showTotalSales() {
+    const total = this.orders.reduce((sum, order) => sum + order.coffee.cost(), 0);
+    console.log(\`💰 Ventas totales: $\${total.toFixed(2)}\`);
+  }
+}
+
+class Order {
+  constructor(customerName, shop) {
+    this.customerName = customerName;
+    this.shop = shop;
+    this.coffee = new SimpleCoffee();
+  }
+  
+  addMilk() {
+    this.coffee = new MilkDecorator(this.coffee);
+    return this;
+  }
+  
+  addSugar() {
+    this.coffee = new SugarDecorator(this.coffee);
+    return this;
+  }
+  
+  addWhipCream() {
+    this.coffee = new WhipCreamDecorator(this.coffee);
+    return this;
+  }
+  
+  addVanilla() {
+    this.coffee = new VanillaDecorator(this.coffee);
+    return this;
+  }
+  
+  addExtraShot() {
+    this.coffee = new ExtraShotDecorator(this.coffee);
+    return this;
+  }
+  
+  finishOrder() {
+    this.shop.addOrder(this);
+    console.log(\`☕ \${this.customerName}: \${this.coffee.description()}\`);
+    console.log(\`   Precio: $\${this.coffee.cost().toFixed(2)}\`);
+    return this;
+  }
+}
+
+// Uso del patrón Decorator
+console.log('=== Cafetería con Patrón Decorator ===\\n');
+
+const coffeeShop = new CoffeeShop();
+
+// Pedidos simples y complejos
+console.log('--- Pedidos del día ---');
+
+// Café simple
+coffeeShop.createOrder('Ana')
+  .finishOrder();
+
+// Café con leche
+coffeeShop.createOrder('Carlos')
+  .addMilk()
+  .finishOrder();
+
+// Café complejo con múltiples decoradores
+coffeeShop.createOrder('María')
+  .addMilk()
+  .addSugar()
+  .addWhipCream()
+  .addVanilla()
+  .finishOrder();
+
+// Café para amante del café fuerte
+coffeeShop.createOrder('Diego')
+  .addExtraShot()
+  .addExtraShot()
+  .addSugar()
+  .finishOrder();
+
+// Café dulce
+coffeeShop.createOrder('Sofia')
+  .addMilk()
+  .addSugar()
+  .addVanilla()
+  .addWhipCream()
+  .finishOrder();
+
+console.log('\\n--- Resumen ---');
+coffeeShop.showTotalSales();
+
+console.log('\\n🎯 Cada decorador añade funcionalidad sin modificar el objeto base!');`,
+      php: `<?php
+// Componente base - interfaz común
+abstract class Coffee {
+    abstract public function cost(): float;
+    abstract public function description(): string;
+}
+
+// Componente concreto - implementación base
+class SimpleCoffee extends Coffee {
+    public function cost(): float {
+        return 2.0;
+    }
+    
+    public function description(): string {
+        return 'Café simple';
+    }
+}
+
+// Decorador base - mantiene una referencia al componente
+abstract class CoffeeDecorator extends Coffee {
+    protected $coffee;
+    
+    public function __construct(Coffee $coffee) {
+        $this->coffee = $coffee;
+    }
+    
+    public function cost(): float {
+        return $this->coffee->cost();
+    }
+    
+    public function description(): string {
+        return $this->coffee->description();
+    }
+}
+
+// Decoradores concretos - añaden funcionalidades específicas
+class MilkDecorator extends CoffeeDecorator {
+    public function cost(): float {
+        return $this->coffee->cost() + 0.5;
+    }
+    
+    public function description(): string {
+        return $this->coffee->description() . ', Leche';
+    }
+}
+
+class SugarDecorator extends CoffeeDecorator {
+    public function cost(): float {
+        return $this->coffee->cost() + 0.2;
+    }
+    
+    public function description(): string {
+        return $this->coffee->description() . ', Azúcar';
+    }
+}
+
+class WhipCreamDecorator extends CoffeeDecorator {
+    public function cost(): float {
+        return $this->coffee->cost() + 0.7;
+    }
+    
+    public function description(): string {
+        return $this->coffee->description() . ', Crema batida';
+    }
+}
+
+class VanillaDecorator extends CoffeeDecorator {
+    public function cost(): float {
+        return $this->coffee->cost() + 0.6;
+    }
+    
+    public function description(): string {
+        return $this->coffee->description() . ', Vainilla';
+    }
+}
+
+class ExtraShotDecorator extends CoffeeDecorator {
+    public function cost(): float {
+        return $this->coffee->cost() + 1.2;
+    }
+    
+    public function description(): string {
+        return $this->coffee->description() . ', Shot extra';
+    }
+}
+
+// Sistema de pedidos que usa decoradores
+class CoffeeShop {
+    private $orders = [];
+    
+    public function createOrder(string $customerName): Order {
+        return new Order($customerName, $this);
+    }
+    
+    public function addOrder(Order $order): void {
+        $this->orders[] = $order;
+        echo "📝 Pedido agregado para {$order->getCustomerName()}\\n";
+    }
+    
+    public function showTotalSales(): void {
+        $total = array_reduce($this->orders, function($sum, $order) {
+            return $sum + $order->getCoffee()->cost();
+        }, 0);
+        echo "💰 Ventas totales: $" . number_format($total, 2) . "\\n";
+    }
+}
+
+class Order {
+    private $customerName;
+    private $shop;
+    private $coffee;
+    
+    public function __construct(string $customerName, CoffeeShop $shop) {
+        $this->customerName = $customerName;
+        $this->shop = $shop;
+        $this->coffee = new SimpleCoffee();
+    }
+    
+    public function addMilk(): self {
+        $this->coffee = new MilkDecorator($this->coffee);
+        return $this;
+    }
+    
+    public function addSugar(): self {
+        $this->coffee = new SugarDecorator($this->coffee);
+        return $this;
+    }
+    
+    public function addWhipCream(): self {
+        $this->coffee = new WhipCreamDecorator($this->coffee);
+        return $this;
+    }
+    
+    public function addVanilla(): self {
+        $this->coffee = new VanillaDecorator($this->coffee);
+        return $this;
+    }
+    
+    public function addExtraShot(): self {
+        $this->coffee = new ExtraShotDecorator($this->coffee);
+        return $this;
+    }
+    
+    public function finishOrder(): self {
+        $this->shop->addOrder($this);
+        echo "☕ {$this->customerName}: {$this->coffee->description()}\\n";
+        echo "   Precio: $" . number_format($this->coffee->cost(), 2) . "\\n";
+        return $this;
+    }
+    
+    public function getCustomerName(): string {
+        return $this->customerName;
+    }
+    
+    public function getCoffee(): Coffee {
+        return $this->coffee;
+    }
+}
+
+// Uso del patrón Decorator
+echo "=== Cafetería con Patrón Decorator ===\\n\\n";
+
+$coffeeShop = new CoffeeShop();
+
+// Pedidos simples y complejos
+echo "--- Pedidos del día ---\\n";
+
+// Café simple
+$coffeeShop->createOrder('Ana')
+    ->finishOrder();
+
+// Café con leche
+$coffeeShop->createOrder('Carlos')
+    ->addMilk()
+    ->finishOrder();
+
+// Café complejo con múltiples decoradores
+$coffeeShop->createOrder('María')
+    ->addMilk()
+    ->addSugar()
+    ->addWhipCream()
+    ->addVanilla()
+    ->finishOrder();
+
+// Café para amante del café fuerte
+$coffeeShop->createOrder('Diego')
+    ->addExtraShot()
+    ->addExtraShot()
+    ->addSugar()
+    ->finishOrder();
+
+// Café dulce
+$coffeeShop->createOrder('Sofia')
+    ->addMilk()
+    ->addSugar()
+    ->addVanilla()
+    ->addWhipCream()
+    ->finishOrder();
+
+echo "\\n--- Resumen ---\\n";
+$coffeeShop->showTotalSales();
+
+echo "\\n🎯 Cada decorador añade funcionalidad sin modificar el objeto base!\\n";
+?>`
     },
     relatedPatterns: ["adapter", "composite"]
   },
@@ -1935,10 +2775,470 @@ $batchSlack->sendBatch();
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Facade proporciona una interfaz simplificada a un subsistema complejo.",
+    content: "El patrón Facade es como el mostrador de un restaurante: no necesitas ir a la cocina, hablar con el chef, gestionar inventario o lavar platos. Solo dices lo que quieres al mesero y él coordina todo el trabajo complejo detrás de escenas.\n\nEste patrón proporciona una interfaz simplificada para trabajar con un subsistema complejo.\n\n**¿Cuándo usarlo?**\n• Cuando quieres proporcionar una interfaz simple a un subsistema complejo\n• Cuando hay muchas dependencias entre clientes e implementación de una abstracción\n• Cuando quieres estructurar un subsistema en capas\n• Cuando necesitas desacoplar un subsistema de sus clientes\n\n**Ventajas:**\n• Aísla clientes de los componentes del subsistema\n• Promueve acoplamiento débil entre subsistema y clientes\n• No impide que las aplicaciones usen clases del subsistema si las necesitan\n• Simplifica la interfaz para casos de uso comunes\n\n**Desventajas:**\n• Un facade puede convertirse en un objeto dios acoplado a todas las clases de una aplicación\n• Puede agregar una capa innecesaria de abstracción",
     examples: {
-      javascript: "class Facade { constructor() { this.subsystem1 = new Subsystem1(); this.subsystem2 = new Subsystem2(); } operation() { return this.subsystem1.operation1() + this.subsystem2.operation2(); } }",
-      php: "class Facade { private $subsystem1; private $subsystem2; public function __construct() { $this->subsystem1 = new Subsystem1(); $this->subsystem2 = new Subsystem2(); } public function operation() { return $this->subsystem1->operation1() . $this->subsystem2->operation2(); } }"
+      javascript: `// Subsistemas complejos que maneja el Facade
+class VideoConverter {
+  convert(filename, format) {
+    console.log(\`🎬 Convirtiendo \${filename} a formato \${format}\`);
+    return \`\${filename}.\${format}\`;
+  }
+}
+
+class AudioProcessor {
+  extractAudio(filename) {
+    console.log(\`🎵 Extrayendo audio de \${filename}\`);
+    return \`\${filename}_audio.wav\`;
+  }
+  
+  processAudio(audioFile, effects) {
+    console.log(\`🎛️  Procesando \${audioFile} con efectos: \${effects.join(', ')}\`);
+    return \`processed_\${audioFile}\`;
+  }
+}
+
+class FileManager {
+  createTempFile(name) {
+    console.log(\`📁 Creando archivo temporal: \${name}\`);
+    return \`temp_\${name}\`;
+  }
+  
+  deleteFile(filename) {
+    console.log(\`🗑️  Eliminando archivo: \${filename}\`);
+  }
+  
+  moveFile(source, destination) {
+    console.log(\`📦 Moviendo \${source} a \${destination}\`);
+    return destination;
+  }
+}
+
+class CompressionEngine {
+  compress(filename, quality) {
+    console.log(\`🗜️  Comprimiendo \${filename} con calidad \${quality}%\`);
+    return \`compressed_\${filename}\`;
+  }
+}
+
+class MetadataExtractor {
+  extractMetadata(filename) {
+    console.log(\`📊 Extrayendo metadatos de \${filename}\`);
+    return {
+      duration: '00:03:45',
+      resolution: '1920x1080',
+      codec: 'H.264',
+      size: '45.2 MB'
+    };
+  }
+}
+
+class ThumbnailGenerator {
+  generateThumbnail(videoFile, timeStamp) {
+    console.log(\`🖼️  Generando miniatura de \${videoFile} en \${timeStamp}\`);
+    return \`\${videoFile}_thumb.jpg\`;
+  }
+}
+
+// Facade - interfaz simplificada para el complejo subsistema multimedia
+class MultimediaFacade {
+  constructor() {
+    this.videoConverter = new VideoConverter();
+    this.audioProcessor = new AudioProcessor();
+    this.fileManager = new FileManager();
+    this.compression = new CompressionEngine();
+    this.metadata = new MetadataExtractor();
+    this.thumbnails = new ThumbnailGenerator();
+  }
+  
+  // Operación simplificada para convertir video completo
+  convertVideo(inputFile, outputFormat, options = {}) {
+    console.log(\`\\n🚀 Iniciando conversión completa de \${inputFile}\`);
+    
+    try {
+      // 1. Extraer metadatos
+      const metadata = this.metadata.extractMetadata(inputFile);
+      console.log(\`   Duración: \${metadata.duration}, Resolución: \${metadata.resolution}\`);
+      
+      // 2. Crear archivo temporal
+      const tempFile = this.fileManager.createTempFile(inputFile);
+      
+      // 3. Convertir video
+      const convertedFile = this.videoConverter.convert(tempFile, outputFormat);
+      
+      // 4. Comprimir si se solicita
+      let finalFile = convertedFile;
+      if (options.compress) {
+        finalFile = this.compression.compress(convertedFile, options.quality || 85);
+      }
+      
+      // 5. Generar miniatura
+      if (options.generateThumbnail) {
+        this.thumbnails.generateThumbnail(finalFile, '00:01:30');
+      }
+      
+      // 6. Mover a destino final
+      const outputFile = \`output/\${finalFile}\`;
+      this.fileManager.moveFile(finalFile, outputFile);
+      
+      // 7. Limpiar archivos temporales
+      this.fileManager.deleteFile(tempFile);
+      if (finalFile !== convertedFile) {
+        this.fileManager.deleteFile(convertedFile);
+      }
+      
+      console.log(\`✅ Conversión completada: \${outputFile}\`);
+      return outputFile;
+      
+    } catch (error) {
+      console.log(\`❌ Error en conversión: \${error.message}\`);
+      throw error;
+    }
+  }
+  
+  // Operación simplificada para extraer y procesar audio
+  extractAndProcessAudio(videoFile, effects = []) {
+    console.log(\`\\n🎵 Procesando audio de \${videoFile}\`);
+    
+    // 1. Extraer audio del video
+    const audioFile = this.audioProcessor.extractAudio(videoFile);
+    
+    // 2. Procesar con efectos si se especifican
+    let processedAudio = audioFile;
+    if (effects.length > 0) {
+      processedAudio = this.audioProcessor.processAudio(audioFile, effects);
+    }
+    
+    // 3. Comprimir audio
+    const compressedAudio = this.compression.compress(processedAudio, 90);
+    
+    console.log(\`✅ Audio procesado: \${compressedAudio}\`);
+    return compressedAudio;
+  }
+  
+  // Operación para crear resumen de video
+  createVideoSummary(videoFile) {
+    console.log(\`\\n📋 Creando resumen de \${videoFile}\`);
+    
+    // 1. Obtener metadatos completos
+    const metadata = this.metadata.extractMetadata(videoFile);
+    
+    // 2. Generar múltiples miniaturas
+    const thumbnails = [
+      this.thumbnails.generateThumbnail(videoFile, '00:00:30'),
+      this.thumbnails.generateThumbnail(videoFile, '00:01:30'),
+      this.thumbnails.generateThumbnail(videoFile, '00:02:30')
+    ];
+    
+    const summary = {
+      file: videoFile,
+      metadata: metadata,
+      thumbnails: thumbnails,
+      summary: 'Resumen automático generado'
+    };
+    
+    console.log(\`✅ Resumen creado para \${videoFile}\`);
+    return summary;
+  }
+}
+
+// Cliente que usa el Facade
+class VideoProcessingApp {
+  constructor() {
+    this.multimedia = new MultimediaFacade();
+    this.processedVideos = [];
+  }
+  
+  processVideo(filename, format, options) {
+    console.log(\`🎯 Aplicación procesando: \${filename}\`);
+    
+    try {
+      // Sin Facade, el cliente tendría que:
+      // - Conocer 6 clases diferentes
+      // - Coordinar manualmente 10+ operaciones
+      // - Manejar el orden correcto de operaciones
+      // - Gestionar archivos temporales
+      // - Manejar errores en cada paso
+      
+      // Con Facade, es simple:
+      const result = this.multimedia.convertVideo(filename, format, options);
+      this.processedVideos.push(result);
+      
+      return result;
+    } catch (error) {
+      console.log(\`❌ Error en aplicación: \${error.message}\`);
+      return null;
+    }
+  }
+  
+  showProcessedVideos() {
+    console.log(\`\\n📊 Videos procesados: \${this.processedVideos.length}\`);
+    this.processedVideos.forEach((video, index) => {
+      console.log(\`   \${index + 1}. \${video}\`);
+    });
+  }
+}
+
+// Uso del patrón Facade
+console.log('=== Procesador de Video con Patrón Facade ===');
+
+const app = new VideoProcessingApp();
+
+// El cliente solo necesita conocer el Facade, no los 6 subsistemas
+app.processVideo('vacation.mp4', 'webm', { 
+  compress: true, 
+  quality: 85, 
+  generateThumbnail: true 
+});
+
+app.processVideo('presentation.mov', 'mp4', { 
+  compress: false, 
+  generateThumbnail: true 
+});
+
+// Operaciones adicionales simplificadas
+app.multimedia.extractAndProcessAudio('concert.mp4', ['reverb', 'normalize']);
+app.multimedia.createVideoSummary('documentary.mp4');
+
+app.showProcessedVideos();
+
+console.log('\\n🎯 El Facade oculta la complejidad de 6 subsistemas diferentes!');`,
+      php: `<?php
+// Subsistemas complejos que maneja el Facade
+class VideoConverter {
+    public function convert(string $filename, string $format): string {
+        echo "🎬 Convirtiendo $filename a formato $format\\n";
+        return "$filename.$format";
+    }
+}
+
+class AudioProcessor {
+    public function extractAudio(string $filename): string {
+        echo "🎵 Extrayendo audio de $filename\\n";
+        return "{$filename}_audio.wav";
+    }
+    
+    public function processAudio(string $audioFile, array $effects): string {
+        $effectsList = implode(', ', $effects);
+        echo "🎛️  Procesando $audioFile con efectos: $effectsList\\n";
+        return "processed_$audioFile";
+    }
+}
+
+class FileManager {
+    public function createTempFile(string $name): string {
+        echo "📁 Creando archivo temporal: $name\\n";
+        return "temp_$name";
+    }
+    
+    public function deleteFile(string $filename): void {
+        echo "🗑️  Eliminando archivo: $filename\\n";
+    }
+    
+    public function moveFile(string $source, string $destination): string {
+        echo "📦 Moviendo $source a $destination\\n";
+        return $destination;
+    }
+}
+
+class CompressionEngine {
+    public function compress(string $filename, int $quality): string {
+        echo "🗜️  Comprimiendo $filename con calidad {$quality}%\\n";
+        return "compressed_$filename";
+    }
+}
+
+class MetadataExtractor {
+    public function extractMetadata(string $filename): array {
+        echo "📊 Extrayendo metadatos de $filename\\n";
+        return [
+            'duration' => '00:03:45',
+            'resolution' => '1920x1080',
+            'codec' => 'H.264',
+            'size' => '45.2 MB'
+        ];
+    }
+}
+
+class ThumbnailGenerator {
+    public function generateThumbnail(string $videoFile, string $timeStamp): string {
+        echo "🖼️  Generando miniatura de $videoFile en $timeStamp\\n";
+        return "{$videoFile}_thumb.jpg";
+    }
+}
+
+// Facade - interfaz simplificada para el complejo subsistema multimedia
+class MultimediaFacade {
+    private $videoConverter;
+    private $audioProcessor;
+    private $fileManager;
+    private $compression;
+    private $metadata;
+    private $thumbnails;
+    
+    public function __construct() {
+        $this->videoConverter = new VideoConverter();
+        $this->audioProcessor = new AudioProcessor();
+        $this->fileManager = new FileManager();
+        $this->compression = new CompressionEngine();
+        $this->metadata = new MetadataExtractor();
+        $this->thumbnails = new ThumbnailGenerator();
+    }
+    
+    // Operación simplificada para convertir video completo
+    public function convertVideo(string $inputFile, string $outputFormat, array $options = []): string {
+        echo "\\n🚀 Iniciando conversión completa de $inputFile\\n";
+        
+        try {
+            // 1. Extraer metadatos
+            $metadata = $this->metadata->extractMetadata($inputFile);
+            echo "   Duración: {$metadata['duration']}, Resolución: {$metadata['resolution']}\\n";
+            
+            // 2. Crear archivo temporal
+            $tempFile = $this->fileManager->createTempFile($inputFile);
+            
+            // 3. Convertir video
+            $convertedFile = $this->videoConverter->convert($tempFile, $outputFormat);
+            
+            // 4. Comprimir si se solicita
+            $finalFile = $convertedFile;
+            if ($options['compress'] ?? false) {
+                $finalFile = $this->compression->compress($convertedFile, $options['quality'] ?? 85);
+            }
+            
+            // 5. Generar miniatura
+            if ($options['generateThumbnail'] ?? false) {
+                $this->thumbnails->generateThumbnail($finalFile, '00:01:30');
+            }
+            
+            // 6. Mover a destino final
+            $outputFile = "output/$finalFile";
+            $this->fileManager->moveFile($finalFile, $outputFile);
+            
+            // 7. Limpiar archivos temporales
+            $this->fileManager->deleteFile($tempFile);
+            if ($finalFile !== $convertedFile) {
+                $this->fileManager->deleteFile($convertedFile);
+            }
+            
+            echo "✅ Conversión completada: $outputFile\\n";
+            return $outputFile;
+            
+        } catch (Exception $error) {
+            echo "❌ Error en conversión: {$error->getMessage()}\\n";
+            throw $error;
+        }
+    }
+    
+    // Operación simplificada para extraer y procesar audio
+    public function extractAndProcessAudio(string $videoFile, array $effects = []): string {
+        echo "\\n🎵 Procesando audio de $videoFile\\n";
+        
+        // 1. Extraer audio del video
+        $audioFile = $this->audioProcessor->extractAudio($videoFile);
+        
+        // 2. Procesar con efectos si se especifican
+        $processedAudio = $audioFile;
+        if (!empty($effects)) {
+            $processedAudio = $this->audioProcessor->processAudio($audioFile, $effects);
+        }
+        
+        // 3. Comprimir audio
+        $compressedAudio = $this->compression->compress($processedAudio, 90);
+        
+        echo "✅ Audio procesado: $compressedAudio\\n";
+        return $compressedAudio;
+    }
+    
+    // Operación para crear resumen de video
+    public function createVideoSummary(string $videoFile): array {
+        echo "\\n📋 Creando resumen de $videoFile\\n";
+        
+        // 1. Obtener metadatos completos
+        $metadata = $this->metadata->extractMetadata($videoFile);
+        
+        // 2. Generar múltiples miniaturas
+        $thumbnails = [
+            $this->thumbnails->generateThumbnail($videoFile, '00:00:30'),
+            $this->thumbnails->generateThumbnail($videoFile, '00:01:30'),
+            $this->thumbnails->generateThumbnail($videoFile, '00:02:30')
+        ];
+        
+        $summary = [
+            'file' => $videoFile,
+            'metadata' => $metadata,
+            'thumbnails' => $thumbnails,
+            'summary' => 'Resumen automático generado'
+        ];
+        
+        echo "✅ Resumen creado para $videoFile\\n";
+        return $summary;
+    }
+}
+
+// Cliente que usa el Facade
+class VideoProcessingApp {
+    private $multimedia;
+    private $processedVideos = [];
+    
+    public function __construct() {
+        $this->multimedia = new MultimediaFacade();
+    }
+    
+    public function processVideo(string $filename, string $format, array $options): ?string {
+        echo "🎯 Aplicación procesando: $filename\\n";
+        
+        try {
+            // Sin Facade, el cliente tendría que:
+            // - Conocer 6 clases diferentes
+            // - Coordinar manualmente 10+ operaciones
+            // - Manejar el orden correcto de operaciones
+            // - Gestionar archivos temporales
+            // - Manejar errores en cada paso
+            
+            // Con Facade, es simple:
+            $result = $this->multimedia->convertVideo($filename, $format, $options);
+            $this->processedVideos[] = $result;
+            
+            return $result;
+        } catch (Exception $error) {
+            echo "❌ Error en aplicación: {$error->getMessage()}\\n";
+            return null;
+        }
+    }
+    
+    public function showProcessedVideos(): void {
+        echo "\\n📊 Videos procesados: " . count($this->processedVideos) . "\\n";
+        foreach ($this->processedVideos as $index => $video) {
+            echo "   " . ($index + 1) . ". $video\\n";
+        }
+    }
+}
+
+// Uso del patrón Facade
+echo "=== Procesador de Video con Patrón Facade ===\\n";
+
+$app = new VideoProcessingApp();
+
+// El cliente solo necesita conocer el Facade, no los 6 subsistemas
+$app->processVideo('vacation.mp4', 'webm', [
+    'compress' => true,
+    'quality' => 85,
+    'generateThumbnail' => true
+]);
+
+$app->processVideo('presentation.mov', 'mp4', [
+    'compress' => false,
+    'generateThumbnail' => true
+]);
+
+// Operaciones adicionales simplificadas
+$app->multimedia->extractAndProcessAudio('concert.mp4', ['reverb', 'normalize']);
+$app->multimedia->createVideoSummary('documentary.mp4');
+
+$app->showProcessedVideos();
+
+echo "\\n🎯 El Facade oculta la complejidad de 6 subsistemas diferentes!\\n";
+?>`
     },
     relatedPatterns: ["adapter", "mediator"]
   },
@@ -1955,10 +3255,349 @@ $batchSlack->sendBatch();
     architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3"],
-    content: "El patrón Flyweight permite ahorrar memoria compartiendo eficientemente grandes cantidades de objetos similares.",
+    content: "El patrón Flyweight es como compartir libros en una biblioteca: en lugar de que cada persona tenga su propia copia de 'Don Quijote', todos comparten las mismas copias. Solo el marcapáginas (contexto) es personal.\n\nEste patrón minimiza el uso de memoria cuando trabajas con gran cantidad de objetos similares.\n\n**¿Cuándo usarlo?**\n• Cuando una aplicación debe soportar una gran cantidad de objetos\n• Cuando el costo de almacenamiento es alto debido al gran número de objetos\n• Cuando grupos de objetos pueden ser reemplazados por pocos objetos compartidos\n• Cuando la aplicación no depende de la identidad del objeto\n\n**Ventajas:**\n• Puede ahorrar mucha RAM si tienes millones de objetos similares\n• Centraliza el estado que comparten múltiples objetos\n• Reduce el número total de objetos en memoria\n\n**Desventajas:**\n• Puedes estar intercambiando RAM por ciclos de CPU si el contexto cambia frecuentemente\n• El código se vuelve más complicado\n• Solo es útil cuando realmente tienes problemas de memoria",
     examples: {
-      javascript: "class Flyweight { constructor(sharedState) { this.sharedState = sharedState; } operation(context) { console.log('Shared:', this.sharedState, 'Context:', context); } }",
-      php: "class Flyweight { private $sharedState; public function __construct($sharedState) { $this->sharedState = $sharedState; } public function operation($context) { echo 'Shared: ' . $this->sharedState . ' Context: ' . $context; } }"
+      javascript: `// Flyweight - estado intrínseco compartido
+class TreeType {
+  constructor(name, color, sprite) {
+    this.name = name;        // Estado intrínseco (compartido)
+    this.color = color;      // Estado intrínseco (compartido)
+    this.sprite = sprite;    // Estado intrínseco (compartido)
+  }
+  
+  // Operación que recibe contexto extrínseco
+  render(canvas, x, y, size) {
+    console.log(\`🌳 Renderizando \${this.name} \${this.color} en (\${x}, \${y}) tamaño \${size}\`);
+    // Aquí se renderizaría realmente usando this.sprite
+    canvas.drawTree(this.sprite, x, y, size, this.color);
+  }
+  
+  getInfo() {
+    return \`\${this.name} (\${this.color})\`;
+  }
+}
+
+// Factory para gestionar Flyweights
+class TreeTypeFactory {
+  static treeTypes = new Map();
+  
+  static getTreeType(name, color, sprite) {
+    const key = \`\${name}_\${color}_\${sprite}\`;
+    
+    if (!TreeTypeFactory.treeTypes.has(key)) {
+      console.log(\`🏭 Creando nuevo TreeType: \${name} \${color}\`);
+      TreeTypeFactory.treeTypes.set(key, new TreeType(name, color, sprite));
+    } else {
+      console.log(\`♻️  Reutilizando TreeType existente: \${name} \${color}\`);
+    }
+    
+    return TreeTypeFactory.treeTypes.get(key);
+  }
+  
+  static getCreatedTreeTypes() {
+    return TreeTypeFactory.treeTypes.size;
+  }
+  
+  static listTreeTypes() {
+    console.log('📋 Tipos de árboles creados:');
+    TreeTypeFactory.treeTypes.forEach((treeType, key) => {
+      console.log(\`   \${key}: \${treeType.getInfo()}\`);
+    });
+  }
+}
+
+// Contexto - contiene el estado extrínseco
+class Tree {
+  constructor(x, y, size, treeType) {
+    this.x = x;              // Estado extrínseco (único por instancia)
+    this.y = y;              // Estado extrínseco (único por instancia)
+    this.size = size;        // Estado extrínseco (único por instancia)
+    this.treeType = treeType; // Referencia al Flyweight
+  }
+  
+  render(canvas) {
+    this.treeType.render(canvas, this.x, this.y, this.size);
+  }
+  
+  move(newX, newY) {
+    this.x = newX;
+    this.y = newY;
+    console.log(\`🚶 Árbol movido a (\${newX}, \${newY})\`);
+  }
+}
+
+// Canvas simple para simular renderizado
+class Canvas {
+  drawTree(sprite, x, y, size, color) {
+    // Simulación de renderizado
+    console.log(\`   🎨 Dibujando sprite '\${sprite}' en (\${x}, \${y})\`);
+  }
+}
+
+// Forest - cliente que gestiona muchos árboles
+class Forest {
+  constructor() {
+    this.trees = [];
+    this.canvas = new Canvas();
+  }
+  
+  plantTree(x, y, size, name, color, sprite) {
+    // Obtener el flyweight (reutilizado si ya existe)
+    const treeType = TreeTypeFactory.getTreeType(name, color, sprite);
+    
+    // Crear el contexto específico
+    const tree = new Tree(x, y, size, treeType);
+    this.trees.push(tree);
+    
+    console.log(\`🌱 Plantado \${name} \${color} en (\${x}, \${y})\`);
+  }
+  
+  render() {
+    console.log(\`\\n🎨 Renderizando bosque con \${this.trees.length} árboles...\`);
+    this.trees.forEach(tree => tree.render(this.canvas));
+  }
+  
+  getStats() {
+    console.log(\`\\n📊 Estadísticas del bosque:\`);
+    console.log(\`   Total de árboles: \${this.trees.length}\`);
+    console.log(\`   Tipos únicos creados: \${TreeTypeFactory.getCreatedTreeTypes()}\`);
+    
+    const memoryWithoutFlyweight = this.trees.length * 100; // Estimación
+    const memoryWithFlyweight = (this.trees.length * 20) + (TreeTypeFactory.getCreatedTreeTypes() * 80);
+    
+    console.log(\`   Memoria sin Flyweight: ~\${memoryWithoutFlyweight}KB\`);
+    console.log(\`   Memoria con Flyweight: ~\${memoryWithFlyweight}KB\`);
+    console.log(\`   Ahorro de memoria: ~\${memoryWithoutFlyweight - memoryWithFlyweight}KB\`);
+  }
+  
+  moveTreesInArea(minX, minY, maxX, maxY, deltaX, deltaY) {
+    console.log(\`\\n🌪️  Moviendo árboles en área (\${minX}, \${minY}) a (\${maxX}, \${maxY})\`);
+    
+    this.trees
+      .filter(tree => tree.x >= minX && tree.x <= maxX && tree.y >= minY && tree.y <= maxY)
+      .forEach(tree => tree.move(tree.x + deltaX, tree.y + deltaY));
+  }
+}
+
+// Uso del patrón Flyweight
+console.log('=== Simulador de Bosque con Patrón Flyweight ===\\n');
+
+const forest = new Forest();
+
+// Plantar muchos árboles (algunos del mismo tipo)
+console.log('--- Plantando árboles ---');
+
+// Robles
+forest.plantTree(10, 20, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+forest.plantTree(50, 30, 'mediano', 'Roble', 'verde', 'oak_sprite.png');
+forest.plantTree(80, 10, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+
+// Pinos
+forest.plantTree(30, 40, 'alto', 'Pino', 'verde_oscuro', 'pine_sprite.png');
+forest.plantTree(70, 50, 'alto', 'Pino', 'verde_oscuro', 'pine_sprite.png');
+
+// Cerezos en flor
+forest.plantTree(40, 60, 'mediano', 'Cerezo', 'rosa', 'cherry_sprite.png');
+forest.plantTree(90, 70, 'pequeño', 'Cerezo', 'rosa', 'cherry_sprite.png');
+
+// Más robles (reutilizarán el flyweight existente)
+forest.plantTree(15, 80, 'mediano', 'Roble', 'verde', 'oak_sprite.png');
+forest.plantTree(55, 90, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+
+// Árboles en otoño (nuevos flyweights)
+forest.plantTree(25, 100, 'mediano', 'Roble', 'amarillo', 'oak_sprite.png');
+forest.plantTree(65, 110, 'grande', 'Roble', 'rojo', 'oak_sprite.png');
+
+TreeTypeFactory.listTreeTypes();
+forest.getStats();
+
+console.log('\\n--- Renderizando bosque ---');
+forest.render();
+
+console.log('\\n--- Simulando viento ---');
+forest.moveTreesInArea(40, 40, 100, 100, 5, 5);
+
+console.log('\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memoria!');`,
+      php: `<?php
+// Flyweight - estado intrínseco compartido
+class TreeType {
+    private $name;
+    private $color;
+    private $sprite;
+    
+    public function __construct(string $name, string $color, string $sprite) {
+        $this->name = $name;     // Estado intrínseco (compartido)
+        $this->color = $color;   // Estado intrínseco (compartido)
+        $this->sprite = $sprite; // Estado intrínseco (compartido)
+    }
+    
+    // Operación que recibe contexto extrínseco
+    public function render(Canvas $canvas, int $x, int $y, string $size): void {
+        echo "🌳 Renderizando {$this->name} {$this->color} en ($x, $y) tamaño $size\\n";
+        $canvas->drawTree($this->sprite, $x, $y, $size, $this->color);
+    }
+    
+    public function getInfo(): string {
+        return "{$this->name} ({$this->color})";
+    }
+}
+
+// Factory para gestionar Flyweights
+class TreeTypeFactory {
+    private static $treeTypes = [];
+    
+    public static function getTreeType(string $name, string $color, string $sprite): TreeType {
+        $key = "{$name}_{$color}_{$sprite}";
+        
+        if (!isset(self::$treeTypes[$key])) {
+            echo "🏭 Creando nuevo TreeType: $name $color\\n";
+            self::$treeTypes[$key] = new TreeType($name, $color, $sprite);
+        } else {
+            echo "♻️  Reutilizando TreeType existente: $name $color\\n";
+        }
+        
+        return self::$treeTypes[$key];
+    }
+    
+    public static function getCreatedTreeTypes(): int {
+        return count(self::$treeTypes);
+    }
+    
+    public static function listTreeTypes(): void {
+        echo "📋 Tipos de árboles creados:\\n";
+        foreach (self::$treeTypes as $key => $treeType) {
+            echo "   $key: {$treeType->getInfo()}\\n";
+        }
+    }
+}
+
+// Contexto - contiene el estado extrínseco
+class Tree {
+    private $x;
+    private $y;
+    private $size;
+    private $treeType;
+    
+    public function __construct(int $x, int $y, string $size, TreeType $treeType) {
+        $this->x = $x;              // Estado extrínseco (único por instancia)
+        $this->y = $y;              // Estado extrínseco (único por instancia)
+        $this->size = $size;        // Estado extrínseco (único por instancia)
+        $this->treeType = $treeType; // Referencia al Flyweight
+    }
+    
+    public function render(Canvas $canvas): void {
+        $this->treeType->render($canvas, $this->x, $this->y, $this->size);
+    }
+    
+    public function move(int $newX, int $newY): void {
+        $this->x = $newX;
+        $this->y = $newY;
+        echo "🚶 Árbol movido a ($newX, $newY)\\n";
+    }
+    
+    public function getX(): int { return $this->x; }
+    public function getY(): int { return $this->y; }
+}
+
+// Canvas simple para simular renderizado
+class Canvas {
+    public function drawTree(string $sprite, int $x, int $y, string $size, string $color): void {
+        echo "   🎨 Dibujando sprite '$sprite' en ($x, $y)\\n";
+    }
+}
+
+// Forest - cliente que gestiona muchos árboles
+class Forest {
+    private $trees = [];
+    private $canvas;
+    
+    public function __construct() {
+        $this->canvas = new Canvas();
+    }
+    
+    public function plantTree(int $x, int $y, string $size, string $name, string $color, string $sprite): void {
+        // Obtener el flyweight (reutilizado si ya existe)
+        $treeType = TreeTypeFactory::getTreeType($name, $color, $sprite);
+        
+        // Crear el contexto específico
+        $tree = new Tree($x, $y, $size, $treeType);
+        $this->trees[] = $tree;
+        
+        echo "🌱 Plantado $name $color en ($x, $y)\\n";
+    }
+    
+    public function render(): void {
+        echo "\\n🎨 Renderizando bosque con " . count($this->trees) . " árboles...\\n";
+        foreach ($this->trees as $tree) {
+            $tree->render($this->canvas);
+        }
+    }
+    
+    public function getStats(): void {
+        echo "\\n📊 Estadísticas del bosque:\\n";
+        echo "   Total de árboles: " . count($this->trees) . "\\n";
+        echo "   Tipos únicos creados: " . TreeTypeFactory::getCreatedTreeTypes() . "\\n";
+        
+        $memoryWithoutFlyweight = count($this->trees) * 100; // Estimación
+        $memoryWithFlyweight = (count($this->trees) * 20) + (TreeTypeFactory::getCreatedTreeTypes() * 80);
+        
+        echo "   Memoria sin Flyweight: ~{$memoryWithoutFlyweight}KB\\n";
+        echo "   Memoria con Flyweight: ~{$memoryWithFlyweight}KB\\n";
+        echo "   Ahorro de memoria: ~" . ($memoryWithoutFlyweight - $memoryWithFlyweight) . "KB\\n";
+    }
+    
+    public function moveTreesInArea(int $minX, int $minY, int $maxX, int $maxY, int $deltaX, int $deltaY): void {
+        echo "\\n🌪️  Moviendo árboles en área ($minX, $minY) a ($maxX, $maxY)\\n";
+        
+        foreach ($this->trees as $tree) {
+            if ($tree->getX() >= $minX && $tree->getX() <= $maxX && 
+                $tree->getY() >= $minY && $tree->getY() <= $maxY) {
+                $tree->move($tree->getX() + $deltaX, $tree->getY() + $deltaY);
+            }
+        }
+    }
+}
+
+// Uso del patrón Flyweight
+echo "=== Simulador de Bosque con Patrón Flyweight ===\\n\\n";
+
+$forest = new Forest();
+
+// Plantar muchos árboles (algunos del mismo tipo)
+echo "--- Plantando árboles ---\\n";
+
+// Robles
+$forest->plantTree(10, 20, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+$forest->plantTree(50, 30, 'mediano', 'Roble', 'verde', 'oak_sprite.png');
+$forest->plantTree(80, 10, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+
+// Pinos
+$forest->plantTree(30, 40, 'alto', 'Pino', 'verde_oscuro', 'pine_sprite.png');
+$forest->plantTree(70, 50, 'alto', 'Pino', 'verde_oscuro', 'pine_sprite.png');
+
+// Cerezos en flor
+$forest->plantTree(40, 60, 'mediano', 'Cerezo', 'rosa', 'cherry_sprite.png');
+$forest->plantTree(90, 70, 'pequeño', 'Cerezo', 'rosa', 'cherry_sprite.png');
+
+// Más robles (reutilizarán el flyweight existente)
+$forest->plantTree(15, 80, 'mediano', 'Roble', 'verde', 'oak_sprite.png');
+$forest->plantTree(55, 90, 'grande', 'Roble', 'verde', 'oak_sprite.png');
+
+// Árboles en otoño (nuevos flyweights)
+$forest->plantTree(25, 100, 'mediano', 'Roble', 'amarillo', 'oak_sprite.png');
+$forest->plantTree(65, 110, 'grande', 'Roble', 'rojo', 'oak_sprite.png');
+
+TreeTypeFactory::listTreeTypes();
+$forest->getStats();
+
+echo "\\n--- Renderizando bosque ---\\n";
+$forest->render();
+
+echo "\\n--- Simulando viento ---\\n";
+$forest->moveTreesInArea(40, 40, 100, 100, 5, 5);
+
+echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memoria!\\n";
+?>`
     },
     relatedPatterns: ["factory-method", "singleton"]
   },
