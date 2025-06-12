@@ -1,5 +1,5 @@
 import { useParams } from "wouter";
-import { ArrowLeft, BookOpen, Code, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, Code, ExternalLink, Copy, Check } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,76 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { useQuery } from "@tanstack/react-query";
 import type { Pattern } from "@shared/schema";
+import { useState } from "react";
+
+function CodeBlock({ language, code }: { language: string; code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const getLanguageIcon = (lang: string) => {
+    switch (lang.toLowerCase()) {
+      case 'javascript':
+        return <i className="fab fa-js-square text-yellow-500 text-lg"></i>;
+      case 'php':
+        return <i className="fab fa-php text-blue-600 text-lg"></i>;
+      default:
+        return <Code className="h-4 w-4" />;
+    }
+  };
+
+  const getLanguageLabel = (lang: string) => {
+    switch (lang.toLowerCase()) {
+      case 'javascript':
+        return 'JavaScript';
+      case 'php':
+        return 'PHP';
+      default:
+        return lang.charAt(0).toUpperCase() + lang.slice(1);
+    }
+  };
+
+  return (
+    <div className="relative group">
+      <div className="flex items-center justify-between bg-gray-800 dark:bg-gray-900 px-4 py-3 rounded-t-lg border border-gray-700">
+        <div className="flex items-center gap-2">
+          {getLanguageIcon(language)}
+          <span className="text-sm font-medium text-gray-200">
+            {getLanguageLabel(language)}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={copyToClipboard}
+          className="h-8 w-8 p-0 text-gray-400 hover:text-gray-200 hover:bg-gray-700"
+        >
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        </Button>
+      </div>
+      <div className="relative">
+        <pre className="bg-gray-900 dark:bg-black text-gray-100 p-6 rounded-b-lg overflow-x-auto text-sm leading-relaxed font-mono shadow-inner border-x border-b border-gray-700">
+          <code className="text-gray-100">
+            {code}
+          </code>
+        </pre>
+        <div className="absolute top-3 right-3 flex gap-1 opacity-60">
+          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function PatternDetail() {
   const { slug } = useParams();
@@ -210,16 +280,9 @@ export function PatternDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {Object.entries(pattern.examples as Record<string, string>).map(([lang, code]) => (
-                      <div key={lang}>
-                        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 capitalize">
-                          {lang}
-                        </h4>
-                        <pre className="bg-gray-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto text-sm">
-                          <code>{code}</code>
-                        </pre>
-                      </div>
+                      <CodeBlock key={lang} language={lang} code={code} />
                     ))}
                   </div>
                 </CardContent>

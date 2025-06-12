@@ -1556,10 +1556,329 @@ $storeWithStripe->processOrder(149.50);
     architectures: ["hexagonal"],
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
-    content: "El patrón Bridge separa una abstracción de su implementación para que ambas puedan variar independientemente.",
+    content: "El patrón Bridge es como tener un control remoto universal: el control remoto (abstracción) puede funcionar con diferentes dispositivos (implementaciones) sin cambiar su diseño. Separa 'qué hace algo' de 'cómo lo hace'.\n\nEsto es útil cuando tienes una jerarquía que está creciendo en dos dimensiones diferentes: funcionalidad y plataforma.\n\n**¿Cuándo usarlo?**\n• Cuando quieres evitar una unión permanente entre una abstracción y su implementación\n• Cuando tanto las abstracciones como sus implementaciones deben ser extensibles por subclases\n• Cuando cambios en la implementación no deben impactar a los clientes\n• Cuando quieres compartir una implementación entre múltiples objetos\n\n**Ventajas:**\n• Puedes crear clases independientes de plataforma\n• El código cliente funciona con abstracciones de alto nivel\n• Principio Abierto/Cerrado: puedes introducir nuevas abstracciones e implementaciones independientemente\n• Principio de responsabilidad única: abstracciones se enfocan en lógica de alto nivel, implementaciones en detalles\n\n**Desventajas:**\n• Puede hacer el código más complicado aplicándolo a una clase muy cohesiva\n• Requiere mayor planificación inicial",
     examples: {
-      javascript: "class Abstraction { constructor(implementation) { this.implementation = implementation; } operation() { return this.implementation.operationImpl(); } }",
-      php: "class Abstraction { protected $implementation; public function __construct($implementation) { $this->implementation = $implementation; } public function operation() { return $this->implementation->operationImpl(); } }"
+      javascript: `// Implementación - define la interfaz para clases de implementación
+class NotificationSender {
+  sendMessage(title, message) {
+    throw new Error('sendMessage method must be implemented');
+  }
+}
+
+// Implementaciones concretas
+class EmailSender extends NotificationSender {
+  constructor(emailConfig) {
+    super();
+    this.config = emailConfig;
+  }
+  
+  sendMessage(title, message) {
+    console.log(\`📧 Enviando EMAIL:\`);
+    console.log(\`   Para: \${this.config.recipient}\`);
+    console.log(\`   Asunto: \${title}\`);
+    console.log(\`   Mensaje: \${message}\`);
+    console.log(\`   Servidor SMTP: \${this.config.smtpServer}\`);
+    return { sent: true, method: 'email' };
+  }
+}
+
+class SMSSender extends NotificationSender {
+  constructor(smsConfig) {
+    super();
+    this.config = smsConfig;
+  }
+  
+  sendMessage(title, message) {
+    console.log(\`📱 Enviando SMS:\`);
+    console.log(\`   Para: \${this.config.phoneNumber}\`);
+    console.log(\`   Mensaje: \${title}: \${message.substring(0, 140)}\`);
+    console.log(\`   Proveedor: \${this.config.provider}\`);
+    return { sent: true, method: 'sms' };
+  }
+}
+
+class SlackSender extends NotificationSender {
+  constructor(slackConfig) {
+    super();
+    this.config = slackConfig;
+  }
+  
+  sendMessage(title, message) {
+    console.log(\`💬 Enviando SLACK:\`);
+    console.log(\`   Canal: \${this.config.channel}\`);
+    console.log(\`   Título: \${title}\`);
+    console.log(\`   Mensaje: \${message}\`);
+    console.log(\`   Webhook: \${this.config.webhookUrl}\`);
+    return { sent: true, method: 'slack' };
+  }
+}
+
+// Abstracción - define la interfaz para la lógica de control
+class Notification {
+  constructor(sender) {
+    this.sender = sender;
+  }
+  
+  send(title, message) {
+    return this.sender.sendMessage(title, message);
+  }
+}
+
+// Abstracciones refinadas - extienden la interfaz base
+class UrgentNotification extends Notification {
+  send(title, message) {
+    const urgentTitle = \`🚨 URGENTE: \${title}\`;
+    console.log('⚡ Enviando notificación urgente...');
+    return this.sender.sendMessage(urgentTitle, message);
+  }
+}
+
+class DelayedNotification extends Notification {
+  constructor(sender, delayMinutes = 5) {
+    super(sender);
+    this.delay = delayMinutes;
+  }
+  
+  send(title, message) {
+    console.log(\`⏰ Programando notificación para \${this.delay} minutos...\`);
+    // Simular delay
+    setTimeout(() => {
+      this.sender.sendMessage(\`[Programado] \${title}\`, message);
+    }, this.delay * 60 * 1000);
+    return { scheduled: true, delay: this.delay };
+  }
+}
+
+class BatchNotification extends Notification {
+  constructor(sender) {
+    super(sender);
+    this.queue = [];
+  }
+  
+  addToQueue(title, message) {
+    this.queue.push({ title, message });
+    console.log(\`📝 Agregado a cola: \${title} (Total: \${this.queue.length})\`);
+  }
+  
+  sendBatch() {
+    console.log(\`📦 Enviando lote de \${this.queue.length} notificaciones...\`);
+    const results = this.queue.map(notification => 
+      this.sender.sendMessage(notification.title, notification.message)
+    );
+    this.queue = []; // Limpiar cola
+    return results;
+  }
+}
+
+// Uso del patrón Bridge
+console.log('=== Sistema de Notificaciones con Patrón Bridge ===\\n');
+
+// Configuraciones
+const emailConfig = {
+  recipient: 'usuario@empresa.com',
+  smtpServer: 'smtp.empresa.com'
+};
+
+const smsConfig = {
+  phoneNumber: '+1234567890',
+  provider: 'Twilio'
+};
+
+const slackConfig = {
+  channel: '#alertas',
+  webhookUrl: 'https://hooks.slack.com/...'
+};
+
+// Crear diferentes implementaciones
+const emailSender = new EmailSender(emailConfig);
+const smsSender = new SMSSender(smsConfig);
+const slackSender = new SlackSender(slackConfig);
+
+// Usar la misma abstracción con diferentes implementaciones
+console.log('--- Notificaciones normales ---');
+const emailNotification = new Notification(emailSender);
+emailNotification.send('Reunión programada', 'Tu reunión está programada para las 3 PM');
+
+const smsNotification = new Notification(smsSender);
+smsNotification.send('Código de verificación', 'Tu código es: 123456');
+
+console.log('\\n--- Notificaciones urgentes ---');
+const urgentEmail = new UrgentNotification(emailSender);
+urgentEmail.send('Sistema caído', 'El servidor principal ha dejado de responder');
+
+const urgentSlack = new UrgentNotification(slackSender);
+urgentSlack.send('Incidente de seguridad', 'Detectado acceso no autorizado');
+
+console.log('\\n--- Notificaciones en lote ---');
+const batchSlack = new BatchNotification(slackSender);
+batchSlack.addToQueue('Deploy completado', 'Versión 2.1.0 desplegada exitosamente');
+batchSlack.addToQueue('Backup finalizado', 'Backup nocturno completado');
+batchSlack.addToQueue('Mantenimiento programado', 'Mantenimiento el próximo domingo');
+batchSlack.sendBatch();`,
+      php: `<?php
+// Implementación - define la interfaz para clases de implementación
+abstract class NotificationSender {
+    abstract public function sendMessage(string $title, string $message): array;
+}
+
+// Implementaciones concretas
+class EmailSender extends NotificationSender {
+    private $config;
+    
+    public function __construct(array $emailConfig) {
+        $this->config = $emailConfig;
+    }
+    
+    public function sendMessage(string $title, string $message): array {
+        echo "📧 Enviando EMAIL:\\n";
+        echo "   Para: {$this->config['recipient']}\\n";
+        echo "   Asunto: $title\\n";
+        echo "   Mensaje: $message\\n";
+        echo "   Servidor SMTP: {$this->config['smtpServer']}\\n";
+        return ['sent' => true, 'method' => 'email'];
+    }
+}
+
+class SMSSender extends NotificationSender {
+    private $config;
+    
+    public function __construct(array $smsConfig) {
+        $this->config = $smsConfig;
+    }
+    
+    public function sendMessage(string $title, string $message): array {
+        echo "📱 Enviando SMS:\\n";
+        echo "   Para: {$this->config['phoneNumber']}\\n";
+        echo "   Mensaje: $title: " . substr($message, 0, 140) . "\\n";
+        echo "   Proveedor: {$this->config['provider']}\\n";
+        return ['sent' => true, 'method' => 'sms'];
+    }
+}
+
+class SlackSender extends NotificationSender {
+    private $config;
+    
+    public function __construct(array $slackConfig) {
+        $this->config = $slackConfig;
+    }
+    
+    public function sendMessage(string $title, string $message): array {
+        echo "💬 Enviando SLACK:\\n";
+        echo "   Canal: {$this->config['channel']}\\n";
+        echo "   Título: $title\\n";
+        echo "   Mensaje: $message\\n";
+        echo "   Webhook: {$this->config['webhookUrl']}\\n";
+        return ['sent' => true, 'method' => 'slack'];
+    }
+}
+
+// Abstracción - define la interfaz para la lógica de control
+class Notification {
+    protected $sender;
+    
+    public function __construct(NotificationSender $sender) {
+        $this->sender = $sender;
+    }
+    
+    public function send(string $title, string $message): array {
+        return $this->sender->sendMessage($title, $message);
+    }
+}
+
+// Abstracciones refinadas - extienden la interfaz base
+class UrgentNotification extends Notification {
+    public function send(string $title, string $message): array {
+        $urgentTitle = "🚨 URGENTE: $title";
+        echo "⚡ Enviando notificación urgente...\\n";
+        return $this->sender->sendMessage($urgentTitle, $message);
+    }
+}
+
+class DelayedNotification extends Notification {
+    private $delay;
+    
+    public function __construct(NotificationSender $sender, int $delayMinutes = 5) {
+        parent::__construct($sender);
+        $this->delay = $delayMinutes;
+    }
+    
+    public function send(string $title, string $message): array {
+        echo "⏰ Programando notificación para {$this->delay} minutos...\\n";
+        // En un sistema real, aquí usarías una cola de trabajo o scheduler
+        return ['scheduled' => true, 'delay' => $this->delay];
+    }
+}
+
+class BatchNotification extends Notification {
+    private $queue = [];
+    
+    public function addToQueue(string $title, string $message): void {
+        $this->queue[] = ['title' => $title, 'message' => $message];
+        echo "📝 Agregado a cola: $title (Total: " . count($this->queue) . ")\\n";
+    }
+    
+    public function sendBatch(): array {
+        echo "📦 Enviando lote de " . count($this->queue) . " notificaciones...\\n";
+        $results = [];
+        
+        foreach ($this->queue as $notification) {
+            $results[] = $this->sender->sendMessage(
+                $notification['title'], 
+                $notification['message']
+            );
+        }
+        
+        $this->queue = []; // Limpiar cola
+        return $results;
+    }
+}
+
+// Uso del patrón Bridge
+echo "=== Sistema de Notificaciones con Patrón Bridge ===\\n\\n";
+
+// Configuraciones
+$emailConfig = [
+    'recipient' => 'usuario@empresa.com',
+    'smtpServer' => 'smtp.empresa.com'
+];
+
+$smsConfig = [
+    'phoneNumber' => '+1234567890',
+    'provider' => 'Twilio'
+];
+
+$slackConfig = [
+    'channel' => '#alertas',
+    'webhookUrl' => 'https://hooks.slack.com/...'
+];
+
+// Crear diferentes implementaciones
+$emailSender = new EmailSender($emailConfig);
+$smsSender = new SMSSender($smsConfig);
+$slackSender = new SlackSender($slackConfig);
+
+// Usar la misma abstracción con diferentes implementaciones
+echo "--- Notificaciones normales ---\\n";
+$emailNotification = new Notification($emailSender);
+$emailNotification->send('Reunión programada', 'Tu reunión está programada para las 3 PM');
+
+$smsNotification = new Notification($smsSender);
+$smsNotification->send('Código de verificación', 'Tu código es: 123456');
+
+echo "\\n--- Notificaciones urgentes ---\\n";
+$urgentEmail = new UrgentNotification($emailSender);
+$urgentEmail->send('Sistema caído', 'El servidor principal ha dejado de responder');
+
+$urgentSlack = new UrgentNotification($slackSender);
+$urgentSlack->send('Incidente de seguridad', 'Detectado acceso no autorizado');
+
+echo "\\n--- Notificaciones en lote ---\\n";
+$batchSlack = new BatchNotification($slackSender);
+$batchSlack->addToQueue('Deploy completado', 'Versión 2.1.0 desplegada exitosamente');
+$batchSlack->addToQueue('Backup finalizado', 'Backup nocturno completado');
+$batchSlack->addToQueue('Mantenimiento programado', 'Mantenimiento el próximo domingo');
+$batchSlack->sendBatch();
+?>`
     },
     relatedPatterns: ["adapter", "state"]
   },
