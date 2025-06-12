@@ -7000,36 +7000,2816 @@ echo "\\n🎯 El mediador coordina todas las interacciones entre componentes!\\n
     architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Memento permite capturar y externalizar el estado interno de un objeto sin violar su encapsulación.",
+    content: "El patrón Memento es como hacer un punto de guardado en un videojuego: puedes capturar el estado actual completo de tu progreso y luego restaurarlo exactamente como estaba si algo sale mal, sin que el juego tenga que saber los detalles internos de cómo se almacena tu progreso.\n\nEste patrón permite capturar y externalizar el estado interno de un objeto sin violar su encapsulación.\n\n**¿Cuándo usarlo?**\n• Cuando quieres producir instantáneas del estado del objeto para poder restaurar un estado previo\n• Cuando el acceso directo a los campos/getters/setters del objeto viola su encapsulación\n• Cuando quieres implementar operaciones de deshacer (undo)\n• Cuando necesitas mantener un historial de estados de un objeto\n\n**Ventajas:**\n• Puedes producir instantáneas del estado del objeto sin violar su encapsulación\n• Puedes simplificar el código del originador permitiendo que el cuidador mantenga el historial del estado del originador\n• Preserva los límites de encapsulación\n• Simplifica la arquitectura del originador\n\n**Desventajas:**\n• La aplicación puede consumir mucha RAM si los clientes crean mementos muy a menudo\n• Los cuidadores deben rastrear el ciclo de vida del originador para poder destruir mementos obsoletos\n• La mayoría de lenguajes de programación dinámicos no pueden garantizar que el estado dentro del memento se mantenga intacto",
     examples: {
-      javascript: "class Memento { constructor(state) { this.state = state; } getState() { return this.state; } } class Originator { setState(state) { this.state = state; } createMemento() { return new Memento(this.state); } }",
-      php: "class Memento { private $state; public function __construct($state) { $this->state = $state; } public function getState() { return $this->state; } }"
+      javascript: `// Memento - Instantánea del estado del documento
+class DocumentMemento {
+  constructor(content, cursorPosition, selection, formatting) {
+    this.content = content;
+    this.cursorPosition = cursorPosition;
+    this.selection = selection;
+    this.formatting = { ...formatting };
+    this.timestamp = new Date();
+  }
+  
+  getContent() { return this.content; }
+  getCursorPosition() { return this.cursorPosition; }
+  getSelection() { return this.selection; }
+  getFormatting() { return { ...this.formatting }; }
+  getTimestamp() { return this.timestamp; }
+}
+
+// Originator - Editor de texto
+class TextEditor {
+  constructor() {
+    this.content = '';
+    this.cursorPosition = 0;
+    this.selection = { start: 0, end: 0 };
+    this.formatting = {
+      bold: false,
+      italic: false,
+      underline: false,
+      fontSize: 12,
+      fontFamily: 'Arial',
+      color: '#000000'
+    };
+  }
+  
+  // Métodos de edición
+  type(text) {
+    const before = this.content.substring(0, this.cursorPosition);
+    const after = this.content.substring(this.cursorPosition);
+    this.content = before + text + after;
+    this.cursorPosition += text.length;
+    console.log(\`✏️  Escribiendo: "\${text}"\`);
+    console.log(\`   Contenido actual: "\${this.content}"\`);
+  }
+  
+  deleteSelection() {
+    if (this.hasSelection()) {
+      const before = this.content.substring(0, this.selection.start);
+      const after = this.content.substring(this.selection.end);
+      this.content = before + after;
+      this.cursorPosition = this.selection.start;
+      this.clearSelection();
+      console.log(\`🗑️  Texto eliminado\`);
+      console.log(\`   Contenido actual: "\${this.content}"\`);
+    }
+  }
+  
+  setCursorPosition(position) {
+    this.cursorPosition = Math.max(0, Math.min(position, this.content.length));
+    console.log(\`📍 Cursor en posición: \${this.cursorPosition}\`);
+  }
+  
+  setSelection(start, end) {
+    this.selection.start = Math.max(0, Math.min(start, this.content.length));
+    this.selection.end = Math.max(this.selection.start, Math.min(end, this.content.length));
+    console.log(\`🎯 Selección: [\${this.selection.start}, \${this.selection.end}]\`);
+  }
+  
+  clearSelection() {
+    this.selection = { start: 0, end: 0 };
+  }
+  
+  hasSelection() {
+    return this.selection.start !== this.selection.end;
+  }
+  
+  // Métodos de formato
+  setBold(bold) {
+    this.formatting.bold = bold;
+    console.log(\`\${bold ? '**' : 'ℹ️'} Negrita: \${bold ? 'activada' : 'desactivada'}\`);
+  }
+  
+  setItalic(italic) {
+    this.formatting.italic = italic;
+    console.log(\`\${italic ? '/' : 'ℹ️'} Cursiva: \${italic ? 'activada' : 'desactivada'}\`);
+  }
+  
+  setFontSize(size) {
+    this.formatting.fontSize = size;
+    console.log(\`🔤 Tamaño de fuente: \${size}px\`);
+  }
+  
+  setColor(color) {
+    this.formatting.color = color;
+    console.log(\`🎨 Color: \${color}\`);
+  }
+  
+  // Crear memento (punto de guardado)
+  createMemento() {
+    console.log(\`💾 Creando punto de guardado...\`);
+    return new DocumentMemento(
+      this.content,
+      this.cursorPosition,
+      { ...this.selection },
+      this.formatting
+    );
+  }
+  
+  // Restaurar desde memento
+  restoreFromMemento(memento) {
+    console.log(\`🔄 Restaurando desde punto de guardado (\${memento.getTimestamp().toLocaleTimeString()})...\`);
+    this.content = memento.getContent();
+    this.cursorPosition = memento.getCursorPosition();
+    this.selection = memento.getSelection();
+    this.formatting = memento.getFormatting();
+    console.log(\`   Contenido restaurado: "\${this.content}"\`);
+    console.log(\`   Cursor en posición: \${this.cursorPosition}\`);
+  }
+  
+  // Estado actual
+  getStatus() {
+    console.log(\`\\n📄 Estado del documento:\`);
+    console.log(\`   Contenido: "\${this.content}"\`);
+    console.log(\`   Cursor: posición \${this.cursorPosition}\`);
+    console.log(\`   Selección: [\${this.selection.start}, \${this.selection.end}]\`);
+    console.log(\`   Formato: Negrita=\${this.formatting.bold}, Cursiva=\${this.formatting.italic}, Tamaño=\${this.formatting.fontSize}px\`);
+  }
+}
+
+// Caretaker - Historial del editor
+class EditorHistory {
+  constructor(editor) {
+    this.editor = editor;
+    this.mementos = [];
+    this.currentIndex = -1;
+    this.maxHistorySize = 50;
+  }
+  
+  // Guardar estado actual
+  saveState() {
+    // Remover cualquier historial "futuro" si estamos en el medio de la historia
+    if (this.currentIndex < this.mementos.length - 1) {
+      this.mementos = this.mementos.slice(0, this.currentIndex + 1);
+    }
+    
+    // Agregar nuevo memento
+    const memento = this.editor.createMemento();
+    this.mementos.push(memento);
+    this.currentIndex++;
+    
+    // Mantener límite de historial
+    if (this.mementos.length > this.maxHistorySize) {
+      this.mementos.shift();
+      this.currentIndex--;
+    }
+    
+    console.log(\`💾 Estado guardado. Historial: \${this.currentIndex + 1}/\${this.mementos.length}\`);
+  }
+  
+  // Deshacer (undo)
+  undo() {
+    if (this.canUndo()) {
+      this.currentIndex--;
+      this.editor.restoreFromMemento(this.mementos[this.currentIndex]);
+      console.log(\`↩️  Deshecho. Posición en historial: \${this.currentIndex + 1}/\${this.mementos.length}\`);
+      return true;
+    } else {
+      console.log(\`❌ No hay más acciones para deshacer\`);
+      return false;
+    }
+  }
+  
+  // Rehacer (redo)
+  redo() {
+    if (this.canRedo()) {
+      this.currentIndex++;
+      this.editor.restoreFromMemento(this.mementos[this.currentIndex]);
+      console.log(\`↪️  Rehecho. Posición en historial: \${this.currentIndex + 1}/\${this.mementos.length}\`);
+      return true;
+    } else {
+      console.log(\`❌ No hay más acciones para rehacer\`);
+      return false;
+    }
+  }
+  
+  canUndo() {
+    return this.currentIndex > 0;
+  }
+  
+  canRedo() {
+    return this.currentIndex < this.mementos.length - 1;
+  }
+  
+  // Mostrar historial
+  showHistory() {
+    console.log(\`\\n📜 Historial del editor:\`);
+    this.mementos.forEach((memento, index) => {
+      const marker = index === this.currentIndex ? '👉' : '  ';
+      const content = memento.getContent().substring(0, 20) + (memento.getContent().length > 20 ? '...' : '');
+      console.log(\`\${marker} \${index + 1}. "\${content}" (\${memento.getTimestamp().toLocaleTimeString()})\`);
+    });
+  }
+  
+  // Ir a un punto específico en el historial
+  goToState(index) {
+    if (index >= 0 && index < this.mementos.length) {
+      this.currentIndex = index;
+      this.editor.restoreFromMemento(this.mementos[this.currentIndex]);
+      console.log(\`🎯 Saltando a estado \${index + 1}/\${this.mementos.length}\`);
+      return true;
+    }
+    return false;
+  }
+  
+  // Limpiar historial
+  clearHistory() {
+    this.mementos = [];
+    this.currentIndex = -1;
+    console.log(\`🗑️  Historial limpiado\`);
+  }
+}
+
+// Cliente - Simulación de uso del editor
+class EditorSimulator {
+  constructor() {
+    this.editor = new TextEditor();
+    this.history = new EditorHistory(this.editor);
+  }
+  
+  simulate() {
+    console.log('=== Simulación de Editor de Texto con Patrón Memento ===\\n');
+    
+    // Estado inicial
+    console.log('--- Estado inicial ---');
+    this.history.saveState();
+    this.editor.getStatus();
+    
+    // Escribir texto
+    console.log('\\n--- Escribiendo texto ---');
+    this.editor.type('Hola mundo');
+    this.history.saveState();
+    
+    // Cambiar formato
+    console.log('\\n--- Cambiando formato ---');
+    this.editor.setBold(true);
+    this.editor.setFontSize(16);
+    this.history.saveState();
+    
+    // Más texto
+    console.log('\\n--- Más texto ---');
+    this.editor.type(' en negrita');
+    this.history.saveState();
+    
+    // Seleccionar y eliminar
+    console.log('\\n--- Seleccionar y eliminar ---');
+    this.editor.setSelection(5, 10); // Seleccionar "mundo"
+    this.editor.deleteSelection();
+    this.history.saveState();
+    
+    // Estado actual
+    console.log('\\n--- Estado actual ---');
+    this.editor.getStatus();
+    
+    // Mostrar historial
+    this.history.showHistory();
+    
+    // Probar undo/redo
+    console.log('\\n--- Probando undo/redo ---');
+    this.history.undo(); // Deshacer eliminación
+    this.history.undo(); // Deshacer último texto
+    this.history.redo(); // Rehacer último texto
+    
+    // Estado final
+    console.log('\\n--- Estado final ---');
+    this.editor.getStatus();
+    this.history.showHistory();
+    
+    // Ir a un estado específico
+    console.log('\\n--- Saltando al primer estado ---');
+    this.history.goToState(0);
+    this.editor.getStatus();
+  }
+}
+
+// Uso del patrón Memento
+const simulator = new EditorSimulator();
+simulator.simulate();
+
+console.log('\\n🎯 El patrón Memento permite guardar y restaurar estados completos!');`,
+      php: `<?php
+// Memento - Instantánea del estado del documento
+class DocumentMemento {
+    private $content;
+    private $cursorPosition;
+    private $selection;
+    private $formatting;
+    private $timestamp;
+    
+    public function __construct(string $content, int $cursorPosition, array $selection, array $formatting) {
+        $this->content = $content;
+        $this->cursorPosition = $cursorPosition;
+        $this->selection = $selection;
+        $this->formatting = $formatting;
+        $this->timestamp = new DateTime();
+    }
+    
+    public function getContent(): string { return $this->content; }
+    public function getCursorPosition(): int { return $this->cursorPosition; }
+    public function getSelection(): array { return $this->selection; }
+    public function getFormatting(): array { return $this->formatting; }
+    public function getTimestamp(): DateTime { return $this->timestamp; }
+}
+
+// Originator - Editor de texto
+class TextEditor {
+    private $content = '';
+    private $cursorPosition = 0;
+    private $selection = ['start' => 0, 'end' => 0];
+    private $formatting = [
+        'bold' => false,
+        'italic' => false,
+        'underline' => false,
+        'fontSize' => 12,
+        'fontFamily' => 'Arial',
+        'color' => '#000000'
+    ];
+    
+    // Métodos de edición
+    public function type(string $text): void {
+        $before = substr($this->content, 0, $this->cursorPosition);
+        $after = substr($this->content, $this->cursorPosition);
+        $this->content = $before . $text . $after;
+        $this->cursorPosition += strlen($text);
+        echo "✏️  Escribiendo: \\"$text\\"\\n";
+        echo "   Contenido actual: \\"{$this->content}\\"\\n";
+    }
+    
+    public function deleteSelection(): void {
+        if ($this->hasSelection()) {
+            $before = substr($this->content, 0, $this->selection['start']);
+            $after = substr($this->content, $this->selection['end']);
+            $this->content = $before . $after;
+            $this->cursorPosition = $this->selection['start'];
+            $this->clearSelection();
+            echo "🗑️  Texto eliminado\\n";
+            echo "   Contenido actual: \\"{$this->content}\\"\\n";
+        }
+    }
+    
+    public function setCursorPosition(int $position): void {
+        $this->cursorPosition = max(0, min($position, strlen($this->content)));
+        echo "📍 Cursor en posición: {$this->cursorPosition}\\n";
+    }
+    
+    public function setSelection(int $start, int $end): void {
+        $this->selection['start'] = max(0, min($start, strlen($this->content)));
+        $this->selection['end'] = max($this->selection['start'], min($end, strlen($this->content)));
+        echo "🎯 Selección: [{$this->selection['start']}, {$this->selection['end']}]\\n";
+    }
+    
+    public function clearSelection(): void {
+        $this->selection = ['start' => 0, 'end' => 0];
+    }
+    
+    public function hasSelection(): bool {
+        return $this->selection['start'] !== $this->selection['end'];
+    }
+    
+    // Métodos de formato
+    public function setBold(bool $bold): void {
+        $this->formatting['bold'] = $bold;
+        $icon = $bold ? '**' : 'ℹ️';
+        $status = $bold ? 'activada' : 'desactivada';
+        echo "$icon Negrita: $status\\n";
+    }
+    
+    public function setItalic(bool $italic): void {
+        $this->formatting['italic'] = $italic;
+        $icon = $italic ? '/' : 'ℹ️';
+        $status = $italic ? 'activada' : 'desactivada';
+        echo "$icon Cursiva: $status\\n";
+    }
+    
+    public function setFontSize(int $size): void {
+        $this->formatting['fontSize'] = $size;
+        echo "🔤 Tamaño de fuente: {$size}px\\n";
+    }
+    
+    public function setColor(string $color): void {
+        $this->formatting['color'] = $color;
+        echo "🎨 Color: $color\\n";
+    }
+    
+    // Crear memento (punto de guardado)
+    public function createMemento(): DocumentMemento {
+        echo "💾 Creando punto de guardado...\\n";
+        return new DocumentMemento(
+            $this->content,
+            $this->cursorPosition,
+            $this->selection,
+            $this->formatting
+        );
+    }
+    
+    // Restaurar desde memento
+    public function restoreFromMemento(DocumentMemento $memento): void {
+        echo "🔄 Restaurando desde punto de guardado ({$memento->getTimestamp()->format('H:i:s')})...\\n";
+        $this->content = $memento->getContent();
+        $this->cursorPosition = $memento->getCursorPosition();
+        $this->selection = $memento->getSelection();
+        $this->formatting = $memento->getFormatting();
+        echo "   Contenido restaurado: \\"{$this->content}\\"\\n";
+        echo "   Cursor en posición: {$this->cursorPosition}\\n";
+    }
+    
+    // Estado actual
+    public function getStatus(): void {
+        echo "\\n📄 Estado del documento:\\n";
+        echo "   Contenido: \\"{$this->content}\\"\\n";
+        echo "   Cursor: posición {$this->cursorPosition}\\n";
+        echo "   Selección: [{$this->selection['start']}, {$this->selection['end']}]\\n";
+        echo "   Formato: Negrita={$this->formatting['bold']}, Cursiva={$this->formatting['italic']}, Tamaño={$this->formatting['fontSize']}px\\n";
+    }
+}
+
+// Caretaker - Historial del editor
+class EditorHistory {
+    private $editor;
+    private $mementos = [];
+    private $currentIndex = -1;
+    private $maxHistorySize = 50;
+    
+    public function __construct(TextEditor $editor) {
+        $this->editor = $editor;
+    }
+    
+    // Guardar estado actual
+    public function saveState(): void {
+        // Remover cualquier historial "futuro" si estamos en el medio de la historia
+        if ($this->currentIndex < count($this->mementos) - 1) {
+            $this->mementos = array_slice($this->mementos, 0, $this->currentIndex + 1);
+        }
+        
+        // Agregar nuevo memento
+        $memento = $this->editor->createMemento();
+        $this->mementos[] = $memento;
+        $this->currentIndex++;
+        
+        // Mantener límite de historial
+        if (count($this->mementos) > $this->maxHistorySize) {
+            array_shift($this->mementos);
+            $this->currentIndex--;
+        }
+        
+        $total = count($this->mementos);
+        echo "💾 Estado guardado. Historial: " . ($this->currentIndex + 1) . "/$total\\n";
+    }
+    
+    // Deshacer (undo)
+    public function undo(): bool {
+        if ($this->canUndo()) {
+            $this->currentIndex--;
+            $this->editor->restoreFromMemento($this->mementos[$this->currentIndex]);
+            $total = count($this->mementos);
+            echo "↩️  Deshecho. Posición en historial: " . ($this->currentIndex + 1) . "/$total\\n";
+            return true;
+        } else {
+            echo "❌ No hay más acciones para deshacer\\n";
+            return false;
+        }
+    }
+    
+    // Rehacer (redo)
+    public function redo(): bool {
+        if ($this->canRedo()) {
+            $this->currentIndex++;
+            $this->editor->restoreFromMemento($this->mementos[$this->currentIndex]);
+            $total = count($this->mementos);
+            echo "↪️  Rehecho. Posición en historial: " . ($this->currentIndex + 1) . "/$total\\n";
+            return true;
+        } else {
+            echo "❌ No hay más acciones para rehacer\\n";
+            return false;
+        }
+    }
+    
+    public function canUndo(): bool {
+        return $this->currentIndex > 0;
+    }
+    
+    public function canRedo(): bool {
+        return $this->currentIndex < count($this->mementos) - 1;
+    }
+    
+    // Mostrar historial
+    public function showHistory(): void {
+        echo "\\n📜 Historial del editor:\\n";
+        foreach ($this->mementos as $index => $memento) {
+            $marker = $index === $this->currentIndex ? '👉' : '  ';
+            $content = substr($memento->getContent(), 0, 20);
+            if (strlen($memento->getContent()) > 20) {
+                $content .= '...';
+            }
+            echo "$marker " . ($index + 1) . ". \\"$content\\" ({$memento->getTimestamp()->format('H:i:s')})\\n";
+        }
+    }
+    
+    // Ir a un punto específico en el historial
+    public function goToState(int $index): bool {
+        if ($index >= 0 && $index < count($this->mementos)) {
+            $this->currentIndex = $index;
+            $this->editor->restoreFromMemento($this->mementos[$this->currentIndex]);
+            $total = count($this->mementos);
+            echo "🎯 Saltando a estado " . ($index + 1) . "/$total\\n";
+            return true;
+        }
+        return false;
+    }
+    
+    // Limpiar historial
+    public function clearHistory(): void {
+        $this->mementos = [];
+        $this->currentIndex = -1;
+        echo "🗑️  Historial limpiado\\n";
+    }
+}
+
+// Cliente - Simulación de uso del editor
+class EditorSimulator {
+    private $editor;
+    private $history;
+    
+    public function __construct() {
+        $this->editor = new TextEditor();
+        $this->history = new EditorHistory($this->editor);
+    }
+    
+    public function simulate(): void {
+        echo "=== Simulación de Editor de Texto con Patrón Memento ===\\n\\n";
+        
+        // Estado inicial
+        echo "--- Estado inicial ---\\n";
+        $this->history->saveState();
+        $this->editor->getStatus();
+        
+        // Escribir texto
+        echo "\\n--- Escribiendo texto ---\\n";
+        $this->editor->type('Hola mundo');
+        $this->history->saveState();
+        
+        // Cambiar formato
+        echo "\\n--- Cambiando formato ---\\n";
+        $this->editor->setBold(true);
+        $this->editor->setFontSize(16);
+        $this->history->saveState();
+        
+        // Más texto
+        echo "\\n--- Más texto ---\\n";
+        $this->editor->type(' en negrita');
+        $this->history->saveState();
+        
+        // Seleccionar y eliminar
+        echo "\\n--- Seleccionar y eliminar ---\\n";
+        $this->editor->setSelection(5, 10); // Seleccionar "mundo"
+        $this->editor->deleteSelection();
+        $this->history->saveState();
+        
+        // Estado actual
+        echo "\\n--- Estado actual ---\\n";
+        $this->editor->getStatus();
+        
+        // Mostrar historial
+        $this->history->showHistory();
+        
+        // Probar undo/redo
+        echo "\\n--- Probando undo/redo ---\\n";
+        $this->history->undo(); // Deshacer eliminación
+        $this->history->undo(); // Deshacer último texto
+        $this->history->redo(); // Rehacer último texto
+        
+        // Estado final
+        echo "\\n--- Estado final ---\\n";
+        $this->editor->getStatus();
+        $this->history->showHistory();
+        
+        // Ir a un estado específico
+        echo "\\n--- Saltando al primer estado ---\\n";
+        $this->history->goToState(0);
+        $this->editor->getStatus();
+    }
+}
+
+// Uso del patrón Memento
+$simulator = new EditorSimulator();
+$simulator->simulate();
+
+echo "\\n🎯 El patrón Memento permite guardar y restaurar estados completos!\\n";
+?>`
     },
     relatedPatterns: ["command", "iterator"]
   },
   {
     id: 18,
-    name: "Observer",
-    slug: "observer",
-    description: "Define un mecanismo de suscripción para notificar a varios objetos sobre cualquier evento que le suceda al objeto que están observando.",
+    name: "State",
+    slug: "state",
+    description: "Permite a un objeto alterar su comportamiento cuando su estado interno cambia. Parece como si el objeto cambiara su clase.",
     category: "behavioral",
-    difficulty: 2,
-    icon: "eye",
-    color: "from-lime-500 to-lime-600",
-    tags: ["notification", "dependency", "events"],
-    architectures: ["event-driven"],
+    difficulty: 3,
+    icon: "toggle-left",
+    color: "from-indigo-500 to-indigo-600",
+    tags: ["state", "behavior", "finite-state-machine"],
+    architectures: [],
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
-    content: "El patrón Observer es como un sistema de suscripciones a un periódico. Los lectores (observadores) se suscriben al periódico (sujeto), y cuando sale una nueva edición, todos los suscriptores reciben automáticamente una copia.\n\nEste patrón es fundamental en programación porque resuelve el problema de mantener sincronizados múltiples objetos cuando uno de ellos cambia.\n\n**¿Cuándo usarlo?**\n• Cuando cambios en un objeto requieren cambiar otros objetos\n• Cuando no sabes de antemano cuántos objetos necesitan ser notificados\n• Cuando quieres que el acoplamiento entre objetos sea mínimo\n• En interfaces de usuario (el modelo notifica a las vistas)\n\n**Ventajas:**\n• Principio abierto/cerrado: puedes agregar nuevos observadores sin modificar el sujeto\n• Puedes establecer relaciones entre objetos en tiempo de ejecución\n• Bajo acoplamiento entre el sujeto y los observadores\n\n**Desventajas:**\n• Los observadores son notificados en orden aleatorio\n• Si no se manejan bien, pueden crear ciclos de dependencias\n• Dificultad para debuggear el flujo de notificaciones",
+    content: "El patrón State es como un semáforo: dependiendo de su estado actual (verde, amarillo, rojo), se comporta de manera diferente ante la misma acción (los autos que se acercan). El semáforo no cambia físicamente, pero su comportamiento cambia completamente según su estado interno.\n\nEste patrón permite a un objeto alterar su comportamiento cuando su estado interno cambia.\n\n**¿Cuándo usarlo?**\n• Cuando tienes un objeto que se comporta de forma diferente dependiendo de su estado actual\n• Cuando tienes una clase con muchas declaraciones condicionales que dependen del estado del objeto\n• Cuando tienes código duplicado entre estados similares y transiciones de una máquina de estados\n• Cuando quieres eliminar condicionales complejas del código principal\n\n**Ventajas:**\n• Principio de responsabilidad única: organiza el código relacionado con estados particulares en clases separadas\n• Principio abierto/cerrado: introduce nuevos estados sin cambiar clases de estado existentes o el contexto\n• Simplifica el código del contexto eliminando voluminosas declaraciones condicionales de máquina de estados\n• Los estados pueden tener sus propias variables de instancia\n\n**Desventajas:**\n• Aplicar el patrón puede ser excesivo si una máquina de estados tiene solo unos pocos estados o rara vez cambia",
     examples: {
-      javascript: `// Interfaz para observadores
-class Observer {
-  update(data) {
-    throw new Error('Método update debe ser implementado');
+      javascript: `// Interfaz State
+class PlayerState {
+  play(player) {
+    throw new Error('play method must be implemented');
+  }
+  
+  pause(player) {
+    throw new Error('pause method must be implemented');
+  }
+  
+  stop(player) {
+    throw new Error('stop method must be implemented');
+  }
+  
+  next(player) {
+    throw new Error('next method must be implemented');
+  }
+  
+  previous(player) {
+    throw new Error('previous method must be implemented');
+  }
+  
+  getName() {
+    throw new Error('getName method must be implemented');
   }
 }
 
-// Sujeto que será observado
+// Estados concretos
+class StoppedState extends PlayerState {
+  play(player) {
+    console.log('▶️  Iniciando reproducción desde el principio');
+    player.startPlayback();
+    player.setState(player.getPlayingState());
+  }
+  
+  pause(player) {
+    console.log('⏸️  No se puede pausar cuando está detenido');
+  }
+  
+  stop(player) {
+    console.log('⏹️  Ya está detenido');
+  }
+  
+  next(player) {
+    console.log('⏭️  Cambiando a siguiente canción');
+    player.nextTrack();
+    // Permanece en estado detenido
+  }
+  
+  previous(player) {
+    console.log('⏮️  Cambiando a canción anterior');
+    player.previousTrack();
+    // Permanece en estado detenido
+  }
+  
+  getName() {
+    return 'Detenido';
+  }
+}
+
+class PlayingState extends PlayerState {
+  play(player) {
+    console.log('▶️  Ya está reproduciendo');
+  }
+  
+  pause(player) {
+    console.log('⏸️  Pausando reproducción');
+    player.pausePlayback();
+    player.setState(player.getPausedState());
+  }
+  
+  stop(player) {
+    console.log('⏹️  Deteniendo reproducción');
+    player.stopPlayback();
+    player.setState(player.getStoppedState());
+  }
+  
+  next(player) {
+    console.log('⏭️  Cambiando a siguiente canción y siguiendo reproducción');
+    player.nextTrack();
+    player.startPlayback();
+    // Permanece en estado reproduciendo
+  }
+  
+  previous(player) {
+    console.log('⏮️  Cambiando a canción anterior y siguiendo reproducción');
+    player.previousTrack();
+    player.startPlayback();
+    // Permanece en estado reproduciendo
+  }
+  
+  getName() {
+    return 'Reproduciendo';
+  }
+}
+
+class PausedState extends PlayerState {
+  play(player) {
+    console.log('▶️  Reanudando reproducción');
+    player.resumePlayback();
+    player.setState(player.getPlayingState());
+  }
+  
+  pause(player) {
+    console.log('⏸️  Ya está pausado');
+  }
+  
+  stop(player) {
+    console.log('⏹️  Deteniendo desde pausa');
+    player.stopPlayback();
+    player.setState(player.getStoppedState());
+  }
+  
+  next(player) {
+    console.log('⏭️  Cambiando a siguiente canción (permanece pausado)');
+    player.nextTrack();
+    // Permanece en estado pausado
+  }
+  
+  previous(player) {
+    console.log('⏮️  Cambiando a canción anterior (permanece pausado)');
+    player.previousTrack();
+    // Permanece en estado pausado
+  }
+  
+  getName() {
+    return 'Pausado';
+  }
+}
+
+class LoadingState extends PlayerState {
+  play(player) {
+    console.log('⏳ Cargando... no se puede reproducir aún');
+  }
+  
+  pause(player) {
+    console.log('⏳ Cargando... no se puede pausar aún');
+  }
+  
+  stop(player) {
+    console.log('❌ Cancelando carga');
+    player.cancelLoading();
+    player.setState(player.getStoppedState());
+  }
+  
+  next(player) {
+    console.log('⏳ Cargando... espere a que termine');
+  }
+  
+  previous(player) {
+    console.log('⏳ Cargando... espere a que termine');
+  }
+  
+  getName() {
+    return 'Cargando';
+  }
+  
+  onLoadComplete(player) {
+    console.log('✅ Carga completada, listo para reproducir');
+    player.setState(player.getStoppedState());
+  }
+  
+  onLoadError(player) {
+    console.log('❌ Error al cargar');
+    player.setState(player.getStoppedState());
+  }
+}
+
+// Context - Reproductor de música
+class MusicPlayer {
+  constructor() {
+    // Crear instancias de estados
+    this.stoppedState = new StoppedState();
+    this.playingState = new PlayingState();
+    this.pausedState = new PausedState();
+    this.loadingState = new LoadingState();
+    
+    // Estado inicial
+    this.currentState = this.stoppedState;
+    
+    // Lista de reproducción
+    this.playlist = [
+      'Bohemian Rhapsody - Queen',
+      'Hotel California - Eagles',
+      'Stairway to Heaven - Led Zeppelin',
+      'Sweet Child O Mine - Guns N Roses',
+      'Imagine - John Lennon'
+    ];
+    this.currentTrackIndex = 0;
+    this.position = 0; // Posición en segundos
+    this.volume = 50;
+  }
+  
+  // Métodos de estado (delegados al estado actual)
+  play() {
+    console.log(\`\\n🎵 Comando: PLAY (Estado actual: \${this.currentState.getName()})\`);
+    this.currentState.play(this);
+  }
+  
+  pause() {
+    console.log(\`\\n⏸️  Comando: PAUSE (Estado actual: \${this.currentState.getName()})\`);
+    this.currentState.pause(this);
+  }
+  
+  stop() {
+    console.log(\`\\n⏹️  Comando: STOP (Estado actual: \${this.currentState.getName()})\`);
+    this.currentState.stop(this);
+  }
+  
+  next() {
+    console.log(\`\\n⏭️  Comando: NEXT (Estado actual: \${this.currentState.getName()})\`);
+    this.currentState.next(this);
+  }
+  
+  previous() {
+    console.log(\`\\n⏮️  Comando: PREVIOUS (Estado actual: \${this.currentState.getName()})\`);
+    this.currentState.previous(this);
+  }
+  
+  // Métodos internos del reproductor
+  startPlayback() {
+    console.log(\`   🎶 Iniciando: \${this.getCurrentTrack()}\`);
+    this.position = 0;
+  }
+  
+  resumePlayback() {
+    console.log(\`   🎶 Reanudando: \${this.getCurrentTrack()} desde \${this.position}s\`);
+  }
+  
+  pausePlayback() {
+    console.log(\`   ⏸️  Pausado en: \${this.position}s\`);
+  }
+  
+  stopPlayback() {
+    console.log(\`   ⏹️  Detenido\`);
+    this.position = 0;
+  }
+  
+  nextTrack() {
+    this.currentTrackIndex = (this.currentTrackIndex + 1) % this.playlist.length;
+    console.log(\`   📀 Cambiado a: \${this.getCurrentTrack()}\`);
+    this.position = 0;
+  }
+  
+  previousTrack() {
+    this.currentTrackIndex = this.currentTrackIndex === 0 
+      ? this.playlist.length - 1 
+      : this.currentTrackIndex - 1;
+    console.log(\`   📀 Cambiado a: \${this.getCurrentTrack()}\`);
+    this.position = 0;
+  }
+  
+  loadTrack(trackIndex) {
+    console.log(\`\\n📥 Cargando: \${this.playlist[trackIndex]}\`);
+    this.setState(this.loadingState);
+    this.currentTrackIndex = trackIndex;
+    
+    // Simular carga asíncrona
+    setTimeout(() => {
+      if (Math.random() > 0.1) { // 90% éxito
+        this.loadingState.onLoadComplete(this);
+      } else {
+        this.loadingState.onLoadError(this);
+      }
+    }, 2000);
+  }
+  
+  cancelLoading() {
+    console.log(\`   ❌ Carga cancelada\`);
+  }
+  
+  // Gestión de estado
+  setState(state) {
+    this.currentState = state;
+    console.log(\`   🔄 Estado cambiado a: \${state.getName()}\`);
+  }
+  
+  getCurrentState() {
+    return this.currentState;
+  }
+  
+  // Getters para estados
+  getStoppedState() { return this.stoppedState; }
+  getPlayingState() { return this.playingState; }
+  getPausedState() { return this.pausedState; }
+  getLoadingState() { return this.loadingState; }
+  
+  // Información del reproductor
+  getCurrentTrack() {
+    return this.playlist[this.currentTrackIndex];
+  }
+  
+  getStatus() {
+    console.log(\`\\n📊 Estado del reproductor:\`);
+    console.log(\`   Estado: \${this.currentState.getName()}\`);
+    console.log(\`   Canción actual: \${this.getCurrentTrack()}\`);
+    console.log(\`   Posición: \${this.position}s\`);
+    console.log(\`   Volumen: \${this.volume}%\`);
+    console.log(\`   Lista: \${this.currentTrackIndex + 1}/\${this.playlist.length}\`);
+  }
+  
+  setVolume(volume) {
+    this.volume = Math.max(0, Math.min(100, volume));
+    console.log(\`🔊 Volumen ajustado a: \${this.volume}%\`);
+  }
+  
+  // Simular progreso de reproducción
+  tick() {
+    if (this.currentState === this.playingState) {
+      this.position++;
+      if (this.position >= 180) { // Canción de 3 minutos
+        console.log(\`\\n🔚 Canción terminada, siguiente automáticamente\`);
+        this.next();
+      }
+    }
+  }
+}
+
+// Cliente - Simulador de uso
+class PlayerSimulator {
+  constructor() {
+    this.player = new MusicPlayer();
+  }
+  
+  simulate() {
+    console.log('=== Reproductor de Música con Patrón State ===\\n');
+    
+    // Estado inicial
+    this.player.getStatus();
+    
+    // Intentar pausar cuando está detenido
+    this.player.pause();
+    
+    // Reproducir
+    this.player.play();
+    this.player.getStatus();
+    
+    // Pausar
+    this.player.pause();
+    this.player.getStatus();
+    
+    // Reanudar
+    this.player.play();
+    
+    // Siguiente canción mientras reproduce
+    this.player.next();
+    
+    // Detener
+    this.player.stop();
+    
+    // Cambiar canciones mientras está detenido
+    this.player.next();
+    this.player.previous();
+    
+    // Cargar una nueva canción
+    console.log('\\n--- Cargando nueva canción ---');
+    this.player.loadTrack(2);
+    
+    // Intentar reproducir mientras carga
+    setTimeout(() => {
+      this.player.play();
+    }, 500);
+    
+    // Intentar detener mientras carga
+    setTimeout(() => {
+      this.player.stop();
+    }, 1000);
+    
+    // Estado final después de un tiempo
+    setTimeout(() => {
+      console.log('\\n--- Estado final ---');
+      this.player.getStatus();
+      console.log('\\n🎯 Cada estado maneja los comandos de manera diferente!');
+    }, 3000);
+  }
+  
+  interactiveDemo() {
+    console.log('\\n--- Demo interactivo ---');
+    const commands = ['play', 'pause', 'next', 'play', 'stop', 'previous', 'play'];
+    
+    commands.forEach((command, index) => {
+      setTimeout(() => {
+        console.log(\`\\n[Comando \${index + 1}] Ejecutando: \${command.toUpperCase()}\`);
+        this.player[command]();
+      }, index * 1000);
+    });
+  }
+}
+
+// Uso del patrón State
+const simulator = new PlayerSimulator();
+simulator.simulate();
+
+// Demo adicional después de 4 segundos
+setTimeout(() => {
+  simulator.interactiveDemo();
+}, 4000);`,
+      php: `<?php
+// Interfaz State
+abstract class PlayerState {
+    abstract public function play(MusicPlayer $player): void;
+    abstract public function pause(MusicPlayer $player): void;
+    abstract public function stop(MusicPlayer $player): void;
+    abstract public function next(MusicPlayer $player): void;
+    abstract public function previous(MusicPlayer $player): void;
+    abstract public function getName(): string;
+}
+
+// Estados concretos
+class StoppedState extends PlayerState {
+    public function play(MusicPlayer $player): void {
+        echo "▶️  Iniciando reproducción desde el principio\\n";
+        $player->startPlayback();
+        $player->setState($player->getPlayingState());
+    }
+    
+    public function pause(MusicPlayer $player): void {
+        echo "⏸️  No se puede pausar cuando está detenido\\n";
+    }
+    
+    public function stop(MusicPlayer $player): void {
+        echo "⏹️  Ya está detenido\\n";
+    }
+    
+    public function next(MusicPlayer $player): void {
+        echo "⏭️  Cambiando a siguiente canción\\n";
+        $player->nextTrack();
+    }
+    
+    public function previous(MusicPlayer $player): void {
+        echo "⏮️  Cambiando a canción anterior\\n";
+        $player->previousTrack();
+    }
+    
+    public function getName(): string {
+        return 'Detenido';
+    }
+}
+
+class PlayingState extends PlayerState {
+    public function play(MusicPlayer $player): void {
+        echo "▶️  Ya está reproduciendo\\n";
+    }
+    
+    public function pause(MusicPlayer $player): void {
+        echo "⏸️  Pausando reproducción\\n";
+        $player->pausePlayback();
+        $player->setState($player->getPausedState());
+    }
+    
+    public function stop(MusicPlayer $player): void {
+        echo "⏹️  Deteniendo reproducción\\n";
+        $player->stopPlayback();
+        $player->setState($player->getStoppedState());
+    }
+    
+    public function next(MusicPlayer $player): void {
+        echo "⏭️  Cambiando a siguiente canción y siguiendo reproducción\\n";
+        $player->nextTrack();
+        $player->startPlayback();
+    }
+    
+    public function previous(MusicPlayer $player): void {
+        echo "⏮️  Cambiando a canción anterior y siguiendo reproducción\\n";
+        $player->previousTrack();
+        $player->startPlayback();
+    }
+    
+    public function getName(): string {
+        return 'Reproduciendo';
+    }
+}
+
+class PausedState extends PlayerState {
+    public function play(MusicPlayer $player): void {
+        echo "▶️  Reanudando reproducción\\n";
+        $player->resumePlayback();
+        $player->setState($player->getPlayingState());
+    }
+    
+    public function pause(MusicPlayer $player): void {
+        echo "⏸️  Ya está pausado\\n";
+    }
+    
+    public function stop(MusicPlayer $player): void {
+        echo "⏹️  Deteniendo desde pausa\\n";
+        $player->stopPlayback();
+        $player->setState($player->getStoppedState());
+    }
+    
+    public function next(MusicPlayer $player): void {
+        echo "⏭️  Cambiando a siguiente canción (permanece pausado)\\n";
+        $player->nextTrack();
+    }
+    
+    public function previous(MusicPlayer $player): void {
+        echo "⏮️  Cambiando a canción anterior (permanece pausado)\\n";
+        $player->previousTrack();
+    }
+    
+    public function getName(): string {
+        return 'Pausado';
+    }
+}
+
+class LoadingState extends PlayerState {
+    public function play(MusicPlayer $player): void {
+        echo "⏳ Cargando... no se puede reproducir aún\\n";
+    }
+    
+    public function pause(MusicPlayer $player): void {
+        echo "⏳ Cargando... no se puede pausar aún\\n";
+    }
+    
+    public function stop(MusicPlayer $player): void {
+        echo "❌ Cancelando carga\\n";
+        $player->cancelLoading();
+        $player->setState($player->getStoppedState());
+    }
+    
+    public function next(MusicPlayer $player): void {
+        echo "⏳ Cargando... espere a que termine\\n";
+    }
+    
+    public function previous(MusicPlayer $player): void {
+        echo "⏳ Cargando... espere a que termine\\n";
+    }
+    
+    public function getName(): string {
+        return 'Cargando';
+    }
+    
+    public function onLoadComplete(MusicPlayer $player): void {
+        echo "✅ Carga completada, listo para reproducir\\n";
+        $player->setState($player->getStoppedState());
+    }
+    
+    public function onLoadError(MusicPlayer $player): void {
+        echo "❌ Error al cargar\\n";
+        $player->setState($player->getStoppedState());
+    }
+}
+
+// Context - Reproductor de música
+class MusicPlayer {
+    private $currentState;
+    private $stoppedState;
+    private $playingState;
+    private $pausedState;
+    private $loadingState;
+    
+    private $playlist;
+    private $currentTrackIndex = 0;
+    private $position = 0;
+    private $volume = 50;
+    
+    public function __construct() {
+        // Crear instancias de estados
+        $this->stoppedState = new StoppedState();
+        $this->playingState = new PlayingState();
+        $this->pausedState = new PausedState();
+        $this->loadingState = new LoadingState();
+        
+        // Estado inicial
+        $this->currentState = $this->stoppedState;
+        
+        // Lista de reproducción
+        $this->playlist = [
+            'Bohemian Rhapsody - Queen',
+            'Hotel California - Eagles',
+            'Stairway to Heaven - Led Zeppelin',
+            'Sweet Child O Mine - Guns N Roses',
+            'Imagine - John Lennon'
+        ];
+    }
+    
+    // Métodos de estado (delegados al estado actual)
+    public function play(): void {
+        echo "\\n🎵 Comando: PLAY (Estado actual: {$this->currentState->getName()})\\n";
+        $this->currentState->play($this);
+    }
+    
+    public function pause(): void {
+        echo "\\n⏸️  Comando: PAUSE (Estado actual: {$this->currentState->getName()})\\n";
+        $this->currentState->pause($this);
+    }
+    
+    public function stop(): void {
+        echo "\\n⏹️  Comando: STOP (Estado actual: {$this->currentState->getName()})\\n";
+        $this->currentState->stop($this);
+    }
+    
+    public function next(): void {
+        echo "\\n⏭️  Comando: NEXT (Estado actual: {$this->currentState->getName()})\\n";
+        $this->currentState->next($this);
+    }
+    
+    public function previous(): void {
+        echo "\\n⏮️  Comando: PREVIOUS (Estado actual: {$this->currentState->getName()})\\n";
+        $this->currentState->previous($this);
+    }
+    
+    // Métodos internos del reproductor
+    public function startPlayback(): void {
+        echo "   🎶 Iniciando: {$this->getCurrentTrack()}\\n";
+        $this->position = 0;
+    }
+    
+    public function resumePlayback(): void {
+        echo "   🎶 Reanudando: {$this->getCurrentTrack()} desde {$this->position}s\\n";
+    }
+    
+    public function pausePlayback(): void {
+        echo "   ⏸️  Pausado en: {$this->position}s\\n";
+    }
+    
+    public function stopPlayback(): void {
+        echo "   ⏹️  Detenido\\n";
+        $this->position = 0;
+    }
+    
+    public function nextTrack(): void {
+        $this->currentTrackIndex = ($this->currentTrackIndex + 1) % count($this->playlist);
+        echo "   📀 Cambiado a: {$this->getCurrentTrack()}\\n";
+        $this->position = 0;
+    }
+    
+    public function previousTrack(): void {
+        $this->currentTrackIndex = $this->currentTrackIndex === 0 
+            ? count($this->playlist) - 1 
+            : $this->currentTrackIndex - 1;
+        echo "   📀 Cambiado a: {$this->getCurrentTrack()}\\n";
+        $this->position = 0;
+    }
+    
+    public function loadTrack(int $trackIndex): void {
+        echo "\\n📥 Cargando: {$this->playlist[$trackIndex]}\\n";
+        $this->setState($this->loadingState);
+        $this->currentTrackIndex = $trackIndex;
+        
+        // Simular carga (en aplicación real sería asíncrono)
+        if (rand(1, 10) > 1) { // 90% éxito
+            $this->loadingState->onLoadComplete($this);
+        } else {
+            $this->loadingState->onLoadError($this);
+        }
+    }
+    
+    public function cancelLoading(): void {
+        echo "   ❌ Carga cancelada\\n";
+    }
+    
+    // Gestión de estado
+    public function setState(PlayerState $state): void {
+        $this->currentState = $state;
+        echo "   🔄 Estado cambiado a: {$state->getName()}\\n";
+    }
+    
+    public function getCurrentState(): PlayerState {
+        return $this->currentState;
+    }
+    
+    // Getters para estados
+    public function getStoppedState(): PlayerState { return $this->stoppedState; }
+    public function getPlayingState(): PlayerState { return $this->playingState; }
+    public function getPausedState(): PlayerState { return $this->pausedState; }
+    public function getLoadingState(): PlayerState { return $this->loadingState; }
+    
+    // Información del reproductor
+    public function getCurrentTrack(): string {
+        return $this->playlist[$this->currentTrackIndex];
+    }
+    
+    public function getStatus(): void {
+        echo "\\n📊 Estado del reproductor:\\n";
+        echo "   Estado: {$this->currentState->getName()}\\n";
+        echo "   Canción actual: {$this->getCurrentTrack()}\\n";
+        echo "   Posición: {$this->position}s\\n";
+        echo "   Volumen: {$this->volume}%\\n";
+        echo "   Lista: " . ($this->currentTrackIndex + 1) . "/" . count($this->playlist) . "\\n";
+    }
+    
+    public function setVolume(int $volume): void {
+        $this->volume = max(0, min(100, $volume));
+        echo "🔊 Volumen ajustado a: {$this->volume}%\\n";
+    }
+    
+    // Simular progreso de reproducción
+    public function tick(): void {
+        if ($this->currentState === $this->playingState) {
+            $this->position++;
+            if ($this->position >= 180) { // Canción de 3 minutos
+                echo "\\n🔚 Canción terminada, siguiente automáticamente\\n";
+                $this->next();
+            }
+        }
+    }
+}
+
+// Cliente - Simulador de uso
+class PlayerSimulator {
+    private $player;
+    
+    public function __construct() {
+        $this->player = new MusicPlayer();
+    }
+    
+    public function simulate(): void {
+        echo "=== Reproductor de Música con Patrón State ===\\n\\n";
+        
+        // Estado inicial
+        $this->player->getStatus();
+        
+        // Intentar pausar cuando está detenido
+        $this->player->pause();
+        
+        // Reproducir
+        $this->player->play();
+        $this->player->getStatus();
+        
+        // Pausar
+        $this->player->pause();
+        $this->player->getStatus();
+        
+        // Reanudar
+        $this->player->play();
+        
+        // Siguiente canción mientras reproduce
+        $this->player->next();
+        
+        // Detener
+        $this->player->stop();
+        
+        // Cambiar canciones mientras está detenido
+        $this->player->next();
+        $this->player->previous();
+        
+        // Cargar una nueva canción
+        echo "\\n--- Cargando nueva canción ---\\n";
+        $this->player->loadTrack(2);
+        
+        // Estado final
+        echo "\\n--- Estado final ---\\n";
+        $this->player->getStatus();
+        echo "\\n🎯 Cada estado maneja los comandos de manera diferente!\\n";
+    }
+    
+    public function interactiveDemo(): void {
+        echo "\\n--- Demo interactivo ---\\n";
+        $commands = ['play', 'pause', 'next', 'play', 'stop', 'previous', 'play'];
+        
+        foreach ($commands as $index => $command) {
+            echo "\\n[Comando " . ($index + 1) . "] Ejecutando: " . strtoupper($command) . "\\n";
+            $this->player->$command();
+        }
+    }
+}
+
+// Uso del patrón State
+$simulator = new PlayerSimulator();
+$simulator->simulate();
+$simulator->interactiveDemo();
+?>`
+    },
+    relatedPatterns: ["strategy", "command"]
+  },
+
+  // ARCHITECTURAL PATTERNS
+  {
+    id: 19,
+    name: "Repository",
+    slug: "repository",
+    description: "Encapsula la lógica necesaria para acceder a fuentes de datos. Centraliza la funcionalidad común de acceso a datos, proporcionando un mejor mantenimiento y desacoplando la infraestructura.",
+    category: "architectural",
+    difficulty: 2,
+    icon: "database",
+    color: "from-slate-500 to-slate-600",
+    tags: ["data-access", "separation", "persistence"],
+    architectures: ["ddd", "hexagonal"],
+    languages: ["javascript", "php"],
+    frameworks: ["symfony"],
+    content: "El patrón Repository es como tener un bibliotecario personal: no importa si los libros están en estantes físicos, archivos digitales o en otra biblioteca, el bibliotecario te consigue cualquier libro que necesites usando una interfaz simple y consistente.\n\nEste patrón encapsula la lógica de acceso a datos y proporciona una interfaz más orientada a objetos.\n\n**¿Cuándo usarlo?**\n• Cuando quieres centralizar el acceso a datos\n• Cuando necesitas cambiar entre diferentes fuentes de datos\n• Cuando quieres hacer el código más testeable\n• Cuando trabajas con Domain Driven Design\n\n**Ventajas:**\n• Centraliza la lógica de acceso a datos\n• Facilita el testing con mocks\n• Reduce duplicación de código\n• Mejor separación de responsabilidades\n\n**Desventajas:**\n• Puede agregar complejidad innecesaria en aplicaciones simples\n• Riesgo de crear repositorios demasiado genéricos",
+    examples: {
+      javascript: `// Ejemplo simplificado del patrón Repository
+class UserRepository {
+  constructor(dataSource) {
+    this.dataSource = dataSource;
+  }
+  
+  async findById(id) {
+    return await this.dataSource.findUser(id);
+  }
+  
+  async findByEmail(email) {
+    return await this.dataSource.findUserByEmail(email);
+  }
+  
+  async save(user) {
+    return await this.dataSource.saveUser(user);
+  }
+  
+  async delete(id) {
+    return await this.dataSource.deleteUser(id);
+  }
+}
+
+// Uso
+const userRepo = new UserRepository(databaseConnection);
+const user = await userRepo.findById(123);`,
+      php: `<?php
+interface UserRepositoryInterface {
+    public function findById(int $id): ?User;
+    public function findByEmail(string $email): ?User;
+    public function save(User $user): User;
+    public function delete(int $id): bool;
+}
+
+class DatabaseUserRepository implements UserRepositoryInterface {
+    private $connection;
+    
+    public function __construct($connection) {
+        $this->connection = $connection;
+    }
+    
+    public function findById(int $id): ?User {
+        // Lógica de base de datos
+        $stmt = $this->connection->prepare("SELECT * FROM users WHERE id = ?");
+        $stmt->execute([$id]);
+        $data = $stmt->fetch();
+        
+        return $data ? new User($data) : null;
+    }
+    
+    public function findByEmail(string $email): ?User {
+        // Lógica de base de datos
+        $stmt = $this->connection->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $data = $stmt->fetch();
+        
+        return $data ? new User($data) : null;
+    }
+    
+    public function save(User $user): User {
+        // Lógica para guardar usuario
+        if ($user->getId()) {
+            // Actualizar
+            $stmt = $this->connection->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
+            $stmt->execute([$user->getName(), $user->getEmail(), $user->getId()]);
+        } else {
+            // Crear nuevo
+            $stmt = $this->connection->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+            $stmt->execute([$user->getName(), $user->getEmail()]);
+            $user->setId($this->connection->lastInsertId());
+        }
+        
+        return $user;
+    }
+    
+    public function delete(int $id): bool {
+        $stmt = $this->connection->prepare("DELETE FROM users WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+}
+
+// Uso
+$userRepo = new DatabaseUserRepository($pdo);
+$user = $userRepo->findById(123);
+?>`
+    },
+    relatedPatterns: ["factory-method", "strategy"]
+  },
+  {
+    id: 20,
+    name: "MVC",
+    slug: "mvc",
+    description: "Separa la aplicación en tres componentes interconectados: Modelo (datos), Vista (interfaz) y Controlador (lógica de control).",
+    category: "architectural",
+    difficulty: 2,
+    icon: "layout-grid",
+    color: "from-green-500 to-green-600",
+    tags: ["separation", "ui", "architecture"],
+    architectures: ["mvc"],
+    languages: ["javascript", "php"],
+    frameworks: ["vue3", "symfony"],
+    content: "El patrón MVC es como un restaurante bien organizado: el chef (Modelo) prepara la comida y maneja los ingredientes, el mesero (Controlador) toma tu orden y coordina entre tú y la cocina, y el ambiente del restaurante (Vista) es lo que ves y experimentas como cliente.\n\nEste patrón separa la aplicación en tres componentes que manejan diferentes aspectos.\n\n**¿Cuándo usarlo?**\n• En aplicaciones web complejas\n• Cuando múltiples desarrolladores trabajan en la misma aplicación\n• Cuando necesitas diferentes vistas para los mismos datos\n• Para facilitar el testing y mantenimiento\n\n**Ventajas:**\n• Clara separación de responsabilidades\n• Facilita el trabajo en equipo\n• Reutilización de componentes\n• Más fácil de testear\n\n**Desventajas:**\n• Puede ser excesivo para aplicaciones simples\n• Curva de aprendizaje inicial\n• Posible over-engineering",
+    examples: {
+      javascript: `// Modelo - Maneja los datos y lógica de negocio
+class UserModel {
+  constructor() {
+    this.users = [
+      { id: 1, name: 'Juan', email: 'juan@email.com' },
+      { id: 2, name: 'María', email: 'maria@email.com' }
+    ];
+  }
+  
+  getAllUsers() {
+    return this.users;
+  }
+  
+  getUserById(id) {
+    return this.users.find(user => user.id === id);
+  }
+  
+  addUser(user) {
+    user.id = this.users.length + 1;
+    this.users.push(user);
+    return user;
+  }
+  
+  updateUser(id, userData) {
+    const user = this.getUserById(id);
+    if (user) {
+      Object.assign(user, userData);
+    }
+    return user;
+  }
+  
+  deleteUser(id) {
+    const index = this.users.findIndex(user => user.id === id);
+    if (index !== -1) {
+      return this.users.splice(index, 1)[0];
+    }
+    return null;
+  }
+}
+
+// Vista - Maneja la presentación
+class UserView {
+  constructor() {
+    this.container = document.getElementById('user-container');
+  }
+  
+  displayUsers(users) {
+    this.container.innerHTML = '';
+    
+    const userList = document.createElement('div');
+    userList.className = 'user-list';
+    
+    users.forEach(user => {
+      const userElement = document.createElement('div');
+      userElement.className = 'user-item';
+      userElement.innerHTML = \`
+        <h3>\${user.name}</h3>
+        <p>\${user.email}</p>
+        <button onclick="editUser(\${user.id})">Editar</button>
+        <button onclick="deleteUser(\${user.id})">Eliminar</button>
+      \`;
+      userList.appendChild(userElement);
+    });
+    
+    this.container.appendChild(userList);
+  }
+  
+  displayUserForm(user = null) {
+    const form = document.createElement('form');
+    form.innerHTML = \`
+      <h3>\${user ? 'Editar' : 'Agregar'} Usuario</h3>
+      <input type="text" id="name" placeholder="Nombre" value="\${user?.name || ''}" required>
+      <input type="email" id="email" placeholder="Email" value="\${user?.email || ''}" required>
+      <button type="submit">\${user ? 'Actualizar' : 'Agregar'}</button>
+      <button type="button" onclick="cancelForm()">Cancelar</button>
+    \`;
+    
+    this.container.innerHTML = '';
+    this.container.appendChild(form);
+    
+    return form;
+  }
+  
+  showMessage(message, type = 'info') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = \`message \${type}\`;
+    messageDiv.textContent = message;
+    
+    this.container.insertBefore(messageDiv, this.container.firstChild);
+    
+    setTimeout(() => {
+      messageDiv.remove();
+    }, 3000);
+  }
+}
+
+// Controlador - Coordina entre Modelo y Vista
+class UserController {
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    this.currentEditingUser = null;
+  }
+  
+  init() {
+    this.showAllUsers();
+    this.bindEvents();
+  }
+  
+  showAllUsers() {
+    const users = this.model.getAllUsers();
+    this.view.displayUsers(users);
+  }
+  
+  showAddUserForm() {
+    const form = this.view.displayUserForm();
+    this.bindFormEvents(form);
+  }
+  
+  showEditUserForm(userId) {
+    const user = this.model.getUserById(parseInt(userId));
+    if (user) {
+      this.currentEditingUser = user;
+      const form = this.view.displayUserForm(user);
+      this.bindFormEvents(form);
+    } else {
+      this.view.showMessage('Usuario no encontrado', 'error');
+    }
+  }
+  
+  addUser(userData) {
+    try {
+      const newUser = this.model.addUser(userData);
+      this.view.showMessage(\`Usuario \${newUser.name} agregado exitosamente\`, 'success');
+      this.showAllUsers();
+    } catch (error) {
+      this.view.showMessage('Error al agregar usuario', 'error');
+    }
+  }
+  
+  updateUser(userData) {
+    try {
+      if (this.currentEditingUser) {
+        const updatedUser = this.model.updateUser(this.currentEditingUser.id, userData);
+        this.view.showMessage(\`Usuario \${updatedUser.name} actualizado exitosamente\`, 'success');
+        this.currentEditingUser = null;
+        this.showAllUsers();
+      }
+    } catch (error) {
+      this.view.showMessage('Error al actualizar usuario', 'error');
+    }
+  }
+  
+  deleteUser(userId) {
+    try {
+      const deletedUser = this.model.deleteUser(parseInt(userId));
+      if (deletedUser) {
+        this.view.showMessage(\`Usuario \${deletedUser.name} eliminado\`, 'success');
+        this.showAllUsers();
+      } else {
+        this.view.showMessage('Usuario no encontrado', 'error');
+      }
+    } catch (error) {
+      this.view.showMessage('Error al eliminar usuario', 'error');
+    }
+  }
+  
+  bindEvents() {
+    // Hacer funciones globales para simplicidad del ejemplo
+    window.editUser = (id) => this.showEditUserForm(id);
+    window.deleteUser = (id) => this.deleteUser(id);
+    window.cancelForm = () => this.showAllUsers();
+    window.addNewUser = () => this.showAddUserForm();
+  }
+  
+  bindFormEvents(form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const userData = {
+        name: formData.get('name') || document.getElementById('name').value,
+        email: formData.get('email') || document.getElementById('email').value
+      };
+      
+      if (this.currentEditingUser) {
+        this.updateUser(userData);
+      } else {
+        this.addUser(userData);
+      }
+    });
+  }
+}
+
+// Inicialización de la aplicación MVC
+document.addEventListener('DOMContentLoaded', () => {
+  const model = new UserModel();
+  const view = new UserView();
+  const controller = new UserController(model, view);
+  
+  controller.init();
+  
+  // Agregar botón para nuevo usuario
+  const addButton = document.createElement('button');
+  addButton.textContent = 'Agregar Nuevo Usuario';
+  addButton.onclick = () => controller.showAddUserForm();
+  document.body.insertBefore(addButton, document.getElementById('user-container'));
+});`,
+      php: `<?php
+// Modelo - Maneja los datos y lógica de negocio
+class UserModel {
+    private $users;
+    
+    public function __construct() {
+        // En una aplicación real, esto vendría de una base de datos
+        $this->users = [
+            ['id' => 1, 'name' => 'Juan', 'email' => 'juan@email.com'],
+            ['id' => 2, 'name' => 'María', 'email' => 'maria@email.com']
+        ];
+    }
+    
+    public function getAllUsers(): array {
+        return $this->users;
+    }
+    
+    public function getUserById(int $id): ?array {
+        foreach ($this->users as $user) {
+            if ($user['id'] === $id) {
+                return $user;
+            }
+        }
+        return null;
+    }
+    
+    public function addUser(array $userData): array {
+        $userData['id'] = count($this->users) + 1;
+        $this->users[] = $userData;
+        return $userData;
+    }
+    
+    public function updateUser(int $id, array $userData): ?array {
+        foreach ($this->users as &$user) {
+            if ($user['id'] === $id) {
+                $user = array_merge($user, $userData);
+                return $user;
+            }
+        }
+        return null;
+    }
+    
+    public function deleteUser(int $id): bool {
+        foreach ($this->users as $index => $user) {
+            if ($user['id'] === $id) {
+                unset($this->users[$index]);
+                $this->users = array_values($this->users); // Reindexar
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+// Vista - Maneja la presentación
+class UserView {
+    public function displayUsers(array $users): string {
+        $html = '<div class="user-list">';
+        $html .= '<h2>Lista de Usuarios</h2>';
+        
+        foreach ($users as $user) {
+            $html .= '<div class="user-item">';
+            $html .= '<h3>' . htmlspecialchars($user['name']) . '</h3>';
+            $html .= '<p>' . htmlspecialchars($user['email']) . '</p>';
+            $html .= '<a href="?action=edit&id=' . $user['id'] . '">Editar</a> | ';
+            $html .= '<a href="?action=delete&id=' . $user['id'] . '" onclick="return confirm(\'¿Estás seguro?\')">Eliminar</a>';
+            $html .= '</div>';
+        }
+        
+        $html .= '</div>';
+        $html .= '<a href="?action=add">Agregar Nuevo Usuario</a>';
+        
+        return $html;
+    }
+    
+    public function displayUserForm(?array $user = null): string {
+        $isEdit = $user !== null;
+        $title = $isEdit ? 'Editar Usuario' : 'Agregar Usuario';
+        $action = $isEdit ? 'update' : 'create';
+        
+        $html = '<form method="POST" action="?action=' . $action . '">';
+        $html .= '<h2>' . $title . '</h2>';
+        
+        if ($isEdit) {
+            $html .= '<input type="hidden" name="id" value="' . $user['id'] . '">';
+        }
+        
+        $html .= '<div>';
+        $html .= '<label for="name">Nombre:</label>';
+        $html .= '<input type="text" id="name" name="name" value="' . 
+                 htmlspecialchars($user['name'] ?? '') . '" required>';
+        $html .= '</div>';
+        
+        $html .= '<div>';
+        $html .= '<label for="email">Email:</label>';
+        $html .= '<input type="email" id="email" name="email" value="' . 
+                 htmlspecialchars($user['email'] ?? '') . '" required>';
+        $html .= '</div>';
+        
+        $html .= '<div>';
+        $html .= '<button type="submit">' . ($isEdit ? 'Actualizar' : 'Agregar') . '</button>';
+        $html .= '<a href="?">Cancelar</a>';
+        $html .= '</div>';
+        
+        $html .= '</form>';
+        
+        return $html;
+    }
+    
+    public function displayMessage(string $message, string $type = 'info'): string {
+        return '<div class="message ' . $type . '">' . htmlspecialchars($message) . '</div>';
+    }
+    
+    public function render(string $content): void {
+        echo '<!DOCTYPE html>';
+        echo '<html><head>';
+        echo '<title>Sistema de Usuarios - MVC</title>';
+        echo '<style>';
+        echo '.user-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }';
+        echo '.message { padding: 10px; margin: 10px 0; border-radius: 4px; }';
+        echo '.message.success { background: #d4edda; color: #155724; }';
+        echo '.message.error { background: #f8d7da; color: #721c24; }';
+        echo 'form div { margin: 10px 0; }';
+        echo 'input { width: 200px; padding: 5px; }';
+        echo 'button, a { padding: 8px 16px; margin: 5px; text-decoration: none; }';
+        echo '</style>';
+        echo '</head><body>';
+        echo $content;
+        echo '</body></html>';
+    }
+}
+
+// Controlador - Coordina entre Modelo y Vista
+class UserController {
+    private $model;
+    private $view;
+    
+    public function __construct(UserModel $model, UserView $view) {
+        $this->model = $model;
+        $this->view = $view;
+    }
+    
+    public function handleRequest(): void {
+        $action = $_GET['action'] ?? 'index';
+        $content = '';
+        
+        switch ($action) {
+            case 'index':
+                $content = $this->showAllUsers();
+                break;
+                
+            case 'add':
+                $content = $this->showAddUserForm();
+                break;
+                
+            case 'edit':
+                $content = $this->showEditUserForm();
+                break;
+                
+            case 'create':
+                $content = $this->createUser();
+                break;
+                
+            case 'update':
+                $content = $this->updateUser();
+                break;
+                
+            case 'delete':
+                $content = $this->deleteUser();
+                break;
+                
+            default:
+                $content = $this->showAllUsers();
+        }
+        
+        $this->view->render($content);
+    }
+    
+    private function showAllUsers(): string {
+        $users = $this->model->getAllUsers();
+        return $this->view->displayUsers($users);
+    }
+    
+    private function showAddUserForm(): string {
+        return $this->view->displayUserForm();
+    }
+    
+    private function showEditUserForm(): string {
+        $id = (int)($_GET['id'] ?? 0);
+        $user = $this->model->getUserById($id);
+        
+        if ($user) {
+            return $this->view->displayUserForm($user);
+        } else {
+            $message = $this->view->displayMessage('Usuario no encontrado', 'error');
+            return $message . $this->showAllUsers();
+        }
+    }
+    
+    private function createUser(): string {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userData = [
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? ''
+            ];
+            
+            try {
+                $newUser = $this->model->addUser($userData);
+                $message = $this->view->displayMessage(
+                    "Usuario {$newUser['name']} agregado exitosamente", 
+                    'success'
+                );
+                return $message . $this->showAllUsers();
+            } catch (Exception $e) {
+                $message = $this->view->displayMessage('Error al agregar usuario', 'error');
+                return $message . $this->view->displayUserForm();
+            }
+        }
+        
+        return $this->showAddUserForm();
+    }
+    
+    private function updateUser(): string {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = (int)($_POST['id'] ?? 0);
+            $userData = [
+                'name' => $_POST['name'] ?? '',
+                'email' => $_POST['email'] ?? ''
+            ];
+            
+            try {
+                $updatedUser = $this->model->updateUser($id, $userData);
+                if ($updatedUser) {
+                    $message = $this->view->displayMessage(
+                        "Usuario {$updatedUser['name']} actualizado exitosamente", 
+                        'success'
+                    );
+                    return $message . $this->showAllUsers();
+                } else {
+                    $message = $this->view->displayMessage('Usuario no encontrado', 'error');
+                    return $message . $this->showAllUsers();
+                }
+            } catch (Exception $e) {
+                $message = $this->view->displayMessage('Error al actualizar usuario', 'error');
+                return $message . $this->showEditUserForm();
+            }
+        }
+        
+        return $this->showAllUsers();
+    }
+    
+    private function deleteUser(): string {
+        $id = (int)($_GET['id'] ?? 0);
+        
+        try {
+            $success = $this->model->deleteUser($id);
+            if ($success) {
+                $message = $this->view->displayMessage('Usuario eliminado exitosamente', 'success');
+            } else {
+                $message = $this->view->displayMessage('Usuario no encontrado', 'error');
+            }
+            return $message . $this->showAllUsers();
+        } catch (Exception $e) {
+            $message = $this->view->displayMessage('Error al eliminar usuario', 'error');
+            return $message . $this->showAllUsers();
+        }
+    }
+}
+
+// Punto de entrada de la aplicación
+$model = new UserModel();
+$view = new UserView();
+$controller = new UserController($model, $view);
+
+$controller->handleRequest();
+?>`
+    },
+    relatedPatterns: ["observer", "strategy"]
+  },
+  {
+    id: 21,
+    name: "MVVM",
+    slug: "mvvm",
+    description: "Separa la lógica de presentación de la lógica de negocio mediante binding bidireccional entre Vista y ViewModel.",
+    category: "architectural",
+    difficulty: 3,
+    icon: "layers-3",
+    color: "from-purple-500 to-purple-600",
+    tags: ["binding", "separation", "ui"],
+    architectures: ["mvvm"],
+    languages: ["javascript"],
+    frameworks: ["vue3"],
+    content: "El patrón MVVM es como tener un asistente personal inteligente (ViewModel) que traduce automáticamente entre tú (Vista) y tu oficina (Modelo). Cuando pides algo, el asistente lo traduce al lenguaje de la oficina, y cuando la oficina tiene actualizaciones, el asistente te informa automáticamente.\n\nEste patrón facilita el binding bidireccional entre la vista y los datos.\n\n**¿Cuándo usarlo?**\n• En aplicaciones con interfaces complejas\n• Cuando necesitas binding bidireccional\n• En frameworks como Vue.js, Angular, o WPF\n• Cuando quieres separar lógica de vista de lógica de negocio\n\n**Ventajas:**\n• Binding automático entre vista y datos\n• Mejor testabilidad del ViewModel\n• Separación clara de responsabilidades\n• Reutilización de ViewModels\n\n**Desventajas:**\n• Complejidad adicional\n• Curva de aprendizaje\n• Posible over-engineering para apps simples",
+    examples: {
+      javascript: `// Ejemplo con Vue.js - MVVM Pattern
+
+// Modelo - Maneja los datos y lógica de negocio
+class TaskModel {
+  constructor() {
+    this.tasks = [
+      { id: 1, title: 'Aprender MVVM', completed: false, priority: 'high' },
+      { id: 2, title: 'Completar proyecto', completed: true, priority: 'medium' },
+      { id: 3, title: 'Revisar código', completed: false, priority: 'low' }
+    ];
+  }
+  
+  getAllTasks() {
+    return [...this.tasks];
+  }
+  
+  addTask(task) {
+    const newTask = {
+      id: Date.now(),
+      title: task.title,
+      completed: false,
+      priority: task.priority || 'medium'
+    };
+    this.tasks.push(newTask);
+    return newTask;
+  }
+  
+  updateTask(id, updates) {
+    const task = this.tasks.find(t => t.id === id);
+    if (task) {
+      Object.assign(task, updates);
+    }
+    return task;
+  }
+  
+  deleteTask(id) {
+    const index = this.tasks.findIndex(t => t.id === id);
+    if (index !== -1) {
+      return this.tasks.splice(index, 1)[0];
+    }
+    return null;
+  }
+  
+  getTasksByFilter(filter) {
+    switch (filter) {
+      case 'completed':
+        return this.tasks.filter(t => t.completed);
+      case 'pending':
+        return this.tasks.filter(t => !t.completed);
+      case 'high':
+        return this.tasks.filter(t => t.priority === 'high');
+      default:
+        return this.tasks;
+    }
+  }
+}
+
+// ViewModel - Conecta Modelo y Vista con lógica de presentación
+class TaskViewModel {
+  constructor(model) {
+    this.model = model;
+    
+    // Estado reactivo (en Vue.js sería con ref/reactive)
+    this.state = Vue.reactive({
+      tasks: [],
+      newTaskTitle: '',
+      newTaskPriority: 'medium',
+      filter: 'all',
+      editingTask: null,
+      editTitle: '',
+      showCompleted: true,
+      searchTerm: ''
+    });
+    
+    // Cargar datos iniciales
+    this.loadTasks();
+  }
+  
+  // Computed properties - Se actualizan automáticamente
+  get filteredTasks() {
+    let tasks = this.state.tasks;
+    
+    // Filtrar por búsqueda
+    if (this.state.searchTerm) {
+      tasks = tasks.filter(task => 
+        task.title.toLowerCase().includes(this.state.searchTerm.toLowerCase())
+      );
+    }
+    
+    // Filtrar por estado
+    if (!this.state.showCompleted) {
+      tasks = tasks.filter(task => !task.completed);
+    }
+    
+    // Filtrar por filtro seleccionado
+    switch (this.state.filter) {
+      case 'completed':
+        return tasks.filter(t => t.completed);
+      case 'pending':
+        return tasks.filter(t => !t.completed);
+      case 'high':
+        return tasks.filter(t => t.priority === 'high');
+      default:
+        return tasks;
+    }
+  }
+  
+  get taskStats() {
+    const total = this.state.tasks.length;
+    const completed = this.state.tasks.filter(t => t.completed).length;
+    const pending = total - completed;
+    const highPriority = this.state.tasks.filter(t => t.priority === 'high' && !t.completed).length;
+    
+    return { total, completed, pending, highPriority };
+  }
+  
+  // Métodos para manejar acciones de la vista
+  loadTasks() {
+    this.state.tasks = this.model.getAllTasks();
+  }
+  
+  addTask() {
+    if (this.state.newTaskTitle.trim()) {
+      const newTask = this.model.addTask({
+        title: this.state.newTaskTitle.trim(),
+        priority: this.state.newTaskPriority
+      });
+      
+      this.state.tasks.push(newTask);
+      this.state.newTaskTitle = '';
+      this.state.newTaskPriority = 'medium';
+    }
+  }
+  
+  toggleTask(taskId) {
+    const task = this.state.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.completed = !task.completed;
+      this.model.updateTask(taskId, { completed: task.completed });
+    }
+  }
+  
+  deleteTask(taskId) {
+    this.model.deleteTask(taskId);
+    const index = this.state.tasks.findIndex(t => t.id === taskId);
+    if (index !== -1) {
+      this.state.tasks.splice(index, 1);
+    }
+  }
+  
+  startEdit(task) {
+    this.state.editingTask = task.id;
+    this.state.editTitle = task.title;
+  }
+  
+  saveEdit() {
+    if (this.state.editTitle.trim()) {
+      const task = this.state.tasks.find(t => t.id === this.state.editingTask);
+      if (task) {
+        task.title = this.state.editTitle.trim();
+        this.model.updateTask(task.id, { title: task.title });
+      }
+    }
+    this.cancelEdit();
+  }
+  
+  cancelEdit() {
+    this.state.editingTask = null;
+    this.state.editTitle = '';
+  }
+  
+  updatePriority(taskId, priority) {
+    const task = this.state.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.priority = priority;
+      this.model.updateTask(taskId, { priority });
+    }
+  }
+  
+  setFilter(filter) {
+    this.state.filter = filter;
+  }
+  
+  clearCompleted() {
+    const completedTasks = this.state.tasks.filter(t => t.completed);
+    completedTasks.forEach(task => {
+      this.model.deleteTask(task.id);
+    });
+    this.state.tasks = this.state.tasks.filter(t => !t.completed);
+  }
+}
+
+// Vista - Template de Vue.js con binding bidireccional
+const TaskApp = {
+  setup() {
+    const model = new TaskModel();
+    const viewModel = new TaskViewModel(model);
+    
+    return {
+      vm: viewModel,
+      state: viewModel.state,
+      filteredTasks: Vue.computed(() => viewModel.filteredTasks),
+      taskStats: Vue.computed(() => viewModel.taskStats)
+    };
+  },
+  
+  template: \`
+    <div class="task-app">
+      <header class="app-header">
+        <h1>Task Manager - MVVM Pattern</h1>
+        <div class="stats">
+          <span class="stat">Total: {{ taskStats.total }}</span>
+          <span class="stat">Pendientes: {{ taskStats.pending }}</span>
+          <span class="stat">Completadas: {{ taskStats.completed }}</span>
+          <span class="stat priority-high">Alta prioridad: {{ taskStats.highPriority }}</span>
+        </div>
+      </header>
+      
+      <!-- Formulario para agregar tareas - Binding bidireccional -->
+      <div class="add-task-form">
+        <input 
+          v-model="state.newTaskTitle" 
+          @keyup.enter="vm.addTask()"
+          placeholder="Nueva tarea..."
+          class="task-input"
+        />
+        <select v-model="state.newTaskPriority" class="priority-select">
+          <option value="low">Baja</option>
+          <option value="medium">Media</option>
+          <option value="high">Alta</option>
+        </select>
+        <button @click="vm.addTask()" :disabled="!state.newTaskTitle.trim()">
+          Agregar
+        </button>
+      </div>
+      
+      <!-- Controles de filtro -->
+      <div class="filters">
+        <input 
+          v-model="state.searchTerm" 
+          placeholder="Buscar tareas..."
+          class="search-input"
+        />
+        
+        <div class="filter-buttons">
+          <button 
+            @click="vm.setFilter('all')"
+            :class="{ active: state.filter === 'all' }"
+          >
+            Todas
+          </button>
+          <button 
+            @click="vm.setFilter('pending')"
+            :class="{ active: state.filter === 'pending' }"
+          >
+            Pendientes
+          </button>
+          <button 
+            @click="vm.setFilter('completed')"
+            :class="{ active: state.filter === 'completed' }"
+          >
+            Completadas
+          </button>
+          <button 
+            @click="vm.setFilter('high')"
+            :class="{ active: state.filter === 'high' }"
+          >
+            Alta Prioridad
+          </button>
+        </div>
+        
+        <label class="checkbox-label">
+          <input 
+            type="checkbox" 
+            v-model="state.showCompleted"
+          />
+          Mostrar completadas
+        </label>
+        
+        <button 
+          @click="vm.clearCompleted()" 
+          v-if="taskStats.completed > 0"
+          class="clear-button"
+        >
+          Limpiar completadas
+        </button>
+      </div>
+      
+      <!-- Lista de tareas -->
+      <div class="task-list">
+        <div 
+          v-for="task in filteredTasks" 
+          :key="task.id"
+          class="task-item"
+          :class="{ 
+            completed: task.completed, 
+            editing: state.editingTask === task.id,
+            'priority-high': task.priority === 'high'
+          }"
+        >
+          <!-- Modo normal -->
+          <template v-if="state.editingTask !== task.id">
+            <input 
+              type="checkbox"
+              :checked="task.completed"
+              @change="vm.toggleTask(task.id)"
+              class="task-checkbox"
+            />
+            
+            <span class="task-title" @dblclick="vm.startEdit(task)">
+              {{ task.title }}
+            </span>
+            
+            <select 
+              :value="task.priority"
+              @change="vm.updatePriority(task.id, $event.target.value)"
+              class="task-priority"
+            >
+              <option value="low">Baja</option>
+              <option value="medium">Media</option>
+              <option value="high">Alta</option>
+            </select>
+            
+            <div class="task-actions">
+              <button @click="vm.startEdit(task)" class="edit-btn">
+                Editar
+              </button>
+              <button @click="vm.deleteTask(task.id)" class="delete-btn">
+                Eliminar
+              </button>
+            </div>
+          </template>
+          
+          <!-- Modo edición -->
+          <template v-else>
+            <input 
+              v-model="state.editTitle"
+              @keyup.enter="vm.saveEdit()"
+              @keyup.escape="vm.cancelEdit()"
+              @blur="vm.saveEdit()"
+              class="edit-input"
+              ref="editInput"
+            />
+            <div class="edit-actions">
+              <button @click="vm.saveEdit()" class="save-btn">
+                Guardar
+              </button>
+              <button @click="vm.cancelEdit()" class="cancel-btn">
+                Cancelar
+              </button>
+            </div>
+          </template>
+        </div>
+        
+        <div v-if="filteredTasks.length === 0" class="empty-state">
+          <p>{{ state.tasks.length === 0 ? 'No hay tareas' : 'No se encontraron tareas' }}</p>
+        </div>
+      </div>
+    </div>
+  \`
+};
+
+// Inicializar la aplicación Vue.js
+const { createApp } = Vue;
+
+createApp(TaskApp).mount('#app');
+
+// HTML necesario:
+/*
+<div id="app"></div>
+
+<style>
+.task-app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.stat {
+  padding: 5px 10px;
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.priority-high {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.add-task-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.task-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.filter-buttons button.active {
+  background: #007bff;
+  color: white;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.task-item.completed {
+  opacity: 0.6;
+}
+
+.task-item.completed .task-title {
+  text-decoration: line-through;
+}
+
+.task-title {
+  flex: 1;
+  cursor: pointer;
+}
+
+.task-actions {
+  display: flex;
+  gap: 5px;
+}
+
+button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+</style>
+*/`,
+      php: `<?php
+// El patrón MVVM es principalmente utilizado en frameworks frontend
+// En PHP, se puede simular con una aproximación usando templates y binding
+
+// Modelo - Datos y lógica de negocio
+class TaskModel {
+    private $tasks;
+    
+    public function __construct() {
+        $this->tasks = [
+            ['id' => 1, 'title' => 'Aprender MVVM', 'completed' => false, 'priority' => 'high'],
+            ['id' => 2, 'title' => 'Completar proyecto', 'completed' => true, 'priority' => 'medium'],
+            ['id' => 3, 'title' => 'Revisar código', 'completed' => false, 'priority' => 'low']
+        ];
+    }
+    
+    public function getAllTasks(): array {
+        return $this->tasks;
+    }
+    
+    public function addTask(array $task): array {
+        $newTask = [
+            'id' => time(),
+            'title' => $task['title'],
+            'completed' => false,
+            'priority' => $task['priority'] ?? 'medium'
+        ];
+        $this->tasks[] = $newTask;
+        return $newTask;
+    }
+    
+    public function updateTask(int $id, array $updates): ?array {
+        foreach ($this->tasks as &$task) {
+            if ($task['id'] === $id) {
+                $task = array_merge($task, $updates);
+                return $task;
+            }
+        }
+        return null;
+    }
+    
+    public function deleteTask(int $id): bool {
+        foreach ($this->tasks as $index => $task) {
+            if ($task['id'] === $id) {
+                unset($this->tasks[$index]);
+                $this->tasks = array_values($this->tasks);
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+// ViewModel - Lógica de presentación y estado
+class TaskViewModel {
+    private $model;
+    private $state;
+    
+    public function __construct(TaskModel $model) {
+        $this->model = $model;
+        $this->state = [
+            'tasks' => $this->model->getAllTasks(),
+            'filter' => $_GET['filter'] ?? 'all',
+            'search' => $_GET['search'] ?? '',
+            'showCompleted' => $_GET['showCompleted'] ?? true
+        ];
+    }
+    
+    public function getFilteredTasks(): array {
+        $tasks = $this->state['tasks'];
+        
+        // Filtrar por búsqueda
+        if (!empty($this->state['search'])) {
+            $tasks = array_filter($tasks, function($task) {
+                return stripos($task['title'], $this->state['search']) !== false;
+            });
+        }
+        
+        // Filtrar por estado
+        switch ($this->state['filter']) {
+            case 'completed':
+                $tasks = array_filter($tasks, function($task) {
+                    return $task['completed'];
+                });
+                break;
+            case 'pending':
+                $tasks = array_filter($tasks, function($task) {
+                    return !$task['completed'];
+                });
+                break;
+            case 'high':
+                $tasks = array_filter($tasks, function($task) {
+                    return $task['priority'] === 'high';
+                });
+                break;
+        }
+        
+        return array_values($tasks);
+    }
+    
+    public function getTaskStats(): array {
+        $tasks = $this->state['tasks'];
+        $total = count($tasks);
+        $completed = count(array_filter($tasks, function($t) { return $t['completed']; }));
+        $pending = $total - $completed;
+        $highPriority = count(array_filter($tasks, function($t) { 
+            return $t['priority'] === 'high' && !$t['completed']; 
+        }));
+        
+        return compact('total', 'completed', 'pending', 'highPriority');
+    }
+    
+    public function getState(): array {
+        return $this->state;
+    }
+    
+    public function handleAction(string $action, array $data = []): array {
+        $result = ['success' => false, 'message' => ''];
+        
+        switch ($action) {
+            case 'add':
+                if (!empty($data['title'])) {
+                    $this->model->addTask($data);
+                    $this->state['tasks'] = $this->model->getAllTasks();
+                    $result = ['success' => true, 'message' => 'Tarea agregada'];
+                }
+                break;
+                
+            case 'toggle':
+                if (isset($data['id'])) {
+                    $task = null;
+                    foreach ($this->state['tasks'] as &$t) {
+                        if ($t['id'] == $data['id']) {
+                            $t['completed'] = !$t['completed'];
+                            $task = $t;
+                            break;
+                        }
+                    }
+                    if ($task) {
+                        $this->model->updateTask($data['id'], ['completed' => $task['completed']]);
+                        $result = ['success' => true, 'message' => 'Tarea actualizada'];
+                    }
+                }
+                break;
+                
+            case 'delete':
+                if (isset($data['id'])) {
+                    $this->model->deleteTask($data['id']);
+                    $this->state['tasks'] = $this->model->getAllTasks();
+                    $result = ['success' => true, 'message' => 'Tarea eliminada'];
+                }
+                break;
+        }
+        
+        return $result;
+    }
+}
+
+// Vista - Template con binding simulado
+class TaskView {
+    private $viewModel;
+    
+    public function __construct(TaskViewModel $viewModel) {
+        $this->viewModel = $viewModel;
+    }
+    
+    public function render(): string {
+        $tasks = $this->viewModel->getFilteredTasks();
+        $stats = $this->viewModel->getTaskStats();
+        $state = $this->viewModel->getState();
+        
+        $html = $this->renderHeader($stats);
+        $html .= $this->renderFilters($state);
+        $html .= $this->renderAddForm();
+        $html .= $this->renderTaskList($tasks);
+        
+        return $this->wrapInLayout($html);
+    }
+    
+    private function renderHeader(array $stats): string {
+        return '
+        <header class="app-header">
+            <h1>Task Manager - MVVM Pattern</h1>
+            <div class="stats">
+                <span class="stat">Total: ' . $stats['total'] . '</span>
+                <span class="stat">Pendientes: ' . $stats['pending'] . '</span>
+                <span class="stat">Completadas: ' . $stats['completed'] . '</span>
+                <span class="stat priority-high">Alta prioridad: ' . $stats['highPriority'] . '</span>
+            </div>
+        </header>';
+    }
+    
+    private function renderFilters(array $state): string {
+        $filters = ['all' => 'Todas', 'pending' => 'Pendientes', 'completed' => 'Completadas', 'high' => 'Alta Prioridad'];
+        
+        $html = '<div class="filters">';
+        $html .= '<input type="text" name="search" value="' . htmlspecialchars($state['search']) . '" placeholder="Buscar tareas...">';
+        
+        foreach ($filters as $key => $label) {
+            $active = $state['filter'] === $key ? 'active' : '';
+            $html .= '<a href="?filter=' . $key . '" class="filter-btn ' . $active . '">' . $label . '</a>';
+        }
+        
+        $html .= '</div>';
+        
+        return $html;
+    }
+    
+    private function renderAddForm(): string {
+        return '
+        <form method="POST" action="?action=add" class="add-task-form">
+            <input type="text" name="title" placeholder="Nueva tarea..." required>
+            <select name="priority">
+                <option value="low">Baja</option>
+                <option value="medium" selected>Media</option>
+                <option value="high">Alta</option>
+            </select>
+            <button type="submit">Agregar</button>
+        </form>';
+    }
+    
+    private function renderTaskList(array $tasks): string {
+        $html = '<div class="task-list">';
+        
+        if (empty($tasks)) {
+            $html .= '<div class="empty-state"><p>No se encontraron tareas</p></div>';
+        } else {
+            foreach ($tasks as $task) {
+                $html .= $this->renderTask($task);
+            }
+        }
+        
+        $html .= '</div>';
+        return $html;
+    }
+    
+    private function renderTask(array $task): string {
+        $completedClass = $task['completed'] ? 'completed' : '';
+        $priorityClass = $task['priority'] === 'high' ? 'priority-high' : '';
+        $checked = $task['completed'] ? 'checked' : '';
+        
+        return '
+        <div class="task-item ' . $completedClass . ' ' . $priorityClass . '">
+            <form method="POST" action="?action=toggle" style="display: inline;">
+                <input type="hidden" name="id" value="' . $task['id'] . '">
+                <input type="checkbox" ' . $checked . ' onchange="this.form.submit()">
+            </form>
+            
+            <span class="task-title">' . htmlspecialchars($task['title']) . '</span>
+            <span class="task-priority">' . ucfirst($task['priority']) . '</span>
+            
+            <div class="task-actions">
+                <a href="?action=delete&id=' . $task['id'] . '" 
+                   onclick="return confirm(\'¿Eliminar tarea?\')" 
+                   class="delete-btn">Eliminar</a>
+            </div>
+        </div>';
+    }
+    
+    private function wrapInLayout(string $content): string {
+        return '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Task Manager - MVVM</title>
+            <style>
+                .task-app { max-width: 800px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
+                .app-header { text-align: center; margin-bottom: 30px; }
+                .stats { display: flex; justify-content: center; gap: 20px; margin-top: 10px; }
+                .stat { padding: 5px 10px; background: #f0f0f0; border-radius: 4px; }
+                .priority-high { background: #ffebee; color: #c62828; }
+                .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+                .filter-btn { padding: 5px 10px; text-decoration: none; border: 1px solid #ddd; border-radius: 4px; }
+                .filter-btn.active { background: #007bff; color: white; }
+                .add-task-form { display: flex; gap: 10px; margin-bottom: 20px; }
+                .task-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 5px; }
+                .task-item.completed { opacity: 0.6; }
+                .task-item.completed .task-title { text-decoration: line-through; }
+                .task-title { flex: 1; }
+                .empty-state { text-align: center; padding: 40px; color: #666; }
+                input, select, button { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+                button { background: white; cursor: pointer; }
+                button:hover { background: #f0f0f0; }
+            </style>
+        </head>
+        <body>
+            <div class="task-app">
+                ' . $content . '
+            </div>
+        </body>
+        </html>';
+    }
+}
+
+// Controlador principal
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_GET['action'] ?? '';
+    $model = new TaskModel();
+    $viewModel = new TaskViewModel($model);
+    
+    $result = $viewModel->handleAction($action, $_POST);
+    
+    // Redirect after POST to prevent resubmission
+    header('Location: ' . $_SERVER['PHP_SELF'] . '?' . http_build_query($_GET));
+    exit;
+}
+
+// Render the view
+$model = new TaskModel();
+$viewModel = new TaskViewModel($model);
+$view = new TaskView($viewModel);
+
+echo $view->render();
+?>`
+    },
+    relatedPatterns: ["mvc", "observer"]
+  }
+];
+
+// ARCHITECTURAL PATTERNS
+export const mockArchitectures: Architecture[] = [
 class Newsletter {
   constructor() {
     this.observers = [];
