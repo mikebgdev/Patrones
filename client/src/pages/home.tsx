@@ -15,11 +15,11 @@ export function Home() {
   const [selectedPattern, setSelectedPattern] = useState<Pattern | null>(null);
 
   useEffect(() => {
-    // Show onboarding for first-time users
-    const hasSeenOnboarding = localStorage.getItem('has_seen_onboarding');
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-    }
+    // Disable automatic onboarding for now - can be manually triggered
+    // const hasSeenOnboarding = localStorage.getItem('has_seen_onboarding');
+    // if (!hasSeenOnboarding) {
+    //   setShowOnboarding(true);
+    // }
   }, []);
 
   const handleCloseOnboarding = () => {
