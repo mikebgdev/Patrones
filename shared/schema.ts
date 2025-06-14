@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -38,10 +38,41 @@ export const insertArchitectureSchema = createInsertSchema(architectures).omit({
   id: true,
 });
 
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  patternId: integer("pattern_id").notNull().references(() => patterns.id),
+  userId: text("user_id").notNull(), // Session-based identification
+  createdAt: text("created_at").notNull()
+});
+
+export const generatedSnippets = pgTable("generated_snippets", {
+  id: serial("id").primaryKey(),
+  patternId: integer("pattern_id").notNull().references(() => patterns.id),
+  language: text("language").notNull(),
+  context: text("context").notNull(),
+  code: text("code").notNull(),
+  explanation: text("explanation").notNull(),
+  createdAt: text("created_at").notNull()
+});
+
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSnippetSchema = createInsertSchema(generatedSnippets).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type Pattern = typeof patterns.$inferSelect;
 export type InsertPattern = z.infer<typeof insertPatternSchema>;
 export type Architecture = typeof architectures.$inferSelect;
 export type InsertArchitecture = z.infer<typeof insertArchitectureSchema>;
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+export type GeneratedSnippet = typeof generatedSnippets.$inferSelect;
+export type InsertSnippet = z.infer<typeof insertSnippetSchema>;
 
 // Filter types
 export type PatternCategory = "creational" | "structural" | "behavioral" | "architectural";
