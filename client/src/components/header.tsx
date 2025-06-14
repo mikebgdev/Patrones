@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Moon, Sun, Menu, Code, Sparkles, Heart } from "lucide-react";
+import { Moon, Sun, Menu, Code, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/theme-context";
 
@@ -31,10 +31,6 @@ export function Header() {
             </Link>
             <Link href="/languages" className="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">
               Lenguajes
-            </Link>
-            <Link href="/recommendations" className="flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">
-              <Sparkles className="h-4 w-4" />
-              IA
             </Link>
             <Link href="/favorites" className="flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors">
               <Heart className="h-4 w-4" />

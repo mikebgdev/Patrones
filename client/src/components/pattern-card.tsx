@@ -85,37 +85,26 @@ export function PatternCard({ pattern, onOpenCodeGenerator }: PatternCardProps) 
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden pattern-card-hover group relative">
-      {/* Action buttons */}
-      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={handleFavoriteClick}
-          className={`h-8 w-8 p-0 favorite-button ${isFavorite(pattern.id) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'}`}
-        >
-          <Heart className={`h-4 w-4 ${isFavorite(pattern.id) ? 'fill-current' : ''}`} />
-        </Button>
-        {onOpenCodeGenerator && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleCodeGeneratorClick}
-            className="h-8 w-8 p-0 text-purple-500 hover:text-purple-600"
-          >
-            <Wand2 className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-
       <Link href={`/pattern/${pattern.slug}`} className="block">
         <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className={`w-12 h-12 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center`}>
+          {/* Header with icon and category badge */}
+          <div className="flex items-start justify-between mb-4">
+            <div className={`w-12 h-12 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
               {getPatternIcon(pattern.icon)}
             </div>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${categoryColors[pattern.category] || categoryColors.creational}`}>
-              {categoryLabels[pattern.category] || "Patrón"}
-            </span>
+            <div className="flex items-center gap-2 ml-3">
+              <span className={`px-3 py-1 text-xs font-medium rounded-full ${categoryColors[pattern.category] || categoryColors.creational}`}>
+                {categoryLabels[pattern.category] || "Patrón"}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleFavoriteClick}
+                className={`h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors ${isFavorite(pattern.id) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'}`}
+              >
+                <Heart className={`h-4 w-4 ${isFavorite(pattern.id) ? 'fill-current' : ''}`} />
+              </Button>
+            </div>
           </div>
           
           <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">

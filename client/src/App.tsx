@@ -14,7 +14,7 @@ import { Creational } from "@/pages/creational";
 import { Structural } from "@/pages/structural";
 import { Behavioral } from "@/pages/behavioral";
 import { Architectural } from "@/pages/architectural";
-import { Recommendations } from "@/pages/recommendations";
+
 import { Favorites } from "@/pages/favorites";
 import NotFound from "@/pages/not-found";
 
@@ -29,7 +29,6 @@ function Router() {
       <Route path="/structural" component={Structural} />
       <Route path="/behavioral" component={Behavioral} />
       <Route path="/architectural" component={Architectural} />
-      <Route path="/recommendations" component={Recommendations} />
       <Route path="/favorites" component={Favorites} />
       <Route component={NotFound} />
     </Switch>

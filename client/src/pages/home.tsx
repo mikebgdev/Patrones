@@ -6,13 +6,11 @@ import { PatternCatalog } from "@/components/pattern-catalog";
 import { ArchitectureShowcase } from "@/components/architecture-showcase";
 import { Footer } from "@/components/footer";
 import { OnboardingTutorial } from "@/components/onboarding-tutorial";
-import { CodeSnippetGenerator } from "@/components/code-snippet-generator";
+
 import type { Pattern } from "@shared/schema";
 
 export function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [showCodeGenerator, setShowCodeGenerator] = useState(false);
-  const [selectedPattern, setSelectedPattern] = useState<Pattern | null>(null);
 
   useEffect(() => {
     // Disable automatic onboarding for now - can be manually triggered
@@ -27,22 +25,12 @@ export function Home() {
     localStorage.setItem('has_seen_onboarding', 'true');
   };
 
-  const handleOpenCodeGenerator = (pattern: Pattern) => {
-    setSelectedPattern(pattern);
-    setShowCodeGenerator(true);
-  };
-
-  const handleCloseCodeGenerator = () => {
-    setShowCodeGenerator(false);
-    setSelectedPattern(null);
-  };
-
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Header />
       <HeroSection />
       <FilterSection />
-      <PatternCatalog onOpenCodeGenerator={handleOpenCodeGenerator} />
+      <PatternCatalog />
       <ArchitectureShowcase />
       <Footer />
       
@@ -52,14 +40,7 @@ export function Home() {
         onClose={handleCloseOnboarding} 
       />
       
-      {/* Code Generator Modal */}
-      {selectedPattern && (
-        <CodeSnippetGenerator
-          pattern={selectedPattern}
-          isOpen={showCodeGenerator}
-          onClose={handleCloseCodeGenerator}
-        />
-      )}
+
     </div>
   );
 }
