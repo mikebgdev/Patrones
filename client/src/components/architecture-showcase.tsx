@@ -2,6 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
 import type { Architecture } from "@shared/schema";
 
+const getArchitectureIcon = (iconName: string) => {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    'building': Building2,
+    'layer-group': Layers,
+    'bolt': Zap,
+    'users': Users,
+    'database': Database,
+    'code-branch': GitBranch,
+    'cog': Settings,
+    'hexagon': Building2,
+    'cube': Layers,
+    'lightning': Zap
+  };
+  
+  const IconComponent = iconMap[iconName] || Building2;
+  return <IconComponent className="text-white" size={24} />;
+};
+
 export function ArchitectureShowcase() {
   const { data: architectures = [], isLoading } = useQuery<Architecture[]>({
     queryKey: ["/api/architectures"],
@@ -41,7 +59,7 @@ export function ArchitectureShowcase() {
               className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow cursor-pointer"
             >
               <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
-                <i className={`fas fa-${architecture.icon} text-white text-2xl`}></i>
+                {getArchitectureIcon(architecture.icon)}
               </div>
               <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
                 {architecture.name}

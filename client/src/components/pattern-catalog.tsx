@@ -17,22 +17,16 @@ export function PatternCatalog() {
     queryFn: async () => {
       const response = await fetch("/api/patterns");
       if (!response.ok) throw new Error("Failed to fetch patterns");
-      const data = await response.json();
-      console.log("Patterns loaded:", data.length, "patterns");
-      return data;
+      return response.json();
     }
   });
 
   const filteredPatterns = useMemo(() => {
     let filtered = patterns;
-    console.log("Starting with patterns:", patterns.length);
-    console.log("Current filters:", filters);
-    console.log("Search query:", searchQuery);
 
     // Apply category filter
     if (filters.category) {
       filtered = filtered.filter(pattern => pattern.category === filters.category);
-      console.log("After category filter:", filtered.length);
     }
 
     // Apply architecture filter
@@ -40,7 +34,6 @@ export function PatternCatalog() {
       filtered = filtered.filter(pattern => 
         pattern.architectures.includes(filters.architecture!)
       );
-      console.log("After architecture filter:", filtered.length);
     }
 
     // Apply language/framework filter
@@ -48,14 +41,12 @@ export function PatternCatalog() {
       filtered = filtered.filter(pattern => 
         pattern.languages.includes(filters.language!)
       );
-      console.log("After language filter:", filtered.length);
     }
     
     if (filters.framework) {
       filtered = filtered.filter(pattern => 
         pattern.frameworks.includes(filters.framework!)
       );
-      console.log("After framework filter:", filtered.length);
     }
 
     // Apply search filter
@@ -66,7 +57,6 @@ export function PatternCatalog() {
         pattern.description.toLowerCase().includes(query) ||
         pattern.tags.some(tag => tag.toLowerCase().includes(query))
       );
-      console.log("After search filter:", filtered.length);
     }
 
     // Apply sorting
@@ -84,7 +74,6 @@ export function PatternCatalog() {
         break;
     }
 
-    console.log("Final filtered patterns:", filtered.length);
     return filtered;
   }, [patterns, filters, searchQuery, sortBy]);
 
