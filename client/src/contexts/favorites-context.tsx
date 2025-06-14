@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import type { Favorite, Pattern } from "@shared/schema";
 
 interface FavoritesContextType {
@@ -27,11 +26,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const userId = getUserId();
 
-  const { data: favorites = [], isLoading } = useQuery<Favorite[]>({
+  const { data: favorites = [], isLoading } = useQuery({
     queryKey: ["/api/favorites", userId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Favorite[]> => {
       const response = await fetch(`/api/favorites?userId=${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch favorites");
+      if (!response.ok) {
+        if (response.status === 404) return [];
+        throw new Error("Failed to fetch favorites");
+      }
       return response.json();
     }
   });
