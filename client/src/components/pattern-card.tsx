@@ -1,13 +1,16 @@
 import { 
   ArrowRight, Factory, Layers, Settings, Building2, 
   Wrench, Box, Zap, Users, Database, Code, 
-  Target, Repeat, Eye, GitBranch, Shield, Grid3x3 
+  Target, Repeat, Eye, GitBranch, Shield, Grid3x3, Heart, Wand2
 } from "lucide-react";
 import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { useFavorites } from "@/contexts/favorites-context";
 import type { Pattern } from "@shared/schema";
 
 interface PatternCardProps {
   pattern: Pattern;
+  onOpenCodeGenerator?: () => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -54,7 +57,9 @@ const getPatternIcon = (iconName: string) => {
   return <IconComponent className="text-white" size={20} />;
 };
 
-export function PatternCard({ pattern }: PatternCardProps) {
+export function PatternCard({ pattern, onOpenCodeGenerator }: PatternCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  
   const getDifficultyDots = (difficulty: number) => {
     return Array.from({ length: 3 }, (_, i) => (
       <div
@@ -66,9 +71,43 @@ export function PatternCard({ pattern }: PatternCardProps) {
     ));
   };
 
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(pattern.id);
+  };
+
+  const handleCodeGeneratorClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onOpenCodeGenerator?.();
+  };
+
   return (
-    <Link href={`/pattern/${pattern.slug}`}>
-      <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden pattern-card-hover cursor-pointer group">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden pattern-card-hover group relative">
+      {/* Action buttons */}
+      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={handleFavoriteClick}
+          className={`h-8 w-8 p-0 favorite-button ${isFavorite(pattern.id) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'}`}
+        >
+          <Heart className={`h-4 w-4 ${isFavorite(pattern.id) ? 'fill-current' : ''}`} />
+        </Button>
+        {onOpenCodeGenerator && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={handleCodeGeneratorClick}
+            className="h-8 w-8 p-0 text-purple-500 hover:text-purple-600"
+          >
+            <Wand2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+
+      <Link href={`/pattern/${pattern.slug}`} className="block">
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center`}>
@@ -109,7 +148,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
             <ArrowRight className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
