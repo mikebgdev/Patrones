@@ -16,7 +16,7 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 const getUserId = () => {
   let userId = localStorage.getItem('user_id');
   if (!userId) {
-    userId = 'user_' + Math.random().toString(36).substr(2, 9);
+    userId = 'user_' + Math.random().toString(36).substring(2, 11);
     localStorage.setItem('user_id', userId);
   }
   return userId;
