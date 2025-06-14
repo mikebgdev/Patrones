@@ -43,13 +43,16 @@ export function CodeSnippetGenerator({ pattern, isOpen, onClose }: CodeSnippetGe
   const { toast } = useToast();
 
   const generateMutation = useMutation({
-    mutationFn: async (request: GenerateRequest) => {
-      return apiRequest(`/api/patterns/${request.patternSlug}/generate-code`, {
+    mutationFn: async (request: GenerateRequest): Promise<GeneratedSnippet> => {
+      const response = await fetch(`/api/patterns/${request.patternSlug}/generate-code`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(request)
       });
+      if (!response.ok) throw new Error("Failed to generate code");
+      return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: GeneratedSnippet) => {
       setGeneratedSnippet(data);
       toast({
         title: "Código generado",

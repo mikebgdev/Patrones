@@ -1,6 +1,6 @@
-import { patterns, architectures, type Pattern, type Architecture, type InsertPattern, type InsertArchitecture } from "@shared/schema";
+import { patterns, architectures, favorites, generatedSnippets, type Pattern, type Architecture, type InsertPattern, type InsertArchitecture, type Favorite, type InsertFavorite, type GeneratedSnippet, type InsertSnippet } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export interface IStorage {
   // Pattern operations
@@ -13,6 +13,15 @@ export interface IStorage {
   getAllArchitectures(): Promise<Architecture[]>;
   getArchitectureBySlug(slug: string): Promise<Architecture | undefined>;
   createArchitecture(architecture: InsertArchitecture): Promise<Architecture>;
+  
+  // Favorites operations
+  getFavorites(userId: string): Promise<Favorite[]>;
+  addFavorite(patternId: number, userId: string): Promise<Favorite>;
+  removeFavorite(patternId: number, userId: string): Promise<void>;
+  
+  // Generated snippets operations
+  saveGeneratedSnippet(snippet: InsertSnippet): Promise<GeneratedSnippet>;
+  getGeneratedSnippets(patternId: number): Promise<GeneratedSnippet[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -52,6 +61,35 @@ export class DatabaseStorage implements IStorage {
       .values(insertArchitecture)
       .returning();
     return architecture;
+  }
+
+  async getFavorites(userId: string): Promise<Favorite[]> {
+    return await db.select().from(favorites).where(eq(favorites.userId, userId));
+  }
+
+  async addFavorite(patternId: number, userId: string): Promise<Favorite> {
+    const [favorite] = await db
+      .insert(favorites)
+      .values({ patternId, userId, createdAt: new Date().toISOString() })
+      .returning();
+    return favorite;
+  }
+
+  async removeFavorite(patternId: number, userId: string): Promise<void> {
+    await db.delete(favorites)
+      .where(and(eq(favorites.patternId, patternId), eq(favorites.userId, userId)));
+  }
+
+  async saveGeneratedSnippet(snippet: InsertSnippet): Promise<GeneratedSnippet> {
+    const [generated] = await db
+      .insert(generatedSnippets)
+      .values({ ...snippet, createdAt: new Date().toISOString() })
+      .returning();
+    return generated;
+  }
+
+  async getGeneratedSnippets(patternId: number): Promise<GeneratedSnippet[]> {
+    return await db.select().from(generatedSnippets).where(eq(generatedSnippets.patternId, patternId));
   }
 }
 
