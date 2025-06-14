@@ -38,7 +38,7 @@ export function FilterSection() {
   };
 
   return (
-    <section className="py-12 border-b border-gray-200 dark:border-slate-700">
+    <section className="py-12 border-b border-gray-200 dark:border-slate-700 filter-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Search Bar */}
         <div className="mb-8">
