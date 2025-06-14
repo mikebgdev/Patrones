@@ -10,7 +10,6 @@ import type { Pattern } from "@shared/schema";
 
 interface PatternCardProps {
   pattern: Pattern;
-  onOpenCodeGenerator?: () => void;
 }
 
 const categoryColors: Record<string, string> = {
@@ -57,7 +56,7 @@ const getPatternIcon = (iconName: string) => {
   return <IconComponent className="text-white" size={20} />;
 };
 
-export function PatternCard({ pattern, onOpenCodeGenerator }: PatternCardProps) {
+export function PatternCard({ pattern }: PatternCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   
   const getDifficultyDots = (difficulty: number) => {
@@ -77,11 +76,7 @@ export function PatternCard({ pattern, onOpenCodeGenerator }: PatternCardProps) 
     toggleFavorite(pattern.id);
   };
 
-  const handleCodeGeneratorClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onOpenCodeGenerator?.();
-  };
+
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden pattern-card-hover group relative">

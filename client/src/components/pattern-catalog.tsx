@@ -7,11 +7,9 @@ import { useFilters } from "@/contexts/filter-context";
 import { useQuery } from "@tanstack/react-query";
 import type { Pattern } from "@shared/schema";
 
-interface PatternCatalogProps {
-  onOpenCodeGenerator?: (pattern: Pattern) => void;
-}
+interface PatternCatalogProps {}
 
-export function PatternCatalog({ onOpenCodeGenerator }: PatternCatalogProps) {
+export function PatternCatalog() {
   const { filters, searchQuery } = useFilters();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
@@ -148,7 +146,6 @@ export function PatternCatalog({ onOpenCodeGenerator }: PatternCatalogProps) {
               <PatternCard 
                 key={pattern.id} 
                 pattern={pattern} 
-                onOpenCodeGenerator={() => onOpenCodeGenerator?.(pattern)}
               />
             ))}
           </div>

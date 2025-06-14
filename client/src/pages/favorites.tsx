@@ -1,18 +1,14 @@
-import { useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PatternCard } from "@/components/pattern-card";
-import { CodeSnippetGenerator } from "@/components/code-snippet-generator";
 import { Button } from "@/components/ui/button";
-import { Heart, Sparkles } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { useQuery } from "@tanstack/react-query";
 import type { Pattern } from "@shared/schema";
 
 export function Favorites() {
   const { favorites, isLoading: favoritesLoading } = useFavorites();
-  const [showCodeGenerator, setShowCodeGenerator] = useState(false);
-  const [selectedPattern, setSelectedPattern] = useState<Pattern | null>(null);
 
   const { data: patterns = [], isLoading: patternsLoading } = useQuery<Pattern[]>({
     queryKey: ["/api/patterns"],
@@ -26,16 +22,6 @@ export function Favorites() {
   const favoritePatterns = patterns.filter(pattern => 
     favorites.some(fav => fav.patternId === pattern.id)
   );
-
-  const handleOpenCodeGenerator = (pattern: Pattern) => {
-    setSelectedPattern(pattern);
-    setShowCodeGenerator(true);
-  };
-
-  const handleCloseCodeGenerator = () => {
-    setShowCodeGenerator(false);
-    setSelectedPattern(null);
-  };
 
   if (favoritesLoading || patternsLoading) {
     return (
@@ -80,10 +66,6 @@ export function Favorites() {
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {favoritePatterns.length} patrón{favoritePatterns.length !== 1 ? 'es' : ''} guardado{favoritePatterns.length !== 1 ? 's' : ''}
                   </h2>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Generar código IA
-                  </Button>
                 </div>
               </div>
 
