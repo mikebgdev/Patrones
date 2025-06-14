@@ -74,7 +74,6 @@ export function Favorites() {
                   <PatternCard 
                     key={pattern.id} 
                     pattern={pattern}
-                    onOpenCodeGenerator={() => handleOpenCodeGenerator(pattern)}
                   />
                 ))}
               </div>
@@ -99,15 +98,6 @@ export function Favorites() {
       </main>
 
       <Footer />
-
-      {/* Code Generator Modal */}
-      {selectedPattern && (
-        <CodeSnippetGenerator
-          pattern={selectedPattern}
-          isOpen={showCodeGenerator}
-          onClose={handleCloseCodeGenerator}
-        />
-      )}
     </div>
   );
 }
