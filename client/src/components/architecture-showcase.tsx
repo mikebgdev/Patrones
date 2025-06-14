@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
 import type { Architecture } from "@shared/schema";
 
 export function ArchitectureShowcase() {

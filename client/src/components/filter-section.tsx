@@ -50,7 +50,7 @@ export function FilterSection() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-6 py-4 pl-12 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
-            <Search className="absolute left-4 top-5 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
         </div>
 

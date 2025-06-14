@@ -1,4 +1,8 @@
-import { ArrowRight } from "lucide-react";
+import { 
+  ArrowRight, Factory, Layers, Settings, Building2, 
+  Wrench, Box, Zap, Users, Database, Code, 
+  Target, Repeat, Eye, GitBranch, Shield, Grid3x3 
+} from "lucide-react";
 import { Link } from "wouter";
 import type { Pattern } from "@shared/schema";
 
@@ -6,14 +10,14 @@ interface PatternCardProps {
   pattern: Pattern;
 }
 
-const categoryColors = {
+const categoryColors: Record<string, string> = {
   creational: "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
   structural: "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
   behavioral: "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400",
   architectural: "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
 };
 
-const categoryLabels = {
+const categoryLabels: Record<string, string> = {
   creational: "Creacional",
   structural: "Estructural",
   behavioral: "Comportamiento",
@@ -25,6 +29,30 @@ const difficultyColors = [
   "bg-yellow-400",
   "bg-red-400"
 ];
+
+const getPatternIcon = (iconName: string) => {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    'cog': Settings,
+    'industry': Factory,
+    'tools': Wrench,
+    'clone': Box,
+    'layer-group': Layers,
+    'link': GitBranch,
+    'shield-alt': Shield,
+    'filter': Target,
+    'puzzle-piece': Grid3x3,
+    'sync-alt': Repeat,
+    'eye': Eye,
+    'bolt': Zap,
+    'users': Users,
+    'database': Database,
+    'code': Code,
+    'building': Building2
+  };
+  
+  const IconComponent = iconMap[iconName] || Settings;
+  return <IconComponent className="text-white" size={20} />;
+};
 
 export function PatternCard({ pattern }: PatternCardProps) {
   const getDifficultyDots = (difficulty: number) => {
@@ -44,10 +72,10 @@ export function PatternCard({ pattern }: PatternCardProps) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className={`w-12 h-12 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center`}>
-              <i className={`fas fa-${pattern.icon} text-white text-xl`}></i>
+              {getPatternIcon(pattern.icon)}
             </div>
-            <span className={`px-2 py-1 text-xs font-medium rounded-full ${categoryColors[pattern.category]}`}>
-              {categoryLabels[pattern.category]}
+            <span className={`px-2 py-1 text-xs font-medium rounded-full ${categoryColors[pattern.category] || categoryColors.creational}`}>
+              {categoryLabels[pattern.category] || "Patrón"}
             </span>
           </div>
           
