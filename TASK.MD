@@ -42,12 +42,12 @@ Como referencia, puedes revisar el proyecto de ejemplo: https://github.com/mikeb
 - [ ] Ajustar componentes React para consumir datos desde Firestore.
 
 ## 6. Pruebas y validación
-- [ ] Probar consultas directas a Firestore desde el cliente.
+- [x] Probar consultas directas a Firestore desde el cliente.
 - [ ] Validar la funcionalidad de patrones, arquitecturas, favoritos y snippets generados.
 
 ## 7. Documentación
-- [ ] Actualizar `README.md` con las instrucciones de configuración de Firebase en el cliente (`src/lib/env.ts` y `src/lib/firebase.ts`).
-- [ ] Eliminar cualquier referencia a la carpeta `server/` y a seed scripts en la documentación.
+- [x] Actualizar `README.md` con las instrucciones de configuración de Firebase en el cliente (`src/lib/env.ts` y `src/lib/firebase.ts`).
+- [x] Eliminar cualquier referencia a la carpeta `server/` y a seed scripts en la documentación.
 
 ---
 
