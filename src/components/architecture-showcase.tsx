@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useArchitectures } from "@/lib/hooks";
 import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
 import type { Architecture } from "@shared/schema";
 
@@ -21,14 +21,7 @@ const getArchitectureIcon = (iconName: string) => {
 };
 
 export function ArchitectureShowcase() {
-  const { data: architectures = [], isLoading } = useQuery<Architecture[]>({
-    queryKey: ["/api/architectures"],
-    queryFn: async () => {
-      const response = await fetch("/api/architectures");
-      if (!response.ok) throw new Error("Failed to fetch architectures");
-      return response.json();
-    }
-  });
+  const { data: architectures = [], isLoading } = useArchitectures();
 
   if (isLoading) {
     return (

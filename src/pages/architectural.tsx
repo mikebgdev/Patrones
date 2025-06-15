@@ -1,18 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { usePatterns } from "@/lib/hooks";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PatternCard } from "@/components/pattern-card";
 import type { Pattern } from "@shared/schema";
 
 export function Architectural() {
-  const { data: patterns = [], isLoading } = useQuery<Pattern[]>({
-    queryKey: ["/api/patterns"],
-    queryFn: async () => {
-      const response = await fetch("/api/patterns");
-      if (!response.ok) throw new Error("Failed to fetch patterns");
-      return response.json();
-    }
-  });
+  const { data: patterns = [], isLoading } = usePatterns();
 
   const architecturalPatterns = patterns.filter(pattern => pattern.category === 'architectural');
 

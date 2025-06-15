@@ -4,20 +4,13 @@ import { PatternCard } from "@/components/pattern-card";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/favorites-context";
-import { useQuery } from "@tanstack/react-query";
+import { usePatterns } from "@/lib/hooks";
 import type { Pattern } from "@shared/schema";
 
 export function Favorites() {
   const { favorites, isLoading: favoritesLoading } = useFavorites();
 
-  const { data: patterns = [], isLoading: patternsLoading } = useQuery<Pattern[]>({
-    queryKey: ["/api/patterns"],
-    queryFn: async () => {
-      const response = await fetch("/api/patterns");
-      if (!response.ok) throw new Error("Failed to fetch patterns");
-      return response.json();
-    }
-  });
+  const { data: patterns = [], isLoading: patternsLoading } = usePatterns();
 
   const favoritePatterns = patterns.filter(pattern => 
     favorites.some(fav => fav.patternId === pattern.id)

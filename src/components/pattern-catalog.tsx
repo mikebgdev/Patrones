@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatternCard } from "./pattern-card";
 import { useFilters } from "@/contexts/filter-context";
-import { useQuery } from "@tanstack/react-query";
+import { usePatterns } from "@/lib/hooks";
 import type { Pattern } from "@shared/schema";
 
 interface PatternCatalogProps {}
@@ -14,14 +14,7 @@ export function PatternCatalog() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
 
-  const { data: patterns = [], isLoading } = useQuery<Pattern[]>({
-    queryKey: ["/api/patterns"],
-    queryFn: async () => {
-      const response = await fetch("/api/patterns");
-      if (!response.ok) throw new Error("Failed to fetch patterns");
-      return response.json();
-    }
-  });
+  const { data: patterns = [], isLoading } = usePatterns();
 
   const filteredPatterns = useMemo(() => {
     let filtered = patterns;

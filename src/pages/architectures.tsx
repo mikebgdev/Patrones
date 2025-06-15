@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useArchitectures, usePatterns } from "@/lib/hooks";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,23 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import type { Architecture, Pattern } from "@shared/schema";
 
 export function Architectures() {
-  const { data: architectures = [], isLoading: architecturesLoading } = useQuery<Architecture[]>({
-    queryKey: ["/api/architectures"],
-    queryFn: async () => {
-      const response = await fetch("/api/architectures");
-      if (!response.ok) throw new Error("Failed to fetch architectures");
-      return response.json();
-    }
-  });
+  const { data: architectures = [], isLoading: architecturesLoading } = useArchitectures();
 
-  const { data: patterns = [], isLoading: patternsLoading } = useQuery<Pattern[]>({
-    queryKey: ["/api/patterns"],
-    queryFn: async () => {
-      const response = await fetch("/api/patterns");
-      if (!response.ok) throw new Error("Failed to fetch patterns");
-      return response.json();
-    }
-  });
+  const { data: patterns = [], isLoading: patternsLoading } = usePatterns();
 
   const isLoading = architecturesLoading || patternsLoading;
 
