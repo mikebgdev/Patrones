@@ -1,6 +1,6 @@
 import { useArchitectures } from "@/lib/hooks";
 import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
-import type { Architecture } from "@shared/schema";
+import type { Architecture } from "@/lib/types";
 
 const getArchitectureIcon = (iconName: string) => {
   const iconMap: Record<string, React.ComponentType<any>> = {

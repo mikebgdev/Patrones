@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { usePatterns } from "@/lib/hooks";
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from '@/lib/types';
 import { useState } from "react";
 
 // Simple syntax highlighting function

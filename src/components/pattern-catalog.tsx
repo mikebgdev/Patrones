@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PatternCard } from "./pattern-card";
 import { useFilters } from "@/contexts/filter-context";
 import { usePatterns } from "@/lib/hooks";
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from "@/lib/types";
 
 interface PatternCatalogProps {}
 

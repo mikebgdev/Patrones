@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import type { PatternFilters, PatternCategory } from "@shared/schema";
+import type { PatternFilters, PatternCategory } from "@/lib/types";
 
 interface FilterContextType {
   filters: PatternFilters;

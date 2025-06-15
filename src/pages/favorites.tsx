@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
 import { useFavorites } from "@/contexts/favorites-context";
 import { usePatterns } from "@/lib/hooks";
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from '@/lib/types';
 
 export function Favorites() {
   const { favorites, isLoading: favoritesLoading } = useFavorites();

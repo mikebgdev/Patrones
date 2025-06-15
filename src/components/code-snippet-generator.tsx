@@ -6,9 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Pattern, GeneratedSnippet } from "@shared/schema";
+import type { Pattern, GeneratedSnippet } from '@/lib/types';
 
 interface CodeSnippetGeneratorProps {
   pattern: Pattern;

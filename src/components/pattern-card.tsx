@@ -6,7 +6,7 @@ import {
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/contexts/favorites-context";
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from "@/lib/types";
 
 interface PatternCardProps {
   pattern: Pattern;

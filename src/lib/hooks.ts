@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { InsertSnippet } from '@shared/schema';
+import type { InsertSnippet } from '@/lib/types';
 import {
   getPatterns,
   getPatternBySlug,

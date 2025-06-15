@@ -1,4 +1,4 @@
-import type { Pattern, Architecture } from "@shared/schema";
+import type { Pattern, Architecture } from "@/lib/types";
 
 export const mockPatterns: Pattern[] = [
   // CREATIONAL PATTERNS

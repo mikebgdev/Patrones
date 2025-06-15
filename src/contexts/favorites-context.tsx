@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Favorite, Pattern } from "@shared/schema";
+import type { Favorite, Pattern } from "@/lib/types";
 
 interface FavoritesContextType {
   favorites: Favorite[];

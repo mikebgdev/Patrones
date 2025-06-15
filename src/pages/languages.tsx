@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PatternCard } from "@/components/pattern-card";
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from '@/lib/types';
 
 export function Languages() {
   const { data: patterns = [], isLoading } = usePatterns();

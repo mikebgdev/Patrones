@@ -16,7 +16,7 @@ import type {
   Favorite,
   GeneratedSnippet,
   InsertSnippet,
-} from '@shared/schema';
+} from '@/lib/types';
 import { firebaseConfig } from './env';
 
 const app = initializeApp(firebaseConfig);

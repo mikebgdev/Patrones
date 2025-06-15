@@ -7,7 +7,7 @@ import { ArchitectureShowcase } from "@/components/architecture-showcase";
 import { Footer } from "@/components/footer";
 import { OnboardingTutorial } from "@/components/onboarding-tutorial";
 
-import type { Pattern } from "@shared/schema";
+import type { Pattern } from '@/lib/types';
 
 export function Home() {
   const [showOnboarding, setShowOnboarding] = useState(false);
