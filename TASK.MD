@@ -26,12 +26,12 @@ Como referencia, puedes revisar el proyecto de ejemplo: https://github.com/mikeb
 
 ## 3. Eliminación de la capa de backend y consumo directo en cliente
 - [x] Eliminar la carpeta `server/` y todo el código asociado al backend (rutas, storage, configuración Vite/Express).
-- [ ] Ajustar en el cliente (`src/lib/firebase.ts` y servicios/hooks) las consultas directas a Firestore para las colecciones:
+- [x] Ajustar en el cliente (`src/lib/firebase.ts` y servicios/hooks) las consultas directas a Firestore para las colecciones:
   - `patterns`
   - `architectures`
   - `favorites`
   - `generatedSnippets`
-- [ ] Reemplazar llamadas a endpoints REST en componentes React por consultas directas a Firestore.
+- [x] Reemplazar llamadas a endpoints REST en componentes React por consultas directas a Firestore (usando hooks de `src/lib/hooks.ts`).
 
 ## 4. Ajustes en Docker y despliegue
 - [x] Actualizar `Dockerfile` y `docker-compose.yml` para eliminar la capa de backend (`server/`) y limpiar la orquestación de Postgres/Neon.
