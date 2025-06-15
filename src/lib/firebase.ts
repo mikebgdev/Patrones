@@ -1,233 +1,106 @@
 import { initializeApp } from 'firebase/app';
 import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
   getFirestore,
-  limit,
-  orderBy,
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+  addDoc,
+  deleteDoc,
   query,
-  Timestamp,
-  updateDoc,
   where,
 } from 'firebase/firestore';
-import type {Category, InsertPlatform, Platform, QuizSession, Shortcut, UserNote} from '@/lib/types';
+import type {
+  Pattern,
+  Architecture,
+  Favorite,
+  GeneratedSnippet,
+  InsertSnippet,
+} from '@shared/schema';
 import { firebaseConfig } from './env';
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-export async function getPlatforms(): Promise<Platform[]> {
-  const platformsCollection = collection(db, 'platforms');
-  const snapshot = await getDocs(platformsCollection);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Omit<Platform, 'id'>),
-  }));
+// Patterns
+export async function getPatterns(): Promise<Pattern[]> {
+  const snap = await getDocs(collection(db, 'patterns'));
+  return snap.docs.map((d) => d.data() as Pattern);
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const categoriesCollection = collection(db, 'categories');
-  const snapshot = await getDocs(categoriesCollection);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Omit<Category, 'id'>),
-  }));
+export async function getPatternBySlug(slug: string): Promise<Pattern | null> {
+  const q = query(collection(db, 'patterns'), where('slug', '==', slug));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].data() as Pattern;
 }
 
-export async function getShortcuts(): Promise<Shortcut[]> {
-  const shortcutsCollection = collection(db, 'shortcuts');
-  const snapshot = await getDocs(shortcutsCollection);
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Omit<Shortcut, 'id'>),
-  }));
+// Architectures
+export async function getArchitectures(): Promise<Architecture[]> {
+  const snap = await getDocs(collection(db, 'architectures'));
+  return snap.docs.map((d) => d.data() as Architecture);
 }
 
-
-export async function getFavorites(userId: number) {
-  const favoritesCollection = collection(db, 'favorites');
-  const q = query(favoritesCollection, where('userId', '==', userId));
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => doc.data().shortcutId);
+export async function getArchitectureBySlug(slug: string): Promise<Architecture | null> {
+  const q = query(collection(db, 'architectures'), where('slug', '==', slug));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].data() as Architecture;
 }
 
-export async function addFavorite(userId: number, shortcutId: string) {
-  const favoritesCollection = collection(db, 'favorites');
+// Favorites
+export async function getFavorites(userId: string): Promise<Favorite[]> {
+  const q = query(collection(db, 'favorites'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as Favorite);
+}
 
-  const q = query(
-    favoritesCollection,
-    where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
-  );
-  const snapshot = await getDocs(q);
-
-  if (!snapshot.empty) {
-    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
-  }
-
-  const docRef = await addDoc(favoritesCollection, {
+export async function addFavorite(
+  patternId: number,
+  userId: string,
+): Promise<Favorite> {
+  const ref = await addDoc(collection(db, 'favorites'), {
+    patternId,
     userId,
-    shortcutId,
-    createdAt: Timestamp.now(),
+    createdAt: new Date().toISOString(),
   });
-
-  return { id: docRef.id, userId, shortcutId };
+  const d = await getDoc(ref);
+  return { id: ref.id, ...(d.data() as Omit<Favorite, 'id'>) };
 }
 
-export async function removeFavorite(userId: number, shortcutId: string) {
-  const favoritesCollection = collection(db, 'favorites');
+export async function removeFavorite(
+  patternId: number,
+  userId: string,
+): Promise<void> {
   const q = query(
-    favoritesCollection,
+    collection(db, 'favorites'),
+    where('patternId', '==', patternId),
     where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
   );
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    return { success: true };
-  }
-
-  await deleteDoc(doc(db, 'favorites', snapshot.docs[0].id));
-  return { success: true };
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+  await deleteDoc(doc(db, 'favorites', snap.docs[0].id));
 }
 
-export async function getUserNote(userId: number, shortcutId: string): Promise<UserNote|null> {
-  const notesCollection = collection(db, 'notes');
+// Generated snippets
+export async function getGeneratedSnippets(
+  patternId: number,
+): Promise<GeneratedSnippet[]> {
   const q = query(
-    notesCollection,
-    where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
+    collection(db, 'generatedSnippets'),
+    where('patternId', '==', patternId),
   );
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    return null;
-  }
-
-  return {
-    id: snapshot.docs[0].id,
-    ...(snapshot.docs[0].data() as Omit<UserNote, 'id'>),
-  };
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as GeneratedSnippet);
 }
 
-export async function createUserNote(
-  userId: number,
-  shortcutId: string,
-  note: string,
-) {
-  const notesCollection = collection(db, 'notes');
-
-  const q = query(
-    notesCollection,
-    where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
-  );
-  const snapshot = await getDocs(q);
-
-  if (!snapshot.empty) {
-    const noteDoc = snapshot.docs[0];
-    await updateDoc(doc(db, 'notes', noteDoc.id), { note });
-    return { id: noteDoc.id, ...noteDoc.data(), note };
-  }
-
-  const docRef = await addDoc(notesCollection, {
-    userId,
-    shortcutId,
-    note,
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+export async function saveGeneratedSnippet(
+  snippet: InsertSnippet,
+): Promise<GeneratedSnippet> {
+  const ref = await addDoc(collection(db, 'generatedSnippets'), {
+    ...snippet,
+    createdAt: new Date().toISOString(),
   });
-
-  return { id: docRef.id, userId, shortcutId, note };
-}
-
-export async function updateUserNote(
-  userId: number,
-  shortcutId: string,
-  note: string,
-) {
-  const notesCollection = collection(db, 'notes');
-  const q = query(
-    notesCollection,
-    where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
-  );
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    throw new Error('Note not found');
-  }
-
-  await updateDoc(doc(db, 'notes', snapshot.docs[0].id), {
-    note,
-    updatedAt: Timestamp.now(),
-  });
-
-  return { id: snapshot.docs[0].id, ...snapshot.docs[0].data(), note };
-}
-
-export async function deleteUserNote(userId: number, shortcutId: string) {
-  const notesCollection = collection(db, 'notes');
-  const q = query(
-    notesCollection,
-    where('userId', '==', userId),
-    where('shortcutId', '==', shortcutId),
-  );
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    return { success: true };
-  }
-
-  await deleteDoc(doc(db, 'notes', snapshot.docs[0].id));
-  return { success: true };
-}
-
-export async function getQuizHistory(userId: number): Promise<QuizSession[]> {
-  const quizSessionsCollection = collection(db, 'quizSessions');
-
-  const q = query(
-    quizSessionsCollection,
-    where('userId', '==', userId),
-    orderBy('completedAt', 'desc'),
-    limit(10),
-  );
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...(doc.data() as Omit<QuizSession, 'id'>),
-  }));
-}
-
-export async function createQuizSession(
-  userId: number,
-  platform: string,
-  score: number,
-  totalQuestions: number,
-  completedAt: string,
-) {
-  const quizSessionsCollection = collection(db, 'quizSessions');
-
-  const docRef = await addDoc(quizSessionsCollection, {
-    userId,
-    platform,
-    score,
-    totalQuestions,
-    completedAt,
-    createdAt: Timestamp.now(),
-  });
-
-  return {
-    id: docRef.id,
-    userId,
-    platform,
-    score,
-    totalQuestions,
-    completedAt,
-  };
+  const d = await getDoc(ref);
+  return { id: ref.id, ...(d.data() as Omit<GeneratedSnippet, 'id'>) };
 }
