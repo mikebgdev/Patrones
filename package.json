@@ -12,7 +12,7 @@
     "test:coverage": "jest --coverage",
     "prepare": "husky install",
     "ci": "npm install --legacy-peer-deps",
-    "init:firestore": "node ./scripts/initFirestore.js"
+    "init:firestore": "npm run build && node dist/lib/initFirestore.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
