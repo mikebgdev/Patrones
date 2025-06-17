@@ -2,7 +2,6 @@ import { usePatterns } from "@/lib/hooks";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { PatternCard } from "@/components/pattern-card";
-import type { Pattern } from '@/lib/types';
 
 export function Architectural() {
   const { data: patterns = [], isLoading } = usePatterns();

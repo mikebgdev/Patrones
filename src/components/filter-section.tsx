@@ -1,7 +1,7 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useFilters } from "@/contexts/filter-context";
+import { useFilters } from "@/contexts/FilterContext";
 
 const patternCategories = [
   { key: "creational", label: "Creacionales" },

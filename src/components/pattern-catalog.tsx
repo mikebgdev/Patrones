@@ -3,7 +3,7 @@ import { Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatternCard } from "./pattern-card";
-import { useFilters } from "@/contexts/filter-context";
+import { useFilters } from "@/contexts/FilterContext";
 import { usePatterns } from "@/lib/hooks";
 import type { Pattern } from "@/lib/types";
 

@@ -3,7 +3,6 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { Architecture, Pattern } from '@/lib/types';
 
 export function Architectures() {
   const { data: architectures = [], isLoading: architecturesLoading } = useArchitectures();

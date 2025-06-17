@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { useFavorites } from "@/contexts/favorites-context";
+import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Pattern } from "@/lib/types";
 
 interface PatternCardProps {

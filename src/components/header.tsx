@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Moon, Sun, Menu, Code, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/contexts/theme-context";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
