@@ -1,6 +1,7 @@
-import { useArchitectures } from "@/lib/hooks";
-import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getArchitectures } from "@/lib/firebase";
 import type { Architecture } from "@/lib/types";
+import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
 
 const getArchitectureIcon = (iconName: string) => {
   const iconMap: Record<string, React.ComponentType<any>> = {
@@ -21,7 +22,14 @@ const getArchitectureIcon = (iconName: string) => {
 };
 
 export function ArchitectureShowcase() {
-  const { data: architectures = [], isLoading } = useArchitectures();
+  const [architectures, setArchitectures] = useState<Architecture[]>([]);
+  const [isLoading, setLoading] = useState(true);
+  useEffect(() => {
+    getArchitectures().then((data) => {
+      setArchitectures(data);
+      setLoading(false);
+    });
+  }, []);
 
   if (isLoading) {
     return (

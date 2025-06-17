@@ -1,95 +1,79 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Favorite, Pattern } from "@/lib/types";
+import { createContext, useContext, useReducer, useEffect } from 'react';
+import { auth, db } from '@/lib/firebase';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 interface FavoritesContextType {
-  favorites: Favorite[];
-  favoritePatternIds: Set<number>;
-  toggleFavorite: (patternId: number) => void;
-  isFavorite: (patternId: number) => boolean;
-  isLoading: boolean;
+  favorites: string[];
+  toggleFavorite: (patternId: string) => void;
+  isFavorite: (patternId: string) => boolean;
+  loading: boolean;
+}
+
+type State = {
+  favorites: string[];
+  loading: boolean;
+};
+
+type Action =
+  | { type: 'SET_FAVORITES'; payload: string[] }
+  | { type: 'SET_LOADING'; payload: boolean };
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_FAVORITES':
+      return { ...state, favorites: action.payload };
+    case 'SET_LOADING':
+      return { ...state, loading: action.payload };
+    default:
+      return state;
+  }
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
-// Generate a simple user ID for session-based favorites
-const getUserId = () => {
-  let userId = localStorage.getItem('user_id');
-  if (!userId) {
-    userId = 'user_' + Math.random().toString(36).substring(2, 11);
-    localStorage.setItem('user_id', userId);
-  }
-  return userId;
-};
+export function FavoritesProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(reducer, { favorites: [], loading: true });
 
-export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const queryClient = useQueryClient();
-  const userId = getUserId();
-
-  const { data: favorites = [], isLoading } = useQuery({
-    queryKey: ["/api/favorites", userId],
-    queryFn: async (): Promise<Favorite[]> => {
-      const response = await fetch(`/api/favorites?userId=${userId}`);
-      if (!response.ok) {
-        if (response.status === 404) return [];
-        throw new Error("Failed to fetch favorites");
+  useEffect(() => {
+    signInAnonymously(auth).catch(console.error);
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const favColl = collection(db, 'users', user.uid, 'favorites');
+        dispatch({ type: 'SET_LOADING', payload: true });
+        const unsubscribeFav = onSnapshot(favColl, (snapshot) => {
+          const favs = snapshot.docs.map((doc) => doc.id);
+          dispatch({ type: 'SET_FAVORITES', payload: favs });
+          dispatch({ type: 'SET_LOADING', payload: false });
+        });
+        return () => unsubscribeFav();
       }
-      return response.json();
-    }
-  });
+    });
+    return () => unsubscribeAuth();
+  }, []);
 
-  const favoritePatternIds = new Set(favorites.map(fav => fav.patternId));
-
-  const addFavoriteMutation = useMutation({
-    mutationFn: async (patternId: number) => {
-      const response = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patternId, userId })
-      });
-      if (!response.ok) throw new Error("Failed to add favorite");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites", userId] });
-    }
-  });
-
-  const removeFavoriteMutation = useMutation({
-    mutationFn: async (patternId: number) => {
-      const response = await fetch(`/api/favorites/${patternId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
-      });
-      if (!response.ok) throw new Error("Failed to remove favorite");
-      return response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/favorites", userId] });
-    }
-  });
-
-  const toggleFavorite = (patternId: number) => {
-    if (favoritePatternIds.has(patternId)) {
-      removeFavoriteMutation.mutate(patternId);
+  const toggleFavorite = async (patternId: string) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const favDoc = doc(db, 'users', user.uid, 'favorites', patternId);
+    if (state.favorites.includes(patternId)) {
+      await deleteDoc(favDoc);
     } else {
-      addFavoriteMutation.mutate(patternId);
+      await setDoc(favDoc, { patternId: true });
     }
   };
 
-  const isFavorite = (patternId: number) => {
-    return favoritePatternIds.has(patternId);
-  };
+  const isFavorite = (patternId: string) => state.favorites.includes(patternId);
 
   return (
-    <FavoritesContext.Provider value={{
-      favorites,
-      favoritePatternIds,
-      toggleFavorite,
-      isFavorite,
-      isLoading
-    }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites: state.favorites,
+        toggleFavorite,
+        isFavorite,
+        loading: state.loading,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );
@@ -97,8 +81,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
 export function useFavorites() {
   const context = useContext(FavoritesContext);
-  if (context === undefined) {
-    throw new Error("useFavorites must be used within a FavoritesProvider");
+  if (!context) {
+    throw new Error('useFavorites must be used within a FavoritesProvider');
   }
   return context;
 }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useReducer } from "react";
 
 type Theme = "light" | "dark";
 
@@ -9,14 +9,20 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+function themeReducer(state: Theme, action: { type: "TOGGLE" }): Theme {
+  return state === "light" ? "dark" : "light";
+}
+
+function getInitialTheme(): Theme {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("theme") as Theme;
+    return saved || "dark";
+  }
+  return "dark";
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("theme") as Theme;
-      return saved || "dark";
-    }
-    return "dark";
-  });
+  const [theme, dispatch] = useReducer(themeReducer, undefined, getInitialTheme);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -26,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === "light" ? "dark" : "light");
+    dispatch({ type: "TOGGLE" });
   };
 
   return (

@@ -12,7 +12,7 @@ export interface Pattern {
   languages: string[];
   frameworks: string[];
   content: string;
-  examples: Record<string, string>;
+  codeExamples: Record<string, string>;
   relatedPatterns: string[];
 }
 
@@ -54,9 +54,18 @@ export interface InsertSnippet {
 export type PatternCategory = 'creational' | 'structural' | 'behavioral' | 'architectural';
 export interface PatternFilters {
   category?: PatternCategory;
-  architecture?: string;
-  language?: string;
+  architectures?: string[];
+  languages?: string[];
   framework?: string;
   difficulty?: number;
   search?: string;
+  favorites?: boolean;
+}
+
+export interface Language {
+  slug: string;
+  name: string;
+  iconUrl: string;
+  description: string;
+  patternsCount: number;
 }

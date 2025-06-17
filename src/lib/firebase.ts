@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import {
   getFirestore,
   collection,
@@ -10,9 +11,11 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 import type {
   Pattern,
   Architecture,
+  Language,
   Favorite,
   GeneratedSnippet,
   InsertSnippet,
@@ -20,7 +23,9 @@ import type {
 import { firebaseConfig } from './env';
 
 const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
 // Patterns
 export async function getPatterns(): Promise<Pattern[]> {
@@ -41,6 +46,18 @@ export async function getArchitectures(): Promise<Architecture[]> {
   return snap.docs.map((d) => d.data() as Architecture);
 }
 
+// Languages
+export async function getLanguages(): Promise<Language[]> {
+  const snap = await getDocs(collection(db, 'languages'));
+  return snap.docs.map((d) => d.data() as Language);
+}
+
+export async function getLanguageBySlug(slug: string): Promise<Language | null> {
+  const q = query(collection(db, 'languages'), where('slug', '==', slug));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].data() as Language;
+}
 export async function getArchitectureBySlug(slug: string): Promise<Architecture | null> {
   const q = query(collection(db, 'architectures'), where('slug', '==', slug));
   const snap = await getDocs(q);

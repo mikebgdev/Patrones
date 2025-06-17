@@ -1,20 +1,29 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PatternCard } from "./pattern-card";
 import { useFilters } from "@/contexts/FilterContext";
-import { usePatterns } from "@/lib/hooks";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { getPatterns } from "@/lib/firebase";
 import type { Pattern } from "@/lib/types";
 
 interface PatternCatalogProps {}
 
 export function PatternCatalog() {
   const { filters, searchQuery } = useFilters();
+  const { favorites: favSlugs, isFavorite } = useFavorites();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
 
-  const { data: patterns = [], isLoading } = usePatterns();
+  const [patterns, setPatterns] = useState<Pattern[]>([]);
+  const [isLoading, setLoading] = useState(true);
+  useEffect(() => {
+    getPatterns().then((data) => {
+      setPatterns(data);
+      setLoading(false);
+    });
+  }, []);
 
   const filteredPatterns = useMemo(() => {
     let filtered = patterns;
@@ -25,14 +34,14 @@ export function PatternCatalog() {
     }
 
     // Apply architecture filter
-    if (filters.architecture) {
+    if (filters.architectures) {
       filtered = filtered.filter(pattern => 
         pattern.architectures.includes(filters.architecture!)
       );
     }
 
     // Apply language/framework filter
-    if (filters.language) {
+    if (filters.languages) {
       filtered = filtered.filter(pattern => 
         pattern.languages.includes(filters.language!)
       );
@@ -67,6 +76,10 @@ export function PatternCatalog() {
         break;
       default: // popular
         break;
+    }
+    // Apply favorites filter (client-side)
+    if (filters.favorites) {
+      filtered = filtered.filter(pattern => isFavorite(pattern.slug));
     }
 
     return filtered;

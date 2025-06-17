@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Code, Github, Twitter, Linkedin } from "lucide-react";
+import { Code } from "lucide-react";
 
 export function Footer() {
   return (
@@ -17,41 +17,12 @@ export function Footer() {
               La guía más completa de patrones de diseño y arquitecturas modernas de software. Aprende, practica y domina los conceptos fundamentales.
             </p>
           </div>
-          
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Patrones
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link href="/creational" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Creacionales
-                </Link>
-              </li>
-              <li>
-                <Link href="/structural" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Estructurales
-                </Link>
-              </li>
-              <li>
-                <Link href="/behavioral" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Comportamiento
-                </Link>
-              </li>
-              <li>
-                <Link href="/architectural" className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
-                  Arquitecturales
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
 
         </div>
         
         <div className="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 dark:text-gray-400 text-sm">
-            © 2024 Design Patterns. Todos los derechos reservados.
+            © 2025 Design Patterns. Todos los derechos reservados.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <span className="text-gray-500 dark:text-gray-400 text-sm">

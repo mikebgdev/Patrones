@@ -1,7 +1,10 @@
-import { Search } from "lucide-react";
+import { Search, Heart } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useFilters } from "@/contexts/FilterContext";
+import { useState, useEffect } from "react";
+import { getLanguages } from "@/lib/firebase";
+import type { Language } from "@/lib/types";
 
 const patternCategories = [
   { key: "creational", label: "Creacionales" },
@@ -18,18 +21,17 @@ const architectures = [
   { key: "microservices", label: "Microservicios" }
 ];
 
-const technologies = [
-  { key: "javascript", label: "JavaScript" },
-  { key: "php", label: "PHP" },
-  { key: "vue3", label: "Vue 3" },
-  { key: "symfony", label: "Symfony" }
-];
 
 export function FilterSection() {
   const { filters, updateFilter, searchQuery, setSearchQuery } = useFilters();
+  const [languages, setLanguages] = useState<Language[]>([]);
+  useEffect(() => {
+    getLanguages().then(setLanguages);
+  }, []);
 
-  const isFilterActive = (key: string, value: string) => {
-    return filters[key as keyof typeof filters] === value;
+  const isFilterActive = (key: keyof typeof filters, value: string) => {
+    const current = filters[key];
+    return Array.isArray(current) ? current.includes(value) : current === value;
   };
 
   const handleFilterClick = (key: string, value: string) => {
@@ -52,6 +54,23 @@ export function FilterSection() {
             />
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
+        </div>
+
+        {/* Favoritos Toggle */}
+        <div className="mb-6 flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => updateFilter('favorites', !filters.favorites)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              filters.favorites
+                ? 'filter-button-active'
+                : 'filter-button-inactive'
+            }`}
+          >
+            <Heart className="h-4 w-4 mr-1" />
+            Favoritos
+          </Button>
         </div>
 
         {/* Filter Categories */}
@@ -100,31 +119,57 @@ export function FilterSection() {
             </div>
           </div>
 
-          {/* Languages/Frameworks */}
+          {/* Architectures */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Lenguajes y Frameworks</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Arquitecturas</h3>
             <div className="flex flex-wrap gap-3">
-              {technologies.map((tech) => (
+              {architectures.map((arch) => (
                 <Button
-                  key={tech.key}
+                  key={arch.key}
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    const currentValue = filters.language || filters.framework;
-                    const filterKey = ['javascript', 'php'].includes(tech.key) ? 'language' : 'framework';
-                    updateFilter('language', undefined);
-                    updateFilter('framework', undefined);
-                    if (currentValue !== tech.key) {
-                      updateFilter(filterKey, tech.key);
-                    }
+                    const arr = filters.architectures || [];
+                    const next = arr.includes(arch.key)
+                      ? arr.filter((s) => s !== arch.key)
+                      : [...arr, arch.key];
+                    updateFilter('architectures', next);
                   }}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isFilterActive("language", tech.key) || isFilterActive("framework", tech.key)
-                      ? "filter-button-active"
-                      : "filter-button-inactive"
+                    isFilterActive('architectures', arch.key)
+                      ? 'filter-button-active'
+                      : 'filter-button-inactive'
                   }`}
                 >
-                  {tech.label}
+                  {arch.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Languages */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Lenguajes</h3>
+            <div className="flex flex-wrap gap-3">
+              {languages.map((lang) => (
+                <Button
+                  key={lang.slug}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const arr = filters.languages || [];
+                    const next = arr.includes(lang.slug)
+                      ? arr.filter((s) => s !== lang.slug)
+                      : [...arr, lang.slug];
+                    updateFilter('languages', next);
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    isFilterActive('languages', lang.slug)
+                      ? 'filter-button-active'
+                      : 'filter-button-inactive'
+                  }`}
+                >
+                  {lang.name}
                 </Button>
               ))}
             </div>

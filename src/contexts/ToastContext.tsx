@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useReducer } from 'react';
 
 interface Toast {
   id: string;
@@ -6,6 +6,26 @@ interface Toast {
   description?: string;
   action?: React.ReactNode;
   variant?: 'default' | 'success' | 'error' | 'warning';
+}
+
+type ToastAction =
+  | { type: 'ADD'; toast: Omit<Toast, 'id'> }
+  | { type: 'REMOVE'; id: string }
+  | { type: 'CLEAR' };
+
+function toastReducer(state: Toast[], action: ToastAction): Toast[] {
+  switch (action.type) {
+    case 'ADD': {
+      const id = Math.random().toString(36).substring(2, 9);
+      return [...state, { id, ...action.toast }];
+    }
+    case 'REMOVE':
+      return state.filter((t) => t.id !== action.id);
+    case 'CLEAR':
+      return [];
+    default:
+      return state;
+  }
 }
 
 interface ToastContextValue {
@@ -17,19 +37,15 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, dispatch] = useReducer(toastReducer, [] as Toast[]);
 
   const toast = (toastData: Omit<Toast, 'id'>) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, ...toastData }]);
+    dispatch({ type: 'ADD', toast: toastData });
   };
 
   const dismiss = (id?: string) => {
-    if (id) {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    } else {
-      setToasts([]);
-    }
+    if (id) dispatch({ type: 'REMOVE', id });
+    else dispatch({ type: 'CLEAR' });
   };
 
   return (

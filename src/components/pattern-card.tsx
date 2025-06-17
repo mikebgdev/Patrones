@@ -1,7 +1,7 @@
 import { 
   ArrowRight, Factory, Layers, Settings, Building2, 
   Wrench, Box, Zap, Users, Database, Code, 
-  Target, Repeat, Eye, GitBranch, Shield, Grid3x3, Heart, Wand2
+  Target, Repeat, Eye, GitBranch, Shield, Grid3x3, Heart
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -80,7 +80,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-hidden pattern-card-hover group relative">
-      <Link href={`/pattern/${pattern.slug}`} className="block">
+      <Link href={`/patterns/${pattern.slug}`} className="block">
         <div className="p-6">
           {/* Header with icon and category badge */}
           <div className="flex items-start justify-between mb-4">

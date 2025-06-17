@@ -4,17 +4,13 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { FilterProvider } from '@/contexts/FilterContext';
 import { FavoritesProvider } from '@/contexts/FavoritesContext';
-import { Home } from '@/pages/home';
-import { PatternDetail } from '@/pages/pattern-detail';
-import { Architectures } from '@/pages/architectures';
-import { Languages } from '@/pages/languages';
-import { Creational } from '@/pages/creational';
-import { Structural } from '@/pages/structural';
-import { Behavioral } from '@/pages/behavioral';
-import { Architectural } from '@/pages/architectural';
-
-import { Favorites } from '@/pages/favorites';
+import { Home } from '@/pages/Home';
+import { PatternDetail } from '@/pages/PatternDetail';
+import { Architectures } from '@/pages/Architectures';
+import { Languages } from '@/pages/Languages';
+import { Favorites } from '@/pages/Favorites';
 import { useEffect } from 'react';
+import { ToastProvider } from './contexts/ToastContext';
 
 function App() {
   useEffect(() => {
@@ -46,6 +42,7 @@ function App() {
 
   return (
     <ThemeProvider>
+      <ToastProvider>
       <FilterProvider>
         <FavoritesProvider>
           <TooltipProvider>
@@ -53,18 +50,15 @@ function App() {
 
             <Switch>
               <Route path="/" component={Home} />
-              <Route path="/pattern/:slug" component={PatternDetail} />
+              <Route path="/patterns/:slug" component={PatternDetail} />
               <Route path="/architectures" component={Architectures} />
               <Route path="/languages" component={Languages} />
-              <Route path="/creational" component={Creational} />
-              <Route path="/structural" component={Structural} />
-              <Route path="/behavioral" component={Behavioral} />
-              <Route path="/architectural" component={Architectural} />
               <Route path="/favorites" component={Favorites} />
             </Switch>
           </TooltipProvider>
         </FavoritesProvider>
       </FilterProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
