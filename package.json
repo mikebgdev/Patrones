@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test:coverage": "jest --coverage",
     "prepare": "husky install",
-    "ci": "npm install --legacy-peer-deps"
+    "ci": "npm install --legacy-peer-deps",
+    "init:firestore": "node ./scripts/initFirestore.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
@@ -38,6 +39,7 @@
     "cmdk": "^1.1.1",
     "dotenv": "^16.5.0",
     "firebase": "^11.8.1",
+    "firebase-admin": "^12.0.0",
     "prismjs": "^1.29.0",
     "framer-motion": "^12.15.0",
     "input-otp": "^1.4.2",

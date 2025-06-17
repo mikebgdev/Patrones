@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": 1,
+    "slug": "hexagonal",
+    "name": "Hexagonal",
+    "iconUrl": "fa-solid fa-cubes",
+    "description": "Aísla el dominio de detalles externos mediante puertos y adaptadores.",
+    "patternsCount": 0
+  },
+  {
+    "id": 2,
+    "slug": "ddd",
+    "name": "Domain Driven Design",
+    "iconUrl": "fa-solid fa-project-diagram",
+    "description": "Modela software alrededor del dominio del negocio.",
+    "patternsCount": 0
+  },
+  {
+    "id": 3,
+    "slug": "cqrs",
+    "name": "CQRS",
+    "iconUrl": "fa-solid fa-random",
+    "description": "Separa las operaciones de lectura y escritura para optimizar rendimiento.",
+    "patternsCount": 0
+  },
+  {
+    "id": 4,
+    "slug": "event-driven",
+    "name": "Event-Driven",
+    "iconUrl": "fa-solid fa-bolt",
+    "description": "Arquitectura basada en la producción y consumo de eventos.",
+    "patternsCount": 0
+  },
+  {
+    "id": 5,
+    "slug": "microservices",
+    "name": "Microservicios",
+    "iconUrl": "fa-solid fa-boxes-stacked",
+    "description": "Divide la aplicación en servicios pequeños y autónomos.",
+    "patternsCount": 0
+  }
+]

@@ -1,1 +1,813 @@
-[]
+[
+  {
+    "id": 1,
+    "slug": "abstract-factory",
+    "name": "Abstract Factory",
+    "iconUrl": "fa-solid fa-sitemap",
+    "type": "creational",
+    "difficulty": 3,
+    "descriptionShort": "Crea familias de objetos relacionados sin especificar sus clases concretas.",
+    "descriptionLong": "Permite crear grupos de objetos relacionados (por ejemplo, botones y ventanas) sin especificar sus clases concretas.",
+    "codeExamples": {
+      "javascript": "class UiFactory {\n  createButton() { return new HtmlButton(); }\n  createInput() { return new HtmlInput(); }\n}",
+      "php": "class UiFactory {\n  public function createButton() { return new HtmlButton(); }\n  public function createInput() { return new HtmlInput(); }\n}"
+    },
+    "relatedPatterns": [
+      "factory-method",
+      "prototype"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/abstract-factory",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Crear familias de objetos relacionados sin especificar sus clases concretas.",
+    "problem": "Tu código debe funcionar con variantes de objetos (botones, ventanas, etc.) y quieres mantenerlos compatibles sin atarte a clases concretas.",
+    "solution": "Define una interfaz de fábrica para cada tipo de producto y crea subclases que produzcan las variantes concretas.",
+    "structure": "Una AbstractFactory declara métodos para crear cada tipo de producto. Las ConcreteFactory devuelven implementaciones concretas que siguen las interfaces de producto.",
+    "pseudocode": "class GuiFactory {\n  createButton(){}\n}\nclass WinFactory extends GuiFactory {\n  createButton(){ return new WinButton(); }\n}",
+    "applicability": "Úsalo cuando un sistema necesite trabajar con múltiples familias de productos relacionados.",
+    "implementation": "1. Declara interfaces comunes para los productos.\n2. Crea una clase AbstractFactory con métodos para cada producto.\n3. Implementa fábricas concretas y úsala en el código.",
+    "prosCons": "Pros: consistencia entre productos y fácil de extender. Contras: puede generar muchas clases."
+  },
+  {
+    "id": 2,
+    "slug": "builder",
+    "name": "Builder",
+    "iconUrl": "fa-solid fa-hammer",
+    "type": "creational",
+    "difficulty": 2,
+    "descriptionShort": "Separa la construcción de un objeto complejo de su representación final.",
+    "descriptionLong": "Separa la creación de un objeto grande en pasos sencillos. Cada paso construye una parte del resultado final.",
+    "codeExamples": {
+      "javascript": "class HouseBuilder {\n  addWalls(){}\n  addRoof(){}\n  getResult(){ return new House(); }\n}",
+      "php": "class HouseBuilder {\n  function addWalls(){}\n  function addRoof(){}\n  function getResult(){ return new House(); }\n}"
+    },
+    "relatedPatterns": [
+      "factory-method",
+      "composite"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/builder",
+    "architectures": [
+      "ddd"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Separar la construcción de un objeto complejo de su representación final.",
+    "problem": "La creación de objetos con muchos pasos o combinaciones puede generar constructores enormes o difíciles de leer.",
+    "solution": "Divide la construcción en pasos pequeños reunidos en un objeto Builder que produce el resultado al final.",
+    "structure": "Un Director usa un Builder para ejecutar los pasos de creación. Cada ConcreteBuilder construye una variante del producto.",
+    "pseudocode": "class Builder { addWalls(){} addRoof(){} getResult(){} }\nclass HouseBuilder extends Builder { ... }",
+    "applicability": "Cuando un objeto requiera muchos pasos de construcción o diferentes representaciones.",
+    "implementation": "1. Crea una interfaz Builder con métodos para cada paso.\n2. Implementa Builders concretos.\n3. Opcionalmente usa un Director que orqueste los pasos.",
+    "prosCons": "Pros: código más legible y flexible. Contras: complejidad adicional."
+  },
+  {
+    "id": 3,
+    "slug": "factory-method",
+    "name": "Factory Method",
+    "iconUrl": "fa-solid fa-industry",
+    "type": "creational",
+    "difficulty": 2,
+    "descriptionShort": "Define una interfaz para crear un objeto pero deja que las subclases decidan qué clase instanciar.",
+    "descriptionLong": "Define un método para crear objetos que las subclases pueden sobrescribir para cambiar el tipo de objetos creados.",
+    "codeExamples": {
+      "javascript": "class Dialog {\n  createButton() { return new Button(); }\n}",
+      "php": "class Dialog {\n  public function createButton(){ return new Button(); }\n}"
+    },
+    "relatedPatterns": [
+      "abstract-factory",
+      "template-method"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/factory-method",
+    "architectures": [
+      "hexagonal",
+      "ddd"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Definir una interfaz para crear objetos permitiendo que las subclases decidan qué clase instanciar.",
+    "problem": "El código está acoplado a clases concretas y cuesta introducir nuevos tipos de productos.",
+    "solution": "Traslada la creación de objetos a métodos que las subclases pueden sobrescribir.",
+    "structure": "Una clase Creator declara el factoryMethod y puede usarlo en otras operaciones. Las subclases devuelven productos concretos que siguen una interfaz común.",
+    "pseudocode": "class Dialog {\n  createButton(){}\n  render(){\n    const btn = this.createButton();\n    btn.render();\n  }\n}\nclass WebDialog extends Dialog {\n  createButton(){ return new HtmlButton(); }\n}",
+    "applicability": "Aplica cuando no conozcas de antemano las clases exactas de los objetos que debe crear tu código.",
+    "implementation": "1. Declara una interfaz común para los productos.\n2. Crea una clase base con un método fábrica que devuelva ese tipo.\n3. Sobrescribe el método en subclases para cambiar los productos.",
+    "prosCons": "Pros: elimina acoplamientos y respeta abierto/cerrado. Contras: aumenta el número de clases."
+  },
+  {
+    "id": 4,
+    "slug": "prototype",
+    "name": "Prototype",
+    "iconUrl": "fa-solid fa-copy",
+    "type": "creational",
+    "difficulty": 2,
+    "descriptionShort": "Permite copiar objetos existentes sin acoplarse a sus clases concretas.",
+    "descriptionLong": "Crea nuevos objetos copiando otros ya existentes. Útil cuando las creaciones son costosas.",
+    "codeExamples": {
+      "javascript": "const newObject = Object.create(original);",
+      "php": "$newObject = clone $original;"
+    },
+    "relatedPatterns": [
+      "factory-method",
+      "singleton"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/prototype",
+    "architectures": [
+      "ddd"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Permite copiar objetos existentes sin acoplarse a sus clases concretas.",
+    "problem": "Cuándo usar el patrón Prototype?",
+    "solution": "Aplicar Prototype para resolver el problema.",
+    "structure": "Estructura básica de Prototype.",
+    "pseudocode": "// pseudo de prototype",
+    "applicability": "Se aplica cuando se necesita permite copiar objetos existentes sin acoplarse a sus clases concretas.",
+    "implementation": "Pasos simples para implementar Prototype.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 5,
+    "slug": "singleton",
+    "name": "Singleton",
+    "iconUrl": "fa-solid fa-cube",
+    "type": "creational",
+    "difficulty": 1,
+    "descriptionShort": "Garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.",
+    "descriptionLong": "Garantiza que una clase tenga una única instancia accesible de manera global.",
+    "codeExamples": {
+      "javascript": "class AppConfig {\n  static instance = new AppConfig();\n}",
+      "php": "class AppConfig {\n  private static $instance;\n  public static function instance(){ if(!self::$instance) self::$instance = new self(); return self::$instance; }\n}"
+    },
+    "relatedPatterns": [
+      "facade",
+      "abstract-factory"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/singleton",
+    "architectures": [
+      "hexagonal",
+      "ddd"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.",
+    "problem": "Cuándo usar el patrón Singleton?",
+    "solution": "Aplicar Singleton para resolver el problema.",
+    "structure": "Estructura básica de Singleton.",
+    "pseudocode": "// pseudo de singleton",
+    "applicability": "Se aplica cuando se necesita garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.",
+    "implementation": "Pasos simples para implementar Singleton.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 6,
+    "slug": "adapter",
+    "name": "Adapter",
+    "iconUrl": "fa-solid fa-plug",
+    "type": "structural",
+    "difficulty": 2,
+    "descriptionShort": "Permite la colaboración entre objetos con interfaces incompatibles.",
+    "descriptionLong": "Convierte la interfaz de una clase en otra que el cliente espera para poder reutilizar código existente.",
+    "codeExamples": {
+      "javascript": "class OldApi { get(){} }\nclass NewApi { constructor(adaptee){ this.adaptee = adaptee; } get(){ return this.adaptee.get(); } }",
+      "php": "class OldApi { function get(){} }\nclass NewApi { private $adaptee; function __construct($a){ $this->adaptee=$a; } function get(){ return $this->adaptee->get(); } }"
+    },
+    "relatedPatterns": [
+      "bridge",
+      "decorator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/adapter",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Permite la colaboración entre objetos con interfaces incompatibles.",
+    "problem": "Cuándo usar el patrón Adapter?",
+    "solution": "Aplicar Adapter para resolver el problema.",
+    "structure": "Estructura básica de Adapter.",
+    "pseudocode": "// pseudo de adapter",
+    "applicability": "Se aplica cuando se necesita permite la colaboración entre objetos con interfaces incompatibles.",
+    "implementation": "Pasos simples para implementar Adapter.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 7,
+    "slug": "bridge",
+    "name": "Bridge",
+    "iconUrl": "fa-solid fa-bridge",
+    "type": "structural",
+    "difficulty": 3,
+    "descriptionShort": "Separa una abstracción de su implementación para que ambas puedan variar de forma independiente.",
+    "descriptionLong": "Separa una abstracción de su implementación permitiendo combinarlas independientemente.",
+    "codeExamples": {
+      "javascript": "class Remote { constructor(device){ this.device = device; } }",
+      "php": "class Remote { private $device; function __construct($d){ $this->device=$d; } }"
+    },
+    "relatedPatterns": [
+      "adapter",
+      "strategy"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/bridge",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Separa una abstracción de su implementación para que ambas puedan variar de forma independiente.",
+    "problem": "Cuándo usar el patrón Bridge?",
+    "solution": "Aplicar Bridge para resolver el problema.",
+    "structure": "Estructura básica de Bridge.",
+    "pseudocode": "// pseudo de bridge",
+    "applicability": "Se aplica cuando se necesita separa una abstracción de su implementación para que ambas puedan variar de forma independiente.",
+    "implementation": "Pasos simples para implementar Bridge.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 8,
+    "slug": "composite",
+    "name": "Composite",
+    "iconUrl": "fa-solid fa-layer-group",
+    "type": "structural",
+    "difficulty": 2,
+    "descriptionShort": "Compone objetos en estructuras de árbol para representar jerarquías parte-todo.",
+    "descriptionLong": "Organiza objetos en estructuras de árbol para trabajar con ellos de forma uniforme.",
+    "codeExamples": {
+      "javascript": "class Folder { constructor(){ this.children=[]; } add(item){ this.children.push(item); } }",
+      "php": "class Folder { public $children=[]; function add($i){ $this->children[]=$i; } }"
+    },
+    "relatedPatterns": [
+      "decorator",
+      "iterator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/composite",
+    "architectures": [
+      "ddd"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Compone objetos en estructuras de árbol para representar jerarquías parte-todo.",
+    "problem": "Cuándo usar el patrón Composite?",
+    "solution": "Aplicar Composite para resolver el problema.",
+    "structure": "Estructura básica de Composite.",
+    "pseudocode": "// pseudo de composite",
+    "applicability": "Se aplica cuando se necesita compone objetos en estructuras de árbol para representar jerarquías parte-todo.",
+    "implementation": "Pasos simples para implementar Composite.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 9,
+    "slug": "decorator",
+    "name": "Decorator",
+    "iconUrl": "fa-solid fa-paint-brush",
+    "type": "structural",
+    "difficulty": 3,
+    "descriptionShort": "Añade responsabilidades a los objetos dinámicamente envolviéndolos en objetos contenedores.",
+    "descriptionLong": "Añade responsabilidades extra a un objeto envolviéndolo en uno nuevo.",
+    "codeExamples": {
+      "javascript": "function withLogging(fn){ return (...a)=>{ console.log(a); return fn(...a); }; }",
+      "php": "function withLogging($fn){ return function(...$a) use($fn){ echo 'log'; return $fn(...$a); }; }"
+    },
+    "relatedPatterns": [
+      "adapter",
+      "composite"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/decorator",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Añade responsabilidades a los objetos dinámicamente envolviéndolos en objetos contenedores.",
+    "problem": "Cuándo usar el patrón Decorator?",
+    "solution": "Aplicar Decorator para resolver el problema.",
+    "structure": "Estructura básica de Decorator.",
+    "pseudocode": "// pseudo de decorator",
+    "applicability": "Se aplica cuando se necesita añade responsabilidades a los objetos dinámicamente envolviéndolos en objetos contenedores.",
+    "implementation": "Pasos simples para implementar Decorator.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 10,
+    "slug": "facade",
+    "name": "Facade",
+    "iconUrl": "fa-solid fa-warehouse",
+    "type": "structural",
+    "difficulty": 1,
+    "descriptionShort": "Proporciona una interfaz unificada para un conjunto de interfaces en un subsistema.",
+    "descriptionLong": "Ofrece una interfaz sencilla para un conjunto complejo de clases o subsistemas.",
+    "codeExamples": {
+      "javascript": "class HttpFacade { get(url){ return fetch(url); } }",
+      "php": "class HttpFacade { function get($url){ /*...*/ } }"
+    },
+    "relatedPatterns": [
+      "mediator",
+      "singleton"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/facade",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Proporciona una interfaz unificada para un conjunto de interfaces en un subsistema.",
+    "problem": "Cuándo usar el patrón Facade?",
+    "solution": "Aplicar Facade para resolver el problema.",
+    "structure": "Estructura básica de Facade.",
+    "pseudocode": "// pseudo de facade",
+    "applicability": "Se aplica cuando se necesita proporciona una interfaz unificada para un conjunto de interfaces en un subsistema.",
+    "implementation": "Pasos simples para implementar Facade.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 11,
+    "slug": "flyweight",
+    "name": "Flyweight",
+    "iconUrl": "fa-solid fa-feather",
+    "type": "structural",
+    "difficulty": 3,
+    "descriptionShort": "Minimiza el uso de memoria compartiendo la mayor cantidad posible de datos entre objetos similares.",
+    "descriptionLong": "Comparte partes pesadas del estado entre muchos objetos similares para ahorrar memoria.",
+    "codeExamples": {
+      "javascript": "class IconFactory { constructor(){ this.cache={}; } get(name){ if(!this.cache[name]) this.cache[name]=new Icon(name); return this.cache[name]; } }",
+      "php": "class IconFactory { private $cache=[]; function get($name){ if(!isset($this->cache[$name])) $this->cache[$name]=new Icon($name); return $this->cache[$name]; } }"
+    },
+    "relatedPatterns": [
+      "factory-method",
+      "singleton"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/flyweight",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Minimiza el uso de memoria compartiendo la mayor cantidad posible de datos entre objetos similares.",
+    "problem": "Cuándo usar el patrón Flyweight?",
+    "solution": "Aplicar Flyweight para resolver el problema.",
+    "structure": "Estructura básica de Flyweight.",
+    "pseudocode": "// pseudo de flyweight",
+    "applicability": "Se aplica cuando se necesita minimiza el uso de memoria compartiendo la mayor cantidad posible de datos entre objetos similares.",
+    "implementation": "Pasos simples para implementar Flyweight.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 12,
+    "slug": "proxy",
+    "name": "Proxy",
+    "iconUrl": "fa-solid fa-user-secret",
+    "type": "structural",
+    "difficulty": 2,
+    "descriptionShort": "Proporciona un sustituto o marcador de posición para controlar el acceso a otro objeto.",
+    "descriptionLong": "Proporciona un sustituto que controla el acceso a otro objeto.",
+    "codeExamples": {
+      "javascript": "class ImageProxy { constructor(path){ this.path = path; } display(){ if(!this.image) this.image = new Image(this.path); this.image.display(); } }",
+      "php": "class ImageProxy { private $path; private $image; function __construct($p){ $this->path=$p; } function display(){ if(!$this->image) $this->image = new Image($this->path); $this->image->display(); } }"
+    },
+    "relatedPatterns": [
+      "decorator",
+      "adapter"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/proxy",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Proporciona un sustituto o marcador de posición para controlar el acceso a otro objeto.",
+    "problem": "Cuándo usar el patrón Proxy?",
+    "solution": "Aplicar Proxy para resolver el problema.",
+    "structure": "Estructura básica de Proxy.",
+    "pseudocode": "// pseudo de proxy",
+    "applicability": "Se aplica cuando se necesita proporciona un sustituto o marcador de posición para controlar el acceso a otro objeto.",
+    "implementation": "Pasos simples para implementar Proxy.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 13,
+    "slug": "chain-of-responsibility",
+    "name": "Chain of Responsibility",
+    "iconUrl": "fa-solid fa-link",
+    "type": "behavioral",
+    "difficulty": 3,
+    "descriptionShort": "Pasa solicitudes a lo largo de una cadena de manejadores hasta que uno de ellos la procesa.",
+    "descriptionLong": "Permite que varios objetos tengan la oportunidad de manejar una solicitud pasando la petición de uno a otro.",
+    "codeExamples": {
+      "javascript": "class Handler { setNext(h){ this.next=h; } handle(r){ if(this.next) this.next.handle(r); } }",
+      "php": "class Handler { private $next; function setNext($h){ $this->next=$h; } function handle($r){ if($this->next) $this->next->handle($r); } }"
+    },
+    "relatedPatterns": [
+      "command",
+      "decorator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/chain-of-responsibility",
+    "architectures": [
+      "hexagonal"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Pasa solicitudes a lo largo de una cadena de manejadores hasta que uno de ellos la procesa.",
+    "problem": "Cuándo usar el patrón Chain of Responsibility?",
+    "solution": "Aplicar Chain of Responsibility para resolver el problema.",
+    "structure": "Estructura básica de Chain of Responsibility.",
+    "pseudocode": "// pseudo de chain-of-responsibility",
+    "applicability": "Se aplica cuando se necesita pasa solicitudes a lo largo de una cadena de manejadores hasta que uno de ellos la procesa.",
+    "implementation": "Pasos simples para implementar Chain of Responsibility.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 14,
+    "slug": "command",
+    "name": "Command",
+    "iconUrl": "fa-solid fa-terminal",
+    "type": "behavioral",
+    "difficulty": 2,
+    "descriptionShort": "Encapsula una solicitud como un objeto, lo que te permite parametrizar clientes con diferentes solicitudes.",
+    "descriptionLong": "Encapsula una operación en un objeto para poder parametrizar clientes y soportar operaciones en cola.",
+    "codeExamples": {
+      "javascript": "class TurnOn { constructor(device){ this.device=device; } execute(){ this.device.on(); } }",
+      "php": "class TurnOn { private $device; function __construct($d){ $this->device=$d; } function execute(){ $this->device->on(); } }"
+    },
+    "relatedPatterns": [
+      "chain-of-responsibility",
+      "mediator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/command",
+    "architectures": [
+      "cqrs",
+      "event-driven"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Encapsula una solicitud como un objeto, lo que te permite parametrizar clientes con diferentes solicitudes.",
+    "problem": "Cuándo usar el patrón Command?",
+    "solution": "Aplicar Command para resolver el problema.",
+    "structure": "Estructura básica de Command.",
+    "pseudocode": "// pseudo de command",
+    "applicability": "Se aplica cuando se necesita encapsula una solicitud como un objeto, lo que te permite parametrizar clientes con diferentes solicitudes.",
+    "implementation": "Pasos simples para implementar Command.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 15,
+    "slug": "interpreter",
+    "name": "Interpreter",
+    "iconUrl": "fa-solid fa-language",
+    "type": "behavioral",
+    "difficulty": 4,
+    "descriptionShort": "Define una representación para la gramática de un lenguaje y un intérprete que usa esa representación para interpretar oraciones del lenguaje.",
+    "descriptionLong": "Define una forma de evaluar oraciones de un lenguaje simple.",
+    "codeExamples": {
+      "javascript": "class Num { constructor(value){ this.value=value; } interpret(){ return this.value; } }",
+      "php": "class Num { private $value; function __construct($v){ $this->value=$v; } function interpret(){ return $this->value; } }"
+    },
+    "relatedPatterns": [
+      "composite",
+      "iterator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/interpreter",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Define una representación para la gramática de un lenguaje y un intérprete que usa esa representación para interpretar oraciones del lenguaje.",
+    "problem": "Cuándo usar el patrón Interpreter?",
+    "solution": "Aplicar Interpreter para resolver el problema.",
+    "structure": "Estructura básica de Interpreter.",
+    "pseudocode": "// pseudo de interpreter",
+    "applicability": "Se aplica cuando se necesita define una representación para la gramática de un lenguaje y un intérprete que usa esa representación para interpretar oraciones del lenguaje.",
+    "implementation": "Pasos simples para implementar Interpreter.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 16,
+    "slug": "iterator",
+    "name": "Iterator",
+    "iconUrl": "fa-solid fa-redo",
+    "type": "behavioral",
+    "difficulty": 1,
+    "descriptionShort": "Proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación subyacente.",
+    "descriptionLong": "Permite recorrer elementos de una colección sin exponer su representación interna.",
+    "codeExamples": {
+      "javascript": "for(const item of collection) { console.log(item); }",
+      "php": "foreach($collection as $item){ echo $item; }"
+    },
+    "relatedPatterns": [
+      "composite",
+      "memento"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/iterator",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación subyacente.",
+    "problem": "Cuándo usar el patrón Iterator?",
+    "solution": "Aplicar Iterator para resolver el problema.",
+    "structure": "Estructura básica de Iterator.",
+    "pseudocode": "// pseudo de iterator",
+    "applicability": "Se aplica cuando se necesita proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación subyacente.",
+    "implementation": "Pasos simples para implementar Iterator.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 17,
+    "slug": "mediator",
+    "name": "Mediator",
+    "iconUrl": "fa-solid fa-comments",
+    "type": "behavioral",
+    "difficulty": 2,
+    "descriptionShort": "Define un objeto que encapsula cómo interactúan un conjunto de objetos.",
+    "descriptionLong": "Define un objeto que encapsula cómo interactúan varios objetos, reduciendo dependencias directas.",
+    "codeExamples": {
+      "javascript": "class Chat { send(msg, user){ /*...*/ } }",
+      "php": "class Chat { function send($msg, $user){ /*...*/ } }"
+    },
+    "relatedPatterns": [
+      "observer",
+      "facade"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/mediator",
+    "architectures": [
+      "event-driven"
+    ],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Define un objeto que encapsula cómo interactúan un conjunto de objetos.",
+    "problem": "Cuándo usar el patrón Mediator?",
+    "solution": "Aplicar Mediator para resolver el problema.",
+    "structure": "Estructura básica de Mediator.",
+    "pseudocode": "// pseudo de mediator",
+    "applicability": "Se aplica cuando se necesita define un objeto que encapsula cómo interactúan un conjunto de objetos.",
+    "implementation": "Pasos simples para implementar Mediator.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 18,
+    "slug": "memento",
+    "name": "Memento",
+    "iconUrl": "fa-solid fa-save",
+    "type": "behavioral",
+    "difficulty": 2,
+    "descriptionShort": "Permite guardar y restaurar el estado previo de un objeto sin revelar los detalles de su implementación.",
+    "descriptionLong": "Permite guardar el estado interno de un objeto para restaurarlo más tarde.",
+    "codeExamples": {
+      "javascript": "class Editor { createSnapshot(){ return {text:this.text}; } }",
+      "php": "class Editor { function createSnapshot(){ return ['text'=>$this->text]; } }"
+    },
+    "relatedPatterns": [
+      "command",
+      "iterator"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/memento",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Permite guardar y restaurar el estado previo de un objeto sin revelar los detalles de su implementación.",
+    "problem": "Cuándo usar el patrón Memento?",
+    "solution": "Aplicar Memento para resolver el problema.",
+    "structure": "Estructura básica de Memento.",
+    "pseudocode": "// pseudo de memento",
+    "applicability": "Se aplica cuando se necesita permite guardar y restaurar el estado previo de un objeto sin revelar los detalles de su implementación.",
+    "implementation": "Pasos simples para implementar Memento.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 19,
+    "slug": "observer",
+    "name": "Observer",
+    "iconUrl": "fa-solid fa-eye",
+    "type": "behavioral",
+    "difficulty": 1,
+    "descriptionShort": "Define una dependencia de uno a muchos entre objetos para que cuando uno cambie de estado, todos sus dependientes sean notificados.",
+    "descriptionLong": "Define una relación de dependencia para que varios objetos se actualicen cuando otro cambie.",
+    "codeExamples": {
+      "javascript": "class Subject { observers=[]; notify(){ for(const o of this.observers) o.update(); } }",
+      "php": "class Subject { private $obs=[]; function notify(){ foreach($this->obs as $o) $o->update(); } }"
+    },
+    "relatedPatterns": [
+      "mediator",
+      "strategy"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/observer",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Define una dependencia de uno a muchos entre objetos para que cuando uno cambie de estado, todos sus dependientes sean notificados.",
+    "problem": "Cuándo usar el patrón Observer?",
+    "solution": "Aplicar Observer para resolver el problema.",
+    "structure": "Estructura básica de Observer.",
+    "pseudocode": "// pseudo de observer",
+    "applicability": "Se aplica cuando se necesita define una dependencia de uno a muchos entre objetos para que cuando uno cambie de estado, todos sus dependientes sean notificados.",
+    "implementation": "Pasos simples para implementar Observer.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 20,
+    "slug": "state",
+    "name": "State",
+    "iconUrl": "fa-solid fa-toggle-on",
+    "type": "behavioral",
+    "difficulty": 2,
+    "descriptionShort": "Permite a un objeto alterar su comportamiento cuando cambia su estado interno.",
+    "descriptionLong": "Permite a un objeto cambiar su comportamiento cuando cambia su estado.",
+    "codeExamples": {
+      "javascript": "class Light { constructor(){ this.state = offState; } change(state){ this.state = state; } }",
+      "php": "class Light { private $state; function __construct(){ $this->state = new OffState(); } function change($state){ $this->state = $state; } }"
+    },
+    "relatedPatterns": [
+      "strategy",
+      "memento"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/state",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Permite a un objeto alterar su comportamiento cuando cambia su estado interno.",
+    "problem": "Cuándo usar el patrón State?",
+    "solution": "Aplicar State para resolver el problema.",
+    "structure": "Estructura básica de State.",
+    "pseudocode": "// pseudo de state",
+    "applicability": "Se aplica cuando se necesita permite a un objeto alterar su comportamiento cuando cambia su estado interno.",
+    "implementation": "Pasos simples para implementar State.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 21,
+    "slug": "strategy",
+    "name": "Strategy",
+    "iconUrl": "fa-solid fa-chess",
+    "type": "behavioral",
+    "difficulty": 2,
+    "descriptionShort": "Define una familia de algoritmos, encapsula cada uno y los hace intercambiables.",
+    "descriptionLong": "Define una familia de algoritmos que pueden intercambiarse durante la ejecución.",
+    "codeExamples": {
+      "javascript": "function sort(arr, strategy){ return strategy(arr); }",
+      "php": "function sortList($arr, $strategy){ return $strategy($arr); }"
+    },
+    "relatedPatterns": [
+      "state",
+      "bridge"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/strategy",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Define una familia de algoritmos, encapsula cada uno y los hace intercambiables.",
+    "problem": "Cuándo usar el patrón Strategy?",
+    "solution": "Aplicar Strategy para resolver el problema.",
+    "structure": "Estructura básica de Strategy.",
+    "pseudocode": "// pseudo de strategy",
+    "applicability": "Se aplica cuando se necesita define una familia de algoritmos, encapsula cada uno y los hace intercambiables.",
+    "implementation": "Pasos simples para implementar Strategy.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 22,
+    "slug": "template-method",
+    "name": "Template Method",
+    "iconUrl": "fa-solid fa-file-alt",
+    "type": "behavioral",
+    "difficulty": 1,
+    "descriptionShort": "Define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases.",
+    "descriptionLong": "Define los pasos de un algoritmo dejando que las subclases implementen algunos de ellos.",
+    "codeExamples": {
+      "javascript": "class Game { start(){ this.init(); this.play(); this.end(); } }",
+      "php": "abstract class Game { function start(){ $this->init(); $this->play(); $this->end(); } abstract protected function init(); abstract protected function play(); protected function end(){} }"
+    },
+    "relatedPatterns": [
+      "strategy",
+      "factory-method"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/template-method",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases.",
+    "problem": "Cuándo usar el patrón Template Method?",
+    "solution": "Aplicar Template Method para resolver el problema.",
+    "structure": "Estructura básica de Template Method.",
+    "pseudocode": "// pseudo de template-method",
+    "applicability": "Se aplica cuando se necesita define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases.",
+    "implementation": "Pasos simples para implementar Template Method.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  },
+  {
+    "id": 23,
+    "slug": "visitor",
+    "name": "Visitor",
+    "iconUrl": "fa-solid fa-user-astronaut",
+    "type": "behavioral",
+    "difficulty": 4,
+    "descriptionShort": "Permite añadir operaciones a objetos de distintas clases sin modificar las clases.",
+    "descriptionLong": "Permite añadir operaciones a estructuras de objetos sin modificarlas.",
+    "codeExamples": {
+      "javascript": "function visit(node, visitor){ visitor(node); for(const c of node.children) visit(c, visitor); }",
+      "php": "function visit($node, $visitor){ $visitor($node); foreach($node->children as $c) visit($c, $visitor); }"
+    },
+    "relatedPatterns": [
+      "iterator",
+      "composite"
+    ],
+    "guruUrl": "https://refactoring.guru/es/design-patterns/visitor",
+    "architectures": [],
+    "languages": [
+      "javascript",
+      "php",
+      "vue",
+      "symfony"
+    ],
+    "purpose": "Permite añadir operaciones a objetos de distintas clases sin modificar las clases.",
+    "problem": "Cuándo usar el patrón Visitor?",
+    "solution": "Aplicar Visitor para resolver el problema.",
+    "structure": "Estructura básica de Visitor.",
+    "pseudocode": "// pseudo de visitor",
+    "applicability": "Se aplica cuando se necesita permite añadir operaciones a objetos de distintas clases sin modificar las clases.",
+    "implementation": "Pasos simples para implementar Visitor.",
+    "prosCons": "Pros: código claro. Contras: más clases"
+  }
+]

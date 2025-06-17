@@ -1,1 +1,42 @@
-[]
+[
+  {
+    "id": 1,
+    "slug": "javascript",
+    "name": "JavaScript",
+    "iconUrl": "fa-brands fa-js",
+    "description": "Lenguaje de programación interpretado utilizado principalmente en la web.",
+    "patternsCount": 0
+  },
+  {
+    "id": 2,
+    "slug": "php",
+    "name": "PHP",
+    "iconUrl": "fa-brands fa-php",
+    "description": "Lenguaje de programación del lado del servidor enfocado en la web.",
+    "patternsCount": 0
+  },
+  {
+    "id": 3,
+    "slug": "react",
+    "name": "React",
+    "iconUrl": "fa-brands fa-react",
+    "description": "Biblioteca de JavaScript para construir interfaces de usuario.",
+    "patternsCount": 0
+  },
+  {
+    "id": 4,
+    "slug": "vue",
+    "name": "Vue.js",
+    "iconUrl": "fa-brands fa-vuejs",
+    "description": "Framework progresivo de JavaScript para interfaces de usuario.",
+    "patternsCount": 0
+  },
+  {
+    "id": 5,
+    "slug": "symfony",
+    "name": "Symfony",
+    "iconUrl": "fa-brands fa-symfony",
+    "description": "Framework PHP para aplicaciones web robustas.",
+    "patternsCount": 0
+  }
+]
