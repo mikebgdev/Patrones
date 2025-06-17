@@ -73,7 +73,7 @@ export function PatternCard({ pattern }: PatternCardProps) {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleFavorite(pattern.id);
+    toggleFavorite(pattern.slug);
   };
 
 
@@ -95,9 +95,9 @@ export function PatternCard({ pattern }: PatternCardProps) {
                 size="sm"
                 variant="ghost"
                 onClick={handleFavoriteClick}
-                className={`h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors ${isFavorite(pattern.id) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'}`}
+                className={`h-8 w-8 p-0 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors ${isFavorite(pattern.slug) ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-red-500'}`}
               >
-                <Heart className={`h-4 w-4 ${isFavorite(pattern.id) ? 'fill-current' : ''}`} />
+                  <Heart className={`h-4 w-4 ${isFavorite(pattern.slug) ? 'fill-current' : ''}`} />
               </Button>
             </div>
           </div>

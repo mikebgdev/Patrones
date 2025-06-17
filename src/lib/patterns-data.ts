@@ -16,7 +16,7 @@ export const mockPatterns: Pattern[] = [
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Factory Method es una solución elegante cuando necesitas crear objetos pero no sabes exactamente qué tipo hasta el momento de la ejecución.\n\nImagínate que estás construyendo una aplicación de logística que maneja diferentes tipos de transporte (camiones, barcos, aviones). En lugar de decidir directamente qué tipo crear, defines un 'método fábrica' que se encarga de la creación.\n\n**¿Cuándo usarlo?**\n• Cuando no sabes de antemano qué tipos exactos de objetos necesitarás\n• Cuando quieres que los usuarios de tu biblioteca puedan extender sus componentes internos\n• Cuando quieres reutilizar objetos existentes en lugar de reconstruirlos\n\n**Ventajas:**\n• Evita el acoplamiento fuerte entre el creador y los productos concretos\n• Principio de responsabilidad única: mueves la creación de productos a un lugar específico\n• Principio abierto/cerrado: puedes introducir nuevos tipos sin romper el código existente\n\n**Desventajas:**\n• El código puede volverse más complicado al introducir muchas subclases nuevas",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz común para todos los productos
 class Transport {
   deliver() {
@@ -138,7 +138,7 @@ echo $seaLogistics->planDelivery(); // "Entrega por mar en contenedores"
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Abstract Factory es como una 'super fábrica' que produce familias completas de objetos relacionados. Imagina una fábrica de muebles que puede producir diferentes estilos: moderno, clásico, rústico. Cada estilo requiere una silla, mesa y sofá que combinen entre sí.\n\nEste patrón es útil cuando necesitas asegurar que los objetos creados sean compatibles entre sí y pertenezcan a la misma 'familia'.\n\n**¿Cuándo usarlo?**\n• Cuando tu sistema debe ser independiente de cómo se crean sus objetos\n• Cuando quieres proporcionar una biblioteca de objetos revelando solo sus interfaces\n• Cuando una familia de objetos relacionados debe usarse conjuntamente\n• Cuando quieres imponer esta restricción a nivel de diseño\n\n**Ventajas:**\n• Aísla las clases concretas del cliente\n• Facilita el intercambio de familias de productos\n• Promueve la consistencia entre productos relacionados\n• Soporta nuevas variedades de productos fácilmente\n\n**Desventajas:**\n• Difícil extender para soportar nuevos tipos de productos\n• Puede resultar en muchas clases e interfaces\n• Complejidad adicional cuando solo necesitas un tipo de objeto",
-    examples: {
+    codeExamples: {
       javascript: `// Productos abstractos - interfaces comunes
 class Button {
   render() {
@@ -337,7 +337,7 @@ echo $app->render(); // Renderiza elementos del tema correspondiente
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Builder es como construir una casa: no puedes hacerlo de una vez, necesitas seguir pasos específicos. Primero los cimientos, luego las paredes, después el techo, etc. Este patrón te permite construir objetos complejos paso a paso.\n\nEs especialmente útil cuando tienes objetos con muchas configuraciones opcionales o cuando el proceso de construcción es complejo.\n\n**¿Cuándo usarlo?**\n• Cuando quieres crear objetos complejos con muchos parámetros opcionales\n• Cuando el algoritmo de construcción debe ser independiente de las partes del objeto\n• Cuando quieres construir diferentes representaciones del mismo objeto\n• Cuando quieres evitar constructores telescópicos (muchos parámetros)\n\n**Ventajas:**\n• Permite construir objetos paso a paso\n• Puedes crear diferentes representaciones del mismo producto\n• Aísla el código de construcción de la representación\n• Te da mejor control sobre el proceso de construcción\n\n**Desventajas:**\n• Aumenta la complejidad del código al crear múltiples clases nuevas\n• Puede ser overkill para objetos simples",
-    examples: {
+    codeExamples: {
       javascript: `// Producto complejo que queremos construir
 class House {
   constructor() {
@@ -662,7 +662,7 @@ $customHouse->showHouse();
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Prototype es como usar una fotocopiadora: en lugar de crear documentos desde cero, copias uno existente y lo modificas según necesites. Esto es especialmente útil cuando crear un objeto es costoso o complejo.\n\nPiensa en un videojuego donde tienes enemigos: en lugar de crear cada enemigo desde cero, puedes tener un 'prototipo' de cada tipo y clonarlo cuando necesites más.\n\n**¿Cuándo usarlo?**\n• Cuando crear un objeto es más costoso que copiarlo\n• Cuando quieres evitar subclases de un Factory (como en Abstract Factory)\n• Cuando las instancias pueden tener solo unas pocas combinaciones de estado\n• Cuando quieres reducir el número de clases\n\n**Ventajas:**\n• Puede agregar y quitar productos en tiempo de ejecución\n• Especifica nuevos objetos variando valores\n• Especifica nuevos objetos variando estructura\n• Reduce el número de subclases\n• Configura dinámicamente una aplicación con clases\n\n**Desventajas:**\n• Implementar el método clone puede ser difícil si los objetos tienen referencias circulares\n• Cada subclase debe implementar la operación de clonado",
-    examples: {
+    codeExamples: {
       javascript: `// Prototipo base para documentos
 class DocumentPrototype {
   constructor() {
@@ -1071,7 +1071,7 @@ foreach ($reportTitles as $title) {
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Singleton es uno de los más simples pero controvertidos. Su objetivo es garantizar que una clase tenga exactamente una instancia durante toda la ejecución del programa.\n\nPiensa en el Singleton como el 'CEO de una empresa': solo puede haber uno al mando. Casos típicos incluyen configuraciones de aplicación, conexiones a base de datos, o loggers.\n\n**¿Cuándo usarlo?**\n• Cuando necesitas exactamente una instancia de una clase (como configuración global)\n• Cuando quieres un punto de acceso global a esa instancia\n• Cuando la instancia debe ser accesible desde cualquier parte del código\n\n**Ventajas:**\n• Garantiza una sola instancia\n• Acceso global controlado\n• Inicialización perezosa (lazy initialization)\n• Ahorra memoria al reutilizar la misma instancia\n\n**Desventajas:**\n• Viola el principio de responsabilidad única\n• Dificulta las pruebas unitarias\n• Puede crear dependencias ocultas\n• Problemático en aplicaciones multihilo\n\n**⚠️ Advertencia:** Muchos consideran el Singleton un antipatrón. Úsalo con precaución y considera alternativas como inyección de dependencias.",
-    examples: {
+    codeExamples: {
       javascript: `// Implementación básica del Singleton
 class DatabaseConnection {
   constructor() {
@@ -1258,7 +1258,7 @@ class ThreadSafeSingleton {
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Adapter es como un adaptador de enchufe para viajar: te permite conectar un aparato con un tipo de enchufe a una toma de corriente diferente. En programación, permite que clases con interfaces incompatibles trabajen juntas.\n\nEste patrón es especialmente útil cuando quieres usar bibliotecas externas o sistemas legacy que tienen interfaces diferentes a las que espera tu código.\n\n**¿Cuándo usarlo?**\n• Cuando quieres usar una clase existente con una interfaz incompatible\n• Cuando quieres crear una clase reutilizable que coopere con clases no relacionadas\n• Cuando necesitas usar varias subclases existentes, pero es impracticable adaptar sus interfaces por subclasificación\n• Cuando quieres integrar componentes de terceros\n\n**Ventajas:**\n• Permite que clases incompatibles trabajen juntas\n• Aumenta la reutilización de clases existentes\n• Separa la conversión de interfaz de la lógica de negocio\n• Principio de responsabilidad única: separas la conversión de datos\n\n**Desventajas:**\n• Aumenta la complejidad del código al introducir nuevas interfaces y clases\n• A veces es más simple cambiar la clase de servicio para que coincida con el resto del código",
-    examples: {
+    codeExamples: {
       javascript: `// Sistema de pago legacy que no podemos modificar
 class PayPalGateway {
   makePayment(amount) {
@@ -1557,7 +1557,7 @@ $storeWithStripe->processOrder(149.50);
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
     content: "El patrón Bridge es como tener un control remoto universal: el control remoto (abstracción) puede funcionar con diferentes dispositivos (implementaciones) sin cambiar su diseño. Separa 'qué hace algo' de 'cómo lo hace'.\n\nEsto es útil cuando tienes una jerarquía que está creciendo en dos dimensiones diferentes: funcionalidad y plataforma.\n\n**¿Cuándo usarlo?**\n• Cuando quieres evitar una unión permanente entre una abstracción y su implementación\n• Cuando tanto las abstracciones como sus implementaciones deben ser extensibles por subclases\n• Cuando cambios en la implementación no deben impactar a los clientes\n• Cuando quieres compartir una implementación entre múltiples objetos\n\n**Ventajas:**\n• Puedes crear clases independientes de plataforma\n• El código cliente funciona con abstracciones de alto nivel\n• Principio Abierto/Cerrado: puedes introducir nuevas abstracciones e implementaciones independientemente\n• Principio de responsabilidad única: abstracciones se enfocan en lógica de alto nivel, implementaciones en detalles\n\n**Desventajas:**\n• Puede hacer el código más complicado aplicándolo a una clase muy cohesiva\n• Requiere mayor planificación inicial",
-    examples: {
+    codeExamples: {
       javascript: `// Implementación - define la interfaz para clases de implementación
 class NotificationSender {
   sendMessage(title, message) {
@@ -1896,7 +1896,7 @@ $batchSlack->sendBatch();
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Composite es como organizar archivos en carpetas: puedes tener archivos individuales y carpetas que contienen más archivos y carpetas. Tanto archivos como carpetas se pueden mover, copiar o eliminar de la misma manera.\n\nEste patrón te permite tratar objetos individuales y composiciones de objetos de forma uniforme.\n\n**¿Cuándo usarlo?**\n• Cuando quieres representar jerarquías parte-todo de objetos\n• Cuando quieres que los clientes ignoren la diferencia entre composiciones de objetos y objetos individuales\n• Cuando tienes estructuras de árbol complejas\n• Cuando necesitas aplicar operaciones uniformemente sobre elementos individuales y compuestos\n\n**Ventajas:**\n• Puedes trabajar con estructuras de árbol complejas más fácilmente\n• Principio Abierto/Cerrado: puedes introducir nuevos tipos de elementos sin romper código existente\n• Los clientes pueden tratar de manera uniforme objetos individuales y compuestos\n• Simplifica el código cliente al eliminar condicionales complejas\n\n**Desventajas:**\n• Puede ser difícil proporcionar una interfaz común para clases cuya funcionalidad difiere demasiado\n• Puede hacer el diseño demasiado general en algunos casos",
-    examples: {
+    codeExamples: {
       javascript: `// Componente base - interfaz común para objetos simples y compuestos
 class FileSystemComponent {
   constructor(name) {
@@ -2340,7 +2340,7 @@ echo "\\n🎯 El patrón Composite permite tratar archivos y carpetas uniformeme
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Decorator es como vestir a una persona: puedes agregar capas de ropa (funcionalidades) sin cambiar a la persona en sí. Cada prenda añade una función específica: abrigo, protección, estilo.\n\nEste patrón te permite añadir comportamientos a objetos de forma dinámica sin alterar su estructura.\n\n**¿Cuándo usarlo?**\n• Cuando quieres añadir responsabilidades a objetos de forma dinámica y transparente\n• Cuando la extensión por herencia es impracticable (muchas combinaciones posibles)\n• Cuando quieres añadir o quitar responsabilidades de un objeto dinámicamente\n• Cuando las responsabilidades opcionales requieren muchas subclases\n\n**Ventajas:**\n• Más flexibilidad que la herencia estática\n• Evita clases con muchas características en los niveles superiores de la jerarquía\n• Puedes añadir o quitar responsabilidades en tiempo de ejecución\n• Puedes combinar varios comportamientos envolviendo un objeto en múltiples decoradores\n\n**Desventajas:**\n• Los decoradores y sus componentes no son idénticos\n• Muchos objetos pequeños que pueden ser difíciles de debuggear\n• Es difícil remover un decorador específico de la pila de decoradores",
-    examples: {
+    codeExamples: {
       javascript: `// Componente base - interfaz común
 class Coffee {
   cost() {
@@ -2776,7 +2776,7 @@ echo "\\n🎯 Cada decorador añade funcionalidad sin modificar el objeto base!\
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Facade es como el mostrador de un restaurante: no necesitas ir a la cocina, hablar con el chef, gestionar inventario o lavar platos. Solo dices lo que quieres al mesero y él coordina todo el trabajo complejo detrás de escenas.\n\nEste patrón proporciona una interfaz simplificada para trabajar con un subsistema complejo.\n\n**¿Cuándo usarlo?**\n• Cuando quieres proporcionar una interfaz simple a un subsistema complejo\n• Cuando hay muchas dependencias entre clientes e implementación de una abstracción\n• Cuando quieres estructurar un subsistema en capas\n• Cuando necesitas desacoplar un subsistema de sus clientes\n\n**Ventajas:**\n• Aísla clientes de los componentes del subsistema\n• Promueve acoplamiento débil entre subsistema y clientes\n• No impide que las aplicaciones usen clases del subsistema si las necesitan\n• Simplifica la interfaz para casos de uso comunes\n\n**Desventajas:**\n• Un facade puede convertirse en un objeto dios acoplado a todas las clases de una aplicación\n• Puede agregar una capa innecesaria de abstracción",
-    examples: {
+    codeExamples: {
       javascript: `// Subsistemas complejos que maneja el Facade
 class VideoConverter {
   convert(filename, format) {
@@ -3256,7 +3256,7 @@ echo "\\n🎯 El Facade oculta la complejidad de 6 subsistemas diferentes!\\n";
     languages: ["javascript", "php"],
     frameworks: ["vue3"],
     content: "El patrón Flyweight es como compartir libros en una biblioteca: en lugar de que cada persona tenga su propia copia de 'Don Quijote', todos comparten las mismas copias. Solo el marcapáginas (contexto) es personal.\n\nEste patrón minimiza el uso de memoria cuando trabajas con gran cantidad de objetos similares.\n\n**¿Cuándo usarlo?**\n• Cuando una aplicación debe soportar una gran cantidad de objetos\n• Cuando el costo de almacenamiento es alto debido al gran número de objetos\n• Cuando grupos de objetos pueden ser reemplazados por pocos objetos compartidos\n• Cuando la aplicación no depende de la identidad del objeto\n\n**Ventajas:**\n• Puede ahorrar mucha RAM si tienes millones de objetos similares\n• Centraliza el estado que comparten múltiples objetos\n• Reduce el número total de objetos en memoria\n\n**Desventajas:**\n• Puedes estar intercambiando RAM por ciclos de CPU si el contexto cambia frecuentemente\n• El código se vuelve más complicado\n• Solo es útil cuando realmente tienes problemas de memoria",
-    examples: {
+    codeExamples: {
       javascript: `// Flyweight - estado intrínseco compartido
 class TreeType {
   constructor(name, color, sprite) {
@@ -3615,7 +3615,7 @@ echo "\\n🎯 Con Flyweight, 11 árboles solo necesitan 5 tipos únicos en memor
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
     content: "El patrón Proxy es como un guardia de seguridad en un edificio: controla quien puede acceder a recursos específicos, puede hacer verificaciones adicionales, y puede realizar tareas de mantenimiento sin que el cliente se entere.\n\nEste patrón proporciona un sustituto que controla el acceso al objeto real.\n\n**¿Cuándo usarlo?**\n• Cuando quieres controlar el acceso a un objeto (proxy de protección)\n• Cuando quieres crear objetos costosos bajo demanda (proxy virtual)\n• Cuando necesitas una referencia local a un objeto remoto (proxy remoto)\n• Cuando quieres añadir funcionalidad adicional al acceder a un objeto (proxy inteligente)\n\n**Ventajas:**\n• Controla el acceso al objeto real\n• Puede implementar lazy loading para objetos costosos\n• Puede añadir funcionalidad sin cambiar el objeto real\n• Principio Abierto/Cerrado: puedes introducir nuevos proxies sin cambiar código existente\n\n**Desventajas:**\n• El código puede volverse más complicado\n• La respuesta del servicio puede retrasarse",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz común para el servicio real y el proxy
 class ImageService {
   display() {
@@ -4141,7 +4141,7 @@ echo "\\n🎯 Los proxies controlan acceso, implementan lazy loading y añaden f
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
     content: "El patrón Chain of Responsibility es como una línea de atención al cliente: cuando llamas con un problema, primero hablas con el operador básico. Si no puede ayudarte, te transfiere al supervisor. Si él tampoco puede, te pasa al especialista, y así sucesivamente hasta que alguien resuelve tu problema.\n\nEste patrón permite pasar solicitudes a través de una cadena de manejadores hasta que uno pueda procesarla.\n\n**¿Cuándo usarlo?**\n• Cuando tu programa debe procesar diferentes tipos de solicitudes de varias maneras\n• Cuando es esencial ejecutar varios manejadores en un orden específico\n• Cuando el conjunto de manejadores y su orden deben cambiar en tiempo de ejecución\n• Cuando quieres desacoplar el emisor de una solicitud de sus receptores\n\n**Ventajas:**\n• Puedes controlar el orden de manejo de solicitudes\n• Principio de responsabilidad única: puedes desacoplar clases que invocan operaciones de clases que realizan operaciones\n• Principio abierto/cerrado: puedes introducir nuevos manejadores sin romper código existente\n• Reduce el acoplamiento entre emisor y receptor\n\n**Desventajas:**\n• Algunas solicitudes pueden no ser manejadas\n• Puede ser difícil observar las características de tiempo de ejecución y depurar la cadena",
-    examples: {
+    codeExamples: {
       javascript: `// Handler abstracto base
 class SupportHandler {
   constructor() {
@@ -4638,7 +4638,7 @@ echo "\\n🎯 Cada solicitud se maneja por el nivel apropiado automáticamente!\
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Command es como usar un control remoto: cada botón es un comando que encapsula una acción específica. Puedes presionar 'play', 'pause', 'cambiar canal' sin saber cómo funciona internamente el televisor. Además, puedes programar secuencias de comandos o deshacer acciones.\n\nEste patrón convierte solicitudes en objetos independientes que contienen toda la información necesaria.\n\n**¿Cuándo usarlo?**\n• Cuando quieres parametrizar objetos con operaciones\n• Cuando quieres poner operaciones en cola, programar su ejecución, o ejecutarlas remotamente\n• Cuando quieres implementar operaciones reversibles (undo/redo)\n• Cuando quieres registrar cambios para poder replicarlos o recuperarse de una caída\n\n**Ventajas:**\n• Desacopla las clases que invocan operaciones de las que realizan estas operaciones\n• Puedes combinar comandos simples para crear otros más complejos\n• Puedes implementar deshacer/rehacer\n• Puedes implementar ejecución diferida de operaciones\n• Principio abierto/cerrado: puedes introducir nuevos comandos sin cambiar código existente\n\n**Desventajas:**\n• El código puede volverse más complejo ya que estás introduciendo una nueva capa entre emisores y receptores",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz Command
 class Command {
   execute() {
@@ -5437,7 +5437,7 @@ echo "\\n🎯 Los comandos encapsulan acciones y permiten undo/redo automático!
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Iterator es como usar un reproductor de música con botones 'siguiente' y 'anterior': puedes recorrer tu playlist sin saber si está almacenada en CD, streaming, o memoria interna. Solo necesitas saber cómo moverte al siguiente elemento.\n\nEste patrón proporciona una forma uniforme de recorrer diferentes tipos de colecciones.\n\n**¿Cuándo usarlo?**\n• Cuando quieres acceder a los contenidos de una colección sin exponer su representación interna\n• Cuando quieres soportar múltiples formas de recorrer la misma colección\n• Cuando quieres proporcionar una interfaz uniforme para recorrer diferentes estructuras de datos\n• Cuando quieres implementar recorridos especializados de estructuras complejas\n\n**Ventajas:**\n• Principio de responsabilidad única: limpia el código cliente y las colecciones extrayendo algoritmos de recorrido\n• Principio abierto/cerrado: puedes implementar nuevos tipos de colecciones e iteradores sin romper código existente\n• Puedes recorrer la misma colección en paralelo porque cada iterador contiene su propio estado\n• Puedes retrasar y continuar una iteración cuando sea necesario\n\n**Desventajas:**\n• Aplicar el patrón puede ser excesivo si tu aplicación solo trabaja con colecciones simples\n• Usar un iterador puede ser menos eficiente que recorrer directamente algunos tipos de colecciones especializadas",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz Iterator
 class Iterator {
   hasNext() {
@@ -6214,7 +6214,7 @@ echo "\\n🎯 Cada iterador proporciona una vista diferente de la misma colecci�
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Mediator es como un controlador de tráfico aéreo: en lugar de que cada avión se comunique directamente con otros aviones (lo cual sería caótico), todos se comunican con la torre de control, que coordina todo el tráfico de manera centralizada.\n\nEste patrón define cómo un conjunto de objetos interactúan entre sí a través de un mediador central.\n\n**¿Cuándo usarlo?**\n• Cuando es difícil cambiar algunas clases porque están fuertemente acopladas a muchas otras clases\n• Cuando no puedes reutilizar un componente en un programa diferente porque es demasiado dependiente de otros componentes\n• Cuando te encuentras creando toneladas de subclases de componente solo para reutilizar algún comportamiento básico en varios contextos\n• Cuando hay muchas relaciones complejas y bien definidas entre objetos\n\n**Ventajas:**\n• Principio de responsabilidad única: puedes extraer las comunicaciones entre varios componentes en un solo lugar\n• Principio abierto/cerrado: puedes introducir nuevos mediadores sin cambiar los componentes reales\n• Puedes reducir el acoplamiento entre varios componentes de un programa\n• Puedes reutilizar componentes individuales más fácilmente\n\n**Desventajas:**\n• Con el tiempo, un mediador puede evolucionar hacia un objeto dios",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz del mediador
 class DialogMediator {
   notify(sender, event) {
@@ -7001,7 +7001,7 @@ echo "\\n🎯 El mediador coordina todas las interacciones entre componentes!\\n
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón Memento es como hacer un punto de guardado en un videojuego: puedes capturar el estado actual completo de tu progreso y luego restaurarlo exactamente como estaba si algo sale mal, sin que el juego tenga que saber los detalles internos de cómo se almacena tu progreso.\n\nEste patrón permite capturar y externalizar el estado interno de un objeto sin violar su encapsulación.\n\n**¿Cuándo usarlo?**\n• Cuando quieres producir instantáneas del estado del objeto para poder restaurar un estado previo\n• Cuando el acceso directo a los campos/getters/setters del objeto viola su encapsulación\n• Cuando quieres implementar operaciones de deshacer (undo)\n• Cuando necesitas mantener un historial de estados de un objeto\n\n**Ventajas:**\n• Puedes producir instantáneas del estado del objeto sin violar su encapsulación\n• Puedes simplificar el código del originador permitiendo que el cuidador mantenga el historial del estado del originador\n• Preserva los límites de encapsulación\n• Simplifica la arquitectura del originador\n\n**Desventajas:**\n• La aplicación puede consumir mucha RAM si los clientes crean mementos muy a menudo\n• Los cuidadores deben rastrear el ciclo de vida del originador para poder destruir mementos obsoletos\n• La mayoría de lenguajes de programación dinámicos no pueden garantizar que el estado dentro del memento se mantenga intacto",
-    examples: {
+    codeExamples: {
       javascript: `// Memento - Instantánea del estado del documento
 class DocumentMemento {
   constructor(content, cursorPosition, selection, formatting) {
@@ -7615,7 +7615,7 @@ echo "\\n🎯 El patrón Memento permite guardar y restaurar estados completos!\
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón State es como un semáforo: dependiendo de su estado actual (verde, amarillo, rojo), se comporta de manera diferente ante la misma acción (los autos que se acercan). El semáforo no cambia físicamente, pero su comportamiento cambia completamente según su estado interno.\n\nEste patrón permite a un objeto alterar su comportamiento cuando su estado interno cambia.\n\n**¿Cuándo usarlo?**\n• Cuando tienes un objeto que se comporta de forma diferente dependiendo de su estado actual\n• Cuando tienes una clase con muchas declaraciones condicionales que dependen del estado del objeto\n• Cuando tienes código duplicado entre estados similares y transiciones de una máquina de estados\n• Cuando quieres eliminar condicionales complejas del código principal\n\n**Ventajas:**\n• Principio de responsabilidad única: organiza el código relacionado con estados particulares en clases separadas\n• Principio abierto/cerrado: introduce nuevos estados sin cambiar clases de estado existentes o el contexto\n• Simplifica el código del contexto eliminando voluminosas declaraciones condicionales de máquina de estados\n• Los estados pueden tener sus propias variables de instancia\n\n**Desventajas:**\n• Aplicar el patrón puede ser excesivo si una máquina de estados tiene solo unos pocos estados o rara vez cambia",
-    examples: {
+    codeExamples: {
       javascript: `// Interfaz State
 class PlayerState {
   play(player) {
@@ -8398,7 +8398,7 @@ $simulator->interactiveDemo();
     languages: ["javascript", "php"],
     frameworks: ["symfony"],
     content: "El patrón Repository es como tener un bibliotecario personal: no importa si los libros están en estantes físicos, archivos digitales o en otra biblioteca, el bibliotecario te consigue cualquier libro que necesites usando una interfaz simple y consistente.\n\nEste patrón encapsula la lógica de acceso a datos y proporciona una interfaz más orientada a objetos.\n\n**¿Cuándo usarlo?**\n• Cuando quieres centralizar el acceso a datos\n• Cuando necesitas cambiar entre diferentes fuentes de datos\n• Cuando quieres hacer el código más testeable\n• Cuando trabajas con Domain Driven Design\n\n**Ventajas:**\n• Centraliza la lógica de acceso a datos\n• Facilita el testing con mocks\n• Reduce duplicación de código\n• Mejor separación de responsabilidades\n\n**Desventajas:**\n• Puede agregar complejidad innecesaria en aplicaciones simples\n• Riesgo de crear repositorios demasiado genéricos",
-    examples: {
+    codeExamples: {
       javascript: `// Ejemplo simplificado del patrón Repository
 class UserRepository {
   constructor(dataSource) {
@@ -8501,7 +8501,7 @@ $user = $userRepo->findById(123);
     languages: ["javascript", "php"],
     frameworks: ["vue3", "symfony"],
     content: "El patrón MVC es como un restaurante bien organizado: el chef (Modelo) prepara la comida y maneja los ingredientes, el mesero (Controlador) toma tu orden y coordina entre tú y la cocina, y el ambiente del restaurante (Vista) es lo que ves y experimentas como cliente.\n\nEste patrón separa la aplicación en tres componentes que manejan diferentes aspectos.\n\n**¿Cuándo usarlo?**\n• En aplicaciones web complejas\n• Cuando múltiples desarrolladores trabajan en la misma aplicación\n• Cuando necesitas diferentes vistas para los mismos datos\n• Para facilitar el testing y mantenimiento\n\n**Ventajas:**\n• Clara separación de responsabilidades\n• Facilita el trabajo en equipo\n• Reutilización de componentes\n• Más fácil de testear\n\n**Desventajas:**\n• Puede ser excesivo para aplicaciones simples\n• Curva de aprendizaje inicial\n• Posible over-engineering",
-    examples: {
+    codeExamples: {
       javascript: `// Modelo - Maneja los datos y lógica de negocio
 class UserModel {
   constructor() {
@@ -9003,7 +9003,7 @@ $controller->handleRequest();
     languages: ["javascript"],
     frameworks: ["vue3"],
     content: "El patrón MVVM es como tener un asistente personal inteligente (ViewModel) que traduce automáticamente entre tú (Vista) y tu oficina (Modelo). Cuando pides algo, el asistente lo traduce al lenguaje de la oficina, y cuando la oficina tiene actualizaciones, el asistente te informa automáticamente.\n\nEste patrón facilita el binding bidireccional entre la vista y los datos.\n\n**¿Cuándo usarlo?**\n• En aplicaciones con interfaces complejas\n• Cuando necesitas binding bidireccional\n• En frameworks como Vue.js, Angular, o WPF\n• Cuando quieres separar lógica de vista de lógica de negocio\n\n**Ventajas:**\n• Binding automático entre vista y datos\n• Mejor testabilidad del ViewModel\n• Separación clara de responsabilidades\n• Reutilización de ViewModels\n\n**Desventajas:**\n• Complejidad adicional\n• Curva de aprendizaje\n• Posible over-engineering para apps simples",
-    examples: {
+    codeExamples: {
       javascript: `// Ejemplo con Vue.js - MVVM Pattern
 
 // Modelo - Maneja los datos y lógica de negocio

@@ -65,7 +65,8 @@ export interface PatternFilters {
 export interface Language {
   slug: string;
   name: string;
-  iconUrl: string;
+  icon: string;
+  color: string;
   description: string;
   patternsCount: number;
 }
