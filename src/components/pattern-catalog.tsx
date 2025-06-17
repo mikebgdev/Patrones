@@ -35,15 +35,15 @@ export function PatternCatalog() {
 
     // Apply architecture filter
     if (filters.architectures) {
-      filtered = filtered.filter(pattern => 
-        pattern.architectures.includes(filters.architecture!)
+      filtered = filtered.filter((pattern) =>
+        pattern.architectures.some((a) => filters.architectures!.includes(a)),
       );
     }
 
     // Apply language/framework filter
     if (filters.languages) {
-      filtered = filtered.filter(pattern => 
-        pattern.languages.includes(filters.language!)
+      filtered = filtered.filter((pattern) =>
+        pattern.languages.some((l) => filters.languages!.includes(l)),
       );
     }
     

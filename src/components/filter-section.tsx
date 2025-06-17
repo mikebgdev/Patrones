@@ -106,9 +106,9 @@ export function FilterSection() {
                   key={arch.key}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleFilterClick("architecture", arch.key)}
+                  onClick={() => handleFilterClick("architectures", arch.key)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isFilterActive("architecture", arch.key)
+                    isFilterActive("architectures", arch.key)
                       ? "filter-button-active"
                       : "filter-button-inactive"
                   }`}

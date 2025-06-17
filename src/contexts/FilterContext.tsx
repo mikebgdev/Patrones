@@ -44,7 +44,10 @@ const FilterContext = createContext<FilterContextType | undefined>(undefined);
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(filterReducer, initialState);
 
-  const updateFilter = (key: keyof PatternFilters, value: string | undefined) => {
+  const updateFilter = (
+    key: keyof PatternFilters,
+    value: string | boolean | string[] | undefined,
+  ) => {
     dispatch({ type: "SET_FILTER", key, value });
   };
 

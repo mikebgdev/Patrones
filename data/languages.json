@@ -3,7 +3,8 @@
     "id": 1,
     "slug": "javascript",
     "name": "JavaScript",
-    "iconUrl": "fa-brands fa-js",
+    "icon": "js",
+    "color": "from-yellow-400 to-yellow-500",
     "description": "Lenguaje de programación interpretado utilizado principalmente en la web.",
     "patternsCount": 0
   },
@@ -11,7 +12,8 @@
     "id": 2,
     "slug": "php",
     "name": "PHP",
-    "iconUrl": "fa-brands fa-php",
+    "icon": "php",
+    "color": "from-indigo-500 to-purple-600",
     "description": "Lenguaje de programación del lado del servidor enfocado en la web.",
     "patternsCount": 0
   },
@@ -19,7 +21,8 @@
     "id": 3,
     "slug": "react",
     "name": "React",
-    "iconUrl": "fa-brands fa-react",
+    "icon": "react",
+    "color": "from-sky-500 to-blue-600",
     "description": "Biblioteca de JavaScript para construir interfaces de usuario.",
     "patternsCount": 0
   },
@@ -27,7 +30,8 @@
     "id": 4,
     "slug": "vue",
     "name": "Vue.js",
-    "iconUrl": "fa-brands fa-vuejs",
+    "icon": "vuejs",
+    "color": "from-green-500 to-emerald-600",
     "description": "Framework progresivo de JavaScript para interfaces de usuario.",
     "patternsCount": 0
   },
@@ -35,7 +39,8 @@
     "id": 5,
     "slug": "symfony",
     "name": "Symfony",
-    "iconUrl": "fa-brands fa-symfony",
+    "icon": "symfony",
+    "color": "from-gray-500 to-gray-700",
     "description": "Framework PHP para aplicaciones web robustas.",
     "patternsCount": 0
   }

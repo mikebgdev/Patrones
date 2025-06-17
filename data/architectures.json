@@ -3,40 +3,45 @@
     "id": 1,
     "slug": "hexagonal",
     "name": "Hexagonal",
-    "iconUrl": "fa-solid fa-cubes",
+    "icon": "hexagon",
+    "color": "from-indigo-500 to-purple-600",
     "description": "Aísla el dominio de detalles externos mediante puertos y adaptadores.",
-    "patternsCount": 0
+    "patternCount": 0
   },
   {
     "id": 2,
     "slug": "ddd",
     "name": "Domain Driven Design",
-    "iconUrl": "fa-solid fa-project-diagram",
+    "icon": "building",
+    "color": "from-orange-500 to-amber-600",
     "description": "Modela software alrededor del dominio del negocio.",
-    "patternsCount": 0
+    "patternCount": 0
   },
   {
     "id": 3,
     "slug": "cqrs",
     "name": "CQRS",
-    "iconUrl": "fa-solid fa-random",
+    "icon": "code-branch",
+    "color": "from-teal-500 to-teal-600",
     "description": "Separa las operaciones de lectura y escritura para optimizar rendimiento.",
-    "patternsCount": 0
+    "patternCount": 0
   },
   {
     "id": 4,
     "slug": "event-driven",
     "name": "Event-Driven",
-    "iconUrl": "fa-solid fa-bolt",
+    "icon": "bolt",
+    "color": "from-yellow-500 to-orange-600",
     "description": "Arquitectura basada en la producción y consumo de eventos.",
-    "patternsCount": 0
+    "patternCount": 0
   },
   {
     "id": 5,
     "slug": "microservices",
     "name": "Microservicios",
-    "iconUrl": "fa-solid fa-boxes-stacked",
+    "icon": "layer-group",
+    "color": "from-purple-500 to-pink-600",
     "description": "Divide la aplicación en servicios pequeños y autónomos.",
-    "patternsCount": 0
+    "patternCount": 0
   }
 ]
