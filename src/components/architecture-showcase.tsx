@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { getArchitectures } from "@/lib/firebase";
-import type { Architecture } from "@/lib/types";
+import { getArchitectures, getPatterns } from "@/lib/firebase";
+import type { Architecture, Pattern } from "@/lib/types";
 import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
 
 const getArchitectureIcon = (iconName: string) => {
@@ -23,10 +23,12 @@ const getArchitectureIcon = (iconName: string) => {
 
 export function ArchitectureShowcase() {
   const [architectures, setArchitectures] = useState<Architecture[]>([]);
+  const [patterns, setPatterns] = useState<Pattern[]>([]);
   const [isLoading, setLoading] = useState(true);
   useEffect(() => {
-    getArchitectures().then((data) => {
-      setArchitectures(data);
+    Promise.all([getArchitectures(), getPatterns()]).then(([archs, pats]) => {
+      setArchitectures(archs);
+      setPatterns(pats);
       setLoading(false);
     });
   }, []);
@@ -54,7 +56,11 @@ export function ArchitectureShowcase() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {architectures.map((architecture) => (
+          {architectures.map((architecture) => {
+            const count = patterns.filter((p) =>
+              p.architectures.includes(architecture.slug)
+            ).length;
+            return (
             <div
               key={architecture.id}
               className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow cursor-pointer"
@@ -70,11 +76,11 @@ export function ArchitectureShowcase() {
               </p>
               <div className="text-center">
                 <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                  {architecture.patternCount} patrones
+                  {count} patrones
                 </span>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       </div>
     </section>
