@@ -12,7 +12,9 @@ Para poblar Firestore con las colecciones base de arquitecturas y lenguajes ejec
 npm run init:firestore
 ```
 
-El script utiliza `firebase-admin` y se apoya en las credenciales por defecto de Google.
+El script utiliza `firebase-admin` y se apoya en las credenciales por defecto de Google. Asegúrate de tener las
+variables de entorno `VITE_FIREBASE_*` configuradas antes de ejecutarlo.
+También puedes realizar la migración desde la página `/admin/firebase`.
 
 ## Créditos
 
