@@ -35,7 +35,16 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, { favorites: [], loading: true });
 
+  const useLocal = !auth.app.options.apiKey;
+
   useEffect(() => {
+    if (useLocal) {
+      const stored = JSON.parse(localStorage.getItem('favorites') || '[]');
+      dispatch({ type: 'SET_FAVORITES', payload: stored });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+
     signInAnonymously(auth).catch(console.error);
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -47,14 +56,26 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
           dispatch({ type: 'SET_LOADING', payload: false });
         });
         return () => unsubscribeFav();
+      } else {
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     });
     return () => unsubscribeAuth();
-  }, []);
+  }, [useLocal]);
 
   const toggleFavorite = async (patternId: string) => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (useLocal || !user) {
+      let favs = [...state.favorites];
+      if (favs.includes(patternId)) {
+        favs = favs.filter((id) => id !== patternId);
+      } else {
+        favs.push(patternId);
+      }
+      localStorage.setItem('favorites', JSON.stringify(favs));
+      dispatch({ type: 'SET_FAVORITES', payload: favs });
+      return;
+    }
     const favDoc = doc(db, 'users', user.uid, 'favorites', patternId);
     if (state.favorites.includes(patternId)) {
       await deleteDoc(favDoc);
