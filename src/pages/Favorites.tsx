@@ -1,14 +1,13 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Heart } from "lucide-react";
-import { useEffect } from "react";
-import { PatternCatalog } from "@/components/pattern-catalog";
-import { useFilters } from "@/contexts/FilterContext";
+import { Header } from '@/components/header';
+import { Footer } from '@/components/footer';
+import { Heart } from 'lucide-react';
+import { useEffect } from 'react';
+import { PatternCatalog } from '@/components/pattern-catalog';
+import { useFilters } from '@/contexts/FilterContext';
 
 export function Favorites() {
   const { updateFilter } = useFilters();
 
-  // Aplicar filtro de favoritos sólo en esta página
   useEffect(() => {
     updateFilter('favorites', true);
     return () => updateFilter('favorites', false);
