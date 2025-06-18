@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useCallback, ReactNode } from "react";
+import { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from "react";
 import type { PatternFilters } from "@/lib/types";
 
 interface FilterContextType {
@@ -62,15 +62,20 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "CLEAR_FILTERS" });
   }, []);
 
+  const value = useMemo(
+    () => ({
+      filters: state.filters,
+      searchQuery: state.searchQuery,
+      updateFilter,
+      setSearchQuery,
+      clearFilters,
+    }),
+    [state.filters, state.searchQuery, updateFilter, setSearchQuery, clearFilters],
+  );
+
   return (
     <FilterContext.Provider
-      value={{
-        filters: state.filters,
-        searchQuery: state.searchQuery,
-        updateFilter,
-        setSearchQuery,
-        clearFilters,
-      }}
+      value={value}
     >
       {children}
     </FilterContext.Provider>
