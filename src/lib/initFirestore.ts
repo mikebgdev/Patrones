@@ -1,6 +1,5 @@
 import { db } from './firebase';
 import { setDoc, doc, getDoc } from 'firebase/firestore';
-import { pathToFileURL } from 'node:url';
 
 export async function initFirestore(): Promise<void> {
   if (typeof window === 'undefined') {
@@ -52,14 +51,4 @@ export async function initFirestore(): Promise<void> {
   }
 
   console.log('Base collections created successfully');
-}
-
-if (
-  typeof process !== 'undefined' &&
-  import.meta.url === pathToFileURL(process.argv[1] || '').href
-) {
-  initFirestore().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
 }
