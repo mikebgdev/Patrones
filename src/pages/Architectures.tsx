@@ -22,13 +22,17 @@ export function Architectures() {
       <Header />
       <main className="flex-1 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white text-center mb-4">
-            Arquitecturas de Software
-          </h1>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Arquitecturas de Software
+            </h1>
+          </div>
           {isLoading ? (
-            <p className="text-center text-gray-500 dark:text-gray-400">
-              Cargando arquitecturas...
-            </p>
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400 text-lg">
+                Cargando información...
+              </p>
+            </div>
           ) : (
             <ArchitectureGrid architectures={architectures} patterns={patterns} />
           )}
