@@ -46,9 +46,15 @@ export function PatternCatalog() {
         pattern.languages.some((l) => filters.languages!.includes(l)),
       );
     }
-    
+
+    if (filters.difficulty) {
+      filtered = filtered.filter(
+        (pattern) => pattern.difficulty === filters.difficulty,
+      );
+    }
+
     if (filters.framework) {
-      filtered = filtered.filter(pattern => 
+      filtered = filtered.filter(pattern =>
         pattern.frameworks.includes(filters.framework!)
       );
     }
