@@ -69,4 +69,5 @@ export interface Language {
   color: string;
   description: string;
   patternsCount: number;
+  isFramework: boolean;
 }

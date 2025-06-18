@@ -6,7 +6,8 @@
     "icon": "js",
     "color": "from-yellow-400 to-yellow-500",
     "description": "Lenguaje de programación interpretado utilizado principalmente en la web.",
-    "patternsCount": 0
+    "patternsCount": 0,
+    "isFramework": false
   },
   {
     "id": 2,
@@ -15,7 +16,8 @@
     "icon": "php",
     "color": "from-indigo-500 to-purple-600",
     "description": "Lenguaje de programación del lado del servidor enfocado en la web.",
-    "patternsCount": 0
+    "patternsCount": 0,
+    "isFramework": false
   },
   {
     "id": 3,
@@ -24,7 +26,8 @@
     "icon": "react",
     "color": "from-sky-500 to-blue-600",
     "description": "Biblioteca de JavaScript para construir interfaces de usuario.",
-    "patternsCount": 0
+    "patternsCount": 0,
+    "isFramework": true
   },
   {
     "id": 4,
@@ -33,7 +36,8 @@
     "icon": "vuejs",
     "color": "from-green-500 to-emerald-600",
     "description": "Framework progresivo de JavaScript para interfaces de usuario.",
-    "patternsCount": 0
+    "patternsCount": 0,
+    "isFramework": true
   },
   {
     "id": 5,
@@ -42,6 +46,7 @@
     "icon": "symfony",
     "color": "from-gray-500 to-gray-700",
     "description": "Framework PHP para aplicaciones web robustas.",
-    "patternsCount": 0
+    "patternsCount": 0,
+    "isFramework": true
   }
 ]
