@@ -28,6 +28,17 @@ export async function initFirestore(): Promise<void> {
         await setDoc(ref, lang);
       }
     }
+
+    const patternsFile = path.join(dataDir, 'patterns.json');
+    const patterns = JSON.parse(await readFile(patternsFile, 'utf-8'));
+    for (const pattern of patterns) {
+      const id = pattern.id || pattern.slug;
+      const ref = doc(db, 'patterns', String(id));
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, pattern);
+      }
+    }
   } else {
     const fetchJson = (file: string) => fetch(file).then((res) => res.json());
     const architectures = await fetchJson('/data/architectures.json');
@@ -46,6 +57,16 @@ export async function initFirestore(): Promise<void> {
       const snap = await getDoc(ref);
       if (!snap.exists()) {
         await setDoc(ref, lang);
+      }
+    }
+
+    const patterns = await fetchJson('/data/patterns.json');
+    for (const pattern of patterns) {
+      const id = pattern.id || pattern.slug;
+      const ref = doc(db, 'patterns', String(id));
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, pattern);
       }
     }
   }

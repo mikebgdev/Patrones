@@ -6,7 +6,7 @@ This project incluye descripciones de patrones de diseño inspiradas en [Refacto
 
 ## Firebase migration
 
-Para poblar Firestore con las colecciones base de arquitecturas y lenguajes ejecuta:
+Para poblar Firestore con las colecciones base de patrones, arquitecturas y lenguajes ejecuta:
 
 ```bash
 npm run init:firestore
