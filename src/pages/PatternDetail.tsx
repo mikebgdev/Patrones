@@ -126,7 +126,7 @@ export function PatternDetail() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Lenguajes</h3>
                 <div className="flex flex-wrap gap-2">
-                  {pattern.languages.map((lang) => (
+                  {pattern.languages?.map((lang) => (
                     <Badge key={lang} variant="outline">
                       {lang.charAt(0).toUpperCase() + lang.slice(1)}
                     </Badge>
@@ -137,7 +137,7 @@ export function PatternDetail() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Frameworks</h3>
                 <div className="flex flex-wrap gap-2">
-                  {pattern.frameworks.map((framework) => (
+                  {pattern.frameworks?.map((framework) => (
                     <Badge key={framework} variant="outline">
                       {framework.charAt(0).toUpperCase() + framework.slice(1)}
                     </Badge>
@@ -148,7 +148,7 @@ export function PatternDetail() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Arquitecturas</h3>
                 <div className="flex flex-wrap gap-2">
-                  {pattern.architectures.map((arch) => (
+                  {pattern.architectures?.map((arch) => (
                     <Badge key={arch} variant="outline">
                       {arch.charAt(0).toUpperCase() + arch.slice(1)}
                     </Badge>
@@ -171,7 +171,7 @@ export function PatternDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-gray-700 dark:text-gray-300 prose prose-sm max-w-none dark:prose-invert">
-                    {pattern.content.split('\n').map((paragraph, index) => {
+                    {pattern.content?.split('\n').map((paragraph, index) => {
                       if (paragraph.trim() === '') return <br key={index} />;
                       
                       // Handle bold markdown **text**
@@ -213,7 +213,7 @@ export function PatternDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-              <CodeExamplesTabs examples={pattern.codeExamples} />
+              {/*<CodeExamplesTabs examples={pattern.codeExamples} />*/}
                 </CardContent>
               </Card>
             </div>

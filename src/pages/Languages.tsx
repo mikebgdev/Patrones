@@ -24,7 +24,7 @@ export function Languages() {
 
   const getPatternsByTechnology = (tech: string, isFramework: boolean) =>
     patterns.filter((p) =>
-      isFramework ? p.frameworks.includes(tech) : p.languages.includes(tech)
+      isFramework ? p.frameworks?.includes(tech) : p.languages?.includes(tech)
     );
 
   return (

@@ -1,3 +1,4 @@
+@import 'prismjs/themes/prism-tomorrow.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,7 +7,6 @@
   /* Prism.js default theme overrides */
 }
 
-@import 'prismjs/themes/prism-tomorrow.css';
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(20, 14.3%, 4.1%);
