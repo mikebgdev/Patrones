@@ -1,6 +1,12 @@
 import { Link } from "wouter";
 import { Moon, Sun, Menu, Code, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function Header() {
@@ -52,13 +58,40 @@ export function Header() {
                 <Moon className="h-5 w-5 text-gray-600" />
               )}
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-            >
-              <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                >
+                  <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-6" >
+                <nav className="grid gap-4 text-lg font-medium">
+                  <SheetClose asChild>
+                    <Link href="/" className="hover:text-primary">Catálogo</Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/architectures" className="hover:text-primary">
+                      Arquitecturas
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/languages" className="hover:text-primary">
+                      Lenguajes
+                    </Link>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Link href="/favorites" className="flex items-center gap-1 hover:text-primary">
+                      <Heart className="h-4 w-4" />
+                      Favoritos
+                    </Link>
+                  </SheetClose>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
