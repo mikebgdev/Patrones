@@ -10,14 +10,14 @@ export function ArchitectureGrid({ architectures, patterns }: ArchitectureGridPr
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {architectures.map((architecture) => {
-        const count = patterns.filter((p) =>
+        const related = patterns.filter((p) =>
           p.architectures.includes(architecture.slug)
-        ).length;
+        );
         return (
           <ArchitectureCard
             key={architecture.slug}
             architecture={architecture}
-            patternsCount={count}
+            patterns={related}
           />
         );
       })}

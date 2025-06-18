@@ -1,29 +1,40 @@
-import { Link } from 'wouter';
 import { Badge } from '@/components/ui/badge';
-import type { Architecture } from '@/lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PatternMiniCard } from './pattern-mini-card';
+import type { Architecture, Pattern } from '@/lib/types';
 
 interface ArchitectureCardProps {
   architecture: Architecture;
-  patternsCount: number;
+  patterns: Pattern[];
 }
 
-export function ArchitectureCard({ architecture, patternsCount }: ArchitectureCardProps) {
+export function ArchitectureCard({ architecture, patterns }: ArchitectureCardProps) {
   return (
-    <Link href={`/patterns?architecture=${architecture.slug}`}> 
-      <div className="overflow-hidden bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
-        <div className="p-6 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-xl flex items-center justify-center`}>
-              <i className={`fas fa-${architecture.icon} text-white text-2xl`} />
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{architecture.name}</h3>
-              <p className="text-gray-600 dark:text-gray-400 mt-1">{architecture.description}</p>
-            </div>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-xl flex items-center justify-center`}>
+            <i className={`fas fa-${architecture.icon} text-white text-2xl`} />
           </div>
-          <Badge variant="secondary">{patternsCount} patrones</Badge>
+          <div className="flex-1">
+            <CardTitle className="mb-2">{architecture.name}</CardTitle>
+            <p className="text-gray-600 dark:text-gray-400">{architecture.description}</p>
+          </div>
+          <Badge variant="secondary" className="ml-auto">
+            {patterns.length} patrones
+          </Badge>
         </div>
-      </div>
-    </Link>
+      </CardHeader>
+      {patterns.length > 0 && (
+        <CardContent>
+          <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Patrones relacionados</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {patterns.map((p) => (
+              <PatternMiniCard key={p.slug} pattern={p} />
+            ))}
+          </div>
+        </CardContent>
+      )}
+    </Card>
   );
 }
