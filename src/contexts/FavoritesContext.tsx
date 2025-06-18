@@ -45,7 +45,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    signInAnonymously(auth).catch(console.error);
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
         const favColl = collection(db, 'users', user.uid, 'favorites');
