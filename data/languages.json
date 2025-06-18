@@ -4,7 +4,7 @@
     "slug": "javascript",
     "name": "JavaScript",
     "icon": "file-code",
-    "color": "from-yellow-400 to-yellow-600",
+    "color": "from-yellow-500 to-amber-600",
     "description": "Lenguaje de programación interpretado utilizado principalmente en la web.",
     "patternsCount": 0,
     "isFramework": false
@@ -14,7 +14,7 @@
     "slug": "php",
     "name": "PHP",
     "icon": "server",
-    "color": "from-indigo-600 to-violet-700",
+    "color": "from-indigo-500 to-purple-600",
     "description": "Lenguaje de programación del lado del servidor enfocado en la web.",
     "patternsCount": 0,
     "isFramework": false
@@ -24,7 +24,7 @@
     "slug": "react",
     "name": "React",
     "icon": "atom",
-    "color": "from-sky-500 to-blue-700",
+    "color": "from-sky-500 to-blue-600",
     "description": "Biblioteca de JavaScript para construir interfaces de usuario.",
     "patternsCount": 0,
     "isFramework": true
@@ -34,7 +34,7 @@
     "slug": "vue",
     "name": "Vue.js",
     "icon": "triangle",
-    "color": "from-emerald-500 to-green-700",
+    "color": "from-green-500 to-emerald-600",
     "description": "Framework progresivo de JavaScript para interfaces de usuario.",
     "patternsCount": 0,
     "isFramework": true
@@ -44,7 +44,7 @@
     "slug": "symfony",
     "name": "Symfony",
     "icon": "box",
-    "color": "from-gray-600 to-gray-800",
+    "color": "from-gray-500 to-gray-600",
     "description": "Framework PHP para aplicaciones web robustas.",
     "patternsCount": 0,
     "isFramework": true

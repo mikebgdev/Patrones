@@ -4,7 +4,7 @@
     "slug": "hexagonal",
     "name": "Hexagonal",
     "icon": "hexagon",
-    "color": "from-indigo-600 to-purple-700",
+    "color": "from-blue-500 to-indigo-600",
     "description": "Aísla el dominio de detalles externos mediante puertos y adaptadores.",
     "patternCount": 0
   },
@@ -13,7 +13,7 @@
     "slug": "ddd",
     "name": "Domain Driven Design",
     "icon": "building",
-    "color": "from-amber-600 to-orange-700",
+    "color": "from-green-500 to-teal-600",
     "description": "Modela software alrededor del dominio del negocio.",
     "patternCount": 0
   },
@@ -31,7 +31,7 @@
     "slug": "event-driven",
     "name": "Event-Driven",
     "icon": "bolt",
-    "color": "from-yellow-400 to-orange-500",
+    "color": "from-orange-500 to-red-600",
     "description": "Arquitectura basada en la producción y consumo de eventos.",
     "patternCount": 0
   },
@@ -40,7 +40,7 @@
     "slug": "microservices",
     "name": "Microservicios",
     "icon": "layers",
-    "color": "from-fuchsia-500 to-pink-600",
+    "color": "from-pink-500 to-rose-600",
     "description": "Divide la aplicación en servicios pequeños y autónomos.",
     "patternCount": 0
   }

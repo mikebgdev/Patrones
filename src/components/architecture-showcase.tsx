@@ -1,25 +1,7 @@
 import { useState, useEffect } from "react";
 import { getArchitectures, getPatterns } from "@/lib/firebase";
 import type { Architecture, Pattern } from "@/lib/types";
-import { Building2, Layers, Zap, Users, Database, GitBranch, Settings } from "lucide-react";
-
-const getArchitectureIcon = (iconName: string) => {
-  const iconMap: Record<string, React.ComponentType<any>> = {
-    'building': Building2,
-    'layer-group': Layers,
-    'bolt': Zap,
-    'users': Users,
-    'database': Database,
-    'code-branch': GitBranch,
-    'cog': Settings,
-    'hexagon': Building2,
-    'cube': Layers,
-    'lightning': Zap
-  };
-  
-  const IconComponent = iconMap[iconName] || Building2;
-  return <IconComponent className="text-white" size={24} />;
-};
+import { getIconComponent } from "@/lib/icon-map";
 
 export function ArchitectureShowcase() {
   const [architectures, setArchitectures] = useState<Architecture[]>([]);
@@ -66,7 +48,10 @@ export function ArchitectureShowcase() {
               className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-gray-200 dark:border-slate-700 hover:shadow-lg transition-shadow cursor-pointer"
             >
               <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
-                {getArchitectureIcon(architecture.icon)}
+                {(() => {
+                  const Icon = getIconComponent(architecture.icon);
+                  return <Icon className="text-white" size={24} />;
+                })()}
               </div>
               <h3 className="text-lg font-semibold text-center mb-2 text-gray-900 dark:text-white">
                 {architecture.name}
