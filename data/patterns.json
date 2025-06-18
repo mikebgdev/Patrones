@@ -3,7 +3,7 @@
     "id": 1,
     "slug": "abstract-factory",
     "name": "Abstract Factory",
-    "iconUrl": "fa-solid fa-sitemap",
+    "icon": "factory",
     "type": "creational",
     "difficulty": 3,
     "descriptionShort": "Crea familias de objetos relacionados sin especificar sus clases concretas.",
@@ -33,13 +33,14 @@
     "pseudocode": "class GuiFactory {\n  createButton(){}\n}\nclass WinFactory extends GuiFactory {\n  createButton(){ return new WinButton(); }\n}",
     "applicability": "Úsalo cuando un sistema necesite trabajar con múltiples familias de productos relacionados.",
     "implementation": "1. Declara interfaces comunes para los productos.\n2. Crea una clase AbstractFactory con métodos para cada producto.\n3. Implementa fábricas concretas y úsala en el código.",
-    "prosCons": "Pros: consistencia entre productos y fácil de extender. Contras: puede generar muchas clases."
+    "prosCons": "Pros: consistencia entre productos y fácil de extender. Contras: puede generar muchas clases.",
+    "color": "from-orange-500 to-amber-600"
   },
   {
     "id": 2,
     "slug": "builder",
     "name": "Builder",
-    "iconUrl": "fa-solid fa-hammer",
+    "icon": "hammer",
     "type": "creational",
     "difficulty": 2,
     "descriptionShort": "Separa la construcción de un objeto complejo de su representación final.",
@@ -69,13 +70,14 @@
     "pseudocode": "class Builder { addWalls(){} addRoof(){} getResult(){} }\nclass HouseBuilder extends Builder { ... }",
     "applicability": "Cuando un objeto requiera muchos pasos de construcción o diferentes representaciones.",
     "implementation": "1. Crea una interfaz Builder con métodos para cada paso.\n2. Implementa Builders concretos.\n3. Opcionalmente usa un Director que orqueste los pasos.",
-    "prosCons": "Pros: código más legible y flexible. Contras: complejidad adicional."
+    "prosCons": "Pros: código más legible y flexible. Contras: complejidad adicional.",
+    "color": "from-orange-500 to-amber-600"
   },
   {
     "id": 3,
     "slug": "factory-method",
     "name": "Factory Method",
-    "iconUrl": "fa-solid fa-industry",
+    "icon": "cog",
     "type": "creational",
     "difficulty": 2,
     "descriptionShort": "Define una interfaz para crear un objeto pero deja que las subclases decidan qué clase instanciar.",
@@ -106,13 +108,14 @@
     "pseudocode": "class Dialog {\n  createButton(){}\n  render(){\n    const btn = this.createButton();\n    btn.render();\n  }\n}\nclass WebDialog extends Dialog {\n  createButton(){ return new HtmlButton(); }\n}",
     "applicability": "Aplica cuando no conozcas de antemano las clases exactas de los objetos que debe crear tu código.",
     "implementation": "1. Declara una interfaz común para los productos.\n2. Crea una clase base con un método fábrica que devuelva ese tipo.\n3. Sobrescribe el método en subclases para cambiar los productos.",
-    "prosCons": "Pros: elimina acoplamientos y respeta abierto/cerrado. Contras: aumenta el número de clases."
+    "prosCons": "Pros: elimina acoplamientos y respeta abierto/cerrado. Contras: aumenta el número de clases.",
+    "color": "from-orange-500 to-amber-600"
   },
   {
     "id": 4,
     "slug": "prototype",
     "name": "Prototype",
-    "iconUrl": "fa-solid fa-copy",
+    "icon": "copy",
     "type": "creational",
     "difficulty": 2,
     "descriptionShort": "Permite copiar objetos existentes sin acoplarse a sus clases concretas.",
@@ -142,13 +145,14 @@
     "pseudocode": "// pseudo de prototype",
     "applicability": "Se aplica cuando se necesita permite copiar objetos existentes sin acoplarse a sus clases concretas.",
     "implementation": "Pasos simples para implementar Prototype.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-orange-500 to-amber-600"
   },
   {
     "id": 5,
     "slug": "singleton",
     "name": "Singleton",
-    "iconUrl": "fa-solid fa-cube",
+    "icon": "database",
     "type": "creational",
     "difficulty": 1,
     "descriptionShort": "Garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.",
@@ -179,13 +183,14 @@
     "pseudocode": "// pseudo de singleton",
     "applicability": "Se aplica cuando se necesita garantiza que una clase tenga una única instancia y proporciona un punto de acceso global a ella.",
     "implementation": "Pasos simples para implementar Singleton.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-orange-500 to-amber-600"
   },
   {
     "id": 6,
     "slug": "adapter",
     "name": "Adapter",
-    "iconUrl": "fa-solid fa-plug",
+    "icon": "plug",
     "type": "structural",
     "difficulty": 2,
     "descriptionShort": "Permite la colaboración entre objetos con interfaces incompatibles.",
@@ -215,13 +220,14 @@
     "pseudocode": "// pseudo de adapter",
     "applicability": "Se aplica cuando se necesita permite la colaboración entre objetos con interfaces incompatibles.",
     "implementation": "Pasos simples para implementar Adapter.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 7,
     "slug": "bridge",
     "name": "Bridge",
-    "iconUrl": "fa-solid fa-bridge",
+    "icon": "link",
     "type": "structural",
     "difficulty": 3,
     "descriptionShort": "Separa una abstracción de su implementación para que ambas puedan variar de forma independiente.",
@@ -251,13 +257,14 @@
     "pseudocode": "// pseudo de bridge",
     "applicability": "Se aplica cuando se necesita separa una abstracción de su implementación para que ambas puedan variar de forma independiente.",
     "implementation": "Pasos simples para implementar Bridge.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 8,
     "slug": "composite",
     "name": "Composite",
-    "iconUrl": "fa-solid fa-layer-group",
+    "icon": "layers",
     "type": "structural",
     "difficulty": 2,
     "descriptionShort": "Compone objetos en estructuras de árbol para representar jerarquías parte-todo.",
@@ -287,13 +294,14 @@
     "pseudocode": "// pseudo de composite",
     "applicability": "Se aplica cuando se necesita compone objetos en estructuras de árbol para representar jerarquías parte-todo.",
     "implementation": "Pasos simples para implementar Composite.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 9,
     "slug": "decorator",
     "name": "Decorator",
-    "iconUrl": "fa-solid fa-paint-brush",
+    "icon": "paintbrush",
     "type": "structural",
     "difficulty": 3,
     "descriptionShort": "Añade responsabilidades a los objetos dinámicamente envolviéndolos en objetos contenedores.",
@@ -321,13 +329,14 @@
     "pseudocode": "// pseudo de decorator",
     "applicability": "Se aplica cuando se necesita añade responsabilidades a los objetos dinámicamente envolviéndolos en objetos contenedores.",
     "implementation": "Pasos simples para implementar Decorator.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 10,
     "slug": "facade",
     "name": "Facade",
-    "iconUrl": "fa-solid fa-warehouse",
+    "icon": "building",
     "type": "structural",
     "difficulty": 1,
     "descriptionShort": "Proporciona una interfaz unificada para un conjunto de interfaces en un subsistema.",
@@ -357,13 +366,14 @@
     "pseudocode": "// pseudo de facade",
     "applicability": "Se aplica cuando se necesita proporciona una interfaz unificada para un conjunto de interfaces en un subsistema.",
     "implementation": "Pasos simples para implementar Facade.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 11,
     "slug": "flyweight",
     "name": "Flyweight",
-    "iconUrl": "fa-solid fa-feather",
+    "icon": "feather",
     "type": "structural",
     "difficulty": 3,
     "descriptionShort": "Minimiza el uso de memoria compartiendo la mayor cantidad posible de datos entre objetos similares.",
@@ -391,13 +401,14 @@
     "pseudocode": "// pseudo de flyweight",
     "applicability": "Se aplica cuando se necesita minimiza el uso de memoria compartiendo la mayor cantidad posible de datos entre objetos similares.",
     "implementation": "Pasos simples para implementar Flyweight.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 12,
     "slug": "proxy",
     "name": "Proxy",
-    "iconUrl": "fa-solid fa-user-secret",
+    "icon": "shield",
     "type": "structural",
     "difficulty": 2,
     "descriptionShort": "Proporciona un sustituto o marcador de posición para controlar el acceso a otro objeto.",
@@ -427,13 +438,14 @@
     "pseudocode": "// pseudo de proxy",
     "applicability": "Se aplica cuando se necesita proporciona un sustituto o marcador de posición para controlar el acceso a otro objeto.",
     "implementation": "Pasos simples para implementar Proxy.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-purple-500 to-indigo-600"
   },
   {
     "id": 13,
     "slug": "chain-of-responsibility",
     "name": "Chain of Responsibility",
-    "iconUrl": "fa-solid fa-link",
+    "icon": "link",
     "type": "behavioral",
     "difficulty": 3,
     "descriptionShort": "Pasa solicitudes a lo largo de una cadena de manejadores hasta que uno de ellos la procesa.",
@@ -463,13 +475,14 @@
     "pseudocode": "// pseudo de chain-of-responsibility",
     "applicability": "Se aplica cuando se necesita pasa solicitudes a lo largo de una cadena de manejadores hasta que uno de ellos la procesa.",
     "implementation": "Pasos simples para implementar Chain of Responsibility.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 14,
     "slug": "command",
     "name": "Command",
-    "iconUrl": "fa-solid fa-terminal",
+    "icon": "terminal",
     "type": "behavioral",
     "difficulty": 2,
     "descriptionShort": "Encapsula una solicitud como un objeto, lo que te permite parametrizar clientes con diferentes solicitudes.",
@@ -500,13 +513,14 @@
     "pseudocode": "// pseudo de command",
     "applicability": "Se aplica cuando se necesita encapsula una solicitud como un objeto, lo que te permite parametrizar clientes con diferentes solicitudes.",
     "implementation": "Pasos simples para implementar Command.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 15,
     "slug": "interpreter",
     "name": "Interpreter",
-    "iconUrl": "fa-solid fa-language",
+    "icon": "languages",
     "type": "behavioral",
     "difficulty": 4,
     "descriptionShort": "Define una representación para la gramática de un lenguaje y un intérprete que usa esa representación para interpretar oraciones del lenguaje.",
@@ -534,13 +548,14 @@
     "pseudocode": "// pseudo de interpreter",
     "applicability": "Se aplica cuando se necesita define una representación para la gramática de un lenguaje y un intérprete que usa esa representación para interpretar oraciones del lenguaje.",
     "implementation": "Pasos simples para implementar Interpreter.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 16,
     "slug": "iterator",
     "name": "Iterator",
-    "iconUrl": "fa-solid fa-redo",
+    "icon": "repeat",
     "type": "behavioral",
     "difficulty": 1,
     "descriptionShort": "Proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación subyacente.",
@@ -568,13 +583,14 @@
     "pseudocode": "// pseudo de iterator",
     "applicability": "Se aplica cuando se necesita proporciona una forma de acceder secuencialmente a los elementos de una colección sin exponer su representación subyacente.",
     "implementation": "Pasos simples para implementar Iterator.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 17,
     "slug": "mediator",
     "name": "Mediator",
-    "iconUrl": "fa-solid fa-comments",
+    "icon": "message-square",
     "type": "behavioral",
     "difficulty": 2,
     "descriptionShort": "Define un objeto que encapsula cómo interactúan un conjunto de objetos.",
@@ -604,13 +620,14 @@
     "pseudocode": "// pseudo de mediator",
     "applicability": "Se aplica cuando se necesita define un objeto que encapsula cómo interactúan un conjunto de objetos.",
     "implementation": "Pasos simples para implementar Mediator.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 18,
     "slug": "memento",
     "name": "Memento",
-    "iconUrl": "fa-solid fa-save",
+    "icon": "save",
     "type": "behavioral",
     "difficulty": 2,
     "descriptionShort": "Permite guardar y restaurar el estado previo de un objeto sin revelar los detalles de su implementación.",
@@ -638,13 +655,14 @@
     "pseudocode": "// pseudo de memento",
     "applicability": "Se aplica cuando se necesita permite guardar y restaurar el estado previo de un objeto sin revelar los detalles de su implementación.",
     "implementation": "Pasos simples para implementar Memento.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 19,
     "slug": "observer",
     "name": "Observer",
-    "iconUrl": "fa-solid fa-eye",
+    "icon": "eye",
     "type": "behavioral",
     "difficulty": 1,
     "descriptionShort": "Define una dependencia de uno a muchos entre objetos para que cuando uno cambie de estado, todos sus dependientes sean notificados.",
@@ -672,13 +690,14 @@
     "pseudocode": "// pseudo de observer",
     "applicability": "Se aplica cuando se necesita define una dependencia de uno a muchos entre objetos para que cuando uno cambie de estado, todos sus dependientes sean notificados.",
     "implementation": "Pasos simples para implementar Observer.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 20,
     "slug": "state",
     "name": "State",
-    "iconUrl": "fa-solid fa-toggle-on",
+    "icon": "toggle-right",
     "type": "behavioral",
     "difficulty": 2,
     "descriptionShort": "Permite a un objeto alterar su comportamiento cuando cambia su estado interno.",
@@ -706,13 +725,14 @@
     "pseudocode": "// pseudo de state",
     "applicability": "Se aplica cuando se necesita permite a un objeto alterar su comportamiento cuando cambia su estado interno.",
     "implementation": "Pasos simples para implementar State.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 21,
     "slug": "strategy",
     "name": "Strategy",
-    "iconUrl": "fa-solid fa-chess",
+    "icon": "puzzle",
     "type": "behavioral",
     "difficulty": 2,
     "descriptionShort": "Define una familia de algoritmos, encapsula cada uno y los hace intercambiables.",
@@ -740,13 +760,14 @@
     "pseudocode": "// pseudo de strategy",
     "applicability": "Se aplica cuando se necesita define una familia de algoritmos, encapsula cada uno y los hace intercambiables.",
     "implementation": "Pasos simples para implementar Strategy.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 22,
     "slug": "template-method",
     "name": "Template Method",
-    "iconUrl": "fa-solid fa-file-alt",
+    "icon": "file-text",
     "type": "behavioral",
     "difficulty": 1,
     "descriptionShort": "Define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases.",
@@ -774,13 +795,14 @@
     "pseudocode": "// pseudo de template-method",
     "applicability": "Se aplica cuando se necesita define el esqueleto de un algoritmo en una operación, posponiendo algunos pasos a las subclases.",
     "implementation": "Pasos simples para implementar Template Method.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   },
   {
     "id": 23,
     "slug": "visitor",
     "name": "Visitor",
-    "iconUrl": "fa-solid fa-user-astronaut",
+    "icon": "users",
     "type": "behavioral",
     "difficulty": 4,
     "descriptionShort": "Permite añadir operaciones a objetos de distintas clases sin modificar las clases.",
@@ -808,6 +830,7 @@
     "pseudocode": "// pseudo de visitor",
     "applicability": "Se aplica cuando se necesita permite añadir operaciones a objetos de distintas clases sin modificar las clases.",
     "implementation": "Pasos simples para implementar Visitor.",
-    "prosCons": "Pros: código claro. Contras: más clases"
+    "prosCons": "Pros: código claro. Contras: más clases",
+    "color": "from-green-500 to-emerald-600"
   }
 ]
