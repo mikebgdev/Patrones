@@ -59,7 +59,7 @@ export function FilterSection() {
     key: keyof typeof filters,
     value: string | number,
   ) => {
-    const current = filters[key] as any;
+    const current = filters[key as keyof typeof filters];
     return Array.isArray(current) ? current.includes(value) : current === value;
   };
 

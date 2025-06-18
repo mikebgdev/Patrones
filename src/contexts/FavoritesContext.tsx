@@ -1,7 +1,13 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import {
+  collection,
+  onSnapshot,
+  doc,
+  setDoc,
+  deleteDoc,
+} from 'firebase/firestore';
 
 interface FavoritesContextType {
   favorites: string[];
@@ -30,10 +36,15 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
+const FavoritesContext = createContext<FavoritesContextType | undefined>(
+  undefined,
+);
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, { favorites: [], loading: true });
+  const [state, dispatch] = useReducer(reducer, {
+    favorites: [],
+    loading: true,
+  });
 
   const useLocal = !auth.app.options.apiKey;
 

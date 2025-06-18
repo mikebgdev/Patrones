@@ -19,7 +19,13 @@ function App() {
       Notification.requestPermission();
     }
     const handleErrorEvent = (event: ErrorEvent) => {
-      const umami = (window as any).umami;
+      const umami = (
+        window as Window & {
+          umami?: {
+            track: (event: string, data?: Record<string, unknown>) => void;
+          };
+        }
+      ).umami;
       if (umami) {
         umami.track('Unhandled Error', {
           message: event.message,
@@ -28,7 +34,13 @@ function App() {
       }
     };
     const handleRejection = (event: PromiseRejectionEvent) => {
-      const umami = (window as any).umami;
+      const umami = (
+        window as Window & {
+          umami?: {
+            track: (event: string, data?: Record<string, unknown>) => void;
+          };
+        }
+      ).umami;
       if (umami) {
         umami.track('Unhandled Rejection', { reason: event.reason });
       }
@@ -44,22 +56,22 @@ function App() {
   return (
     <ThemeProvider>
       <ToastProvider>
-      <FilterProvider>
-        <FavoritesProvider>
-          <TooltipProvider>
-            <Toaster />
+        <FilterProvider>
+          <FavoritesProvider>
+            <TooltipProvider>
+              <Toaster />
 
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/pattern/:slug" component={PatternDetail} />
-              <Route path="/architectures" component={Architectures} />
-              <Route path="/languages" component={Languages} />
-              <Route path="/favorites" component={Favorites} />
-              <Route path="/admin/firebase" component={FirebaseAdmin} />
-            </Switch>
-          </TooltipProvider>
-        </FavoritesProvider>
-      </FilterProvider>
+              <Switch>
+                <Route path="/" component={Home} />
+                <Route path="/pattern/:slug" component={PatternDetail} />
+                <Route path="/architectures" component={Architectures} />
+                <Route path="/languages" component={Languages} />
+                <Route path="/favorites" component={Favorites} />
+                <Route path="/admin/firebase" component={FirebaseAdmin} />
+              </Switch>
+            </TooltipProvider>
+          </FavoritesProvider>
+        </FilterProvider>
       </ToastProvider>
     </ThemeProvider>
   );

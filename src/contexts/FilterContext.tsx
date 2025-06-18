@@ -1,5 +1,12 @@
-import { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from "react";
-import type { PatternFilters } from "@/lib/types";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from 'react';
+import type { PatternFilters } from '@/lib/types';
 
 interface FilterContextType {
   filters: PatternFilters;
@@ -10,7 +17,6 @@ interface FilterContextType {
   ) => void;
   setSearchQuery: (query: string) => void;
   clearFilters: () => void;
-  /** Mostrar solo patrones favoritos */
   favorites?: boolean;
 }
 
@@ -20,22 +26,26 @@ type FilterState = {
 };
 
 type Action =
-  | { type: "SET_FILTER"; key: keyof PatternFilters; value?: string | boolean | string[] | number }
-  | { type: "SET_SEARCH"; query: string }
-  | { type: "CLEAR_FILTERS" };
+  | {
+      type: 'SET_FILTER';
+      key: keyof PatternFilters;
+      value?: string | boolean | string[] | number;
+    }
+  | { type: 'SET_SEARCH'; query: string }
+  | { type: 'CLEAR_FILTERS' };
 
-const initialState: FilterState = { filters: {}, searchQuery: "" };
+const initialState: FilterState = { filters: {}, searchQuery: '' };
 
 function filterReducer(state: FilterState, action: Action): FilterState {
   switch (action.type) {
-    case "SET_FILTER":
+    case 'SET_FILTER':
       return {
         ...state,
         filters: { ...state.filters, [action.key]: action.value },
       };
-    case "SET_SEARCH":
+    case 'SET_SEARCH':
       return { ...state, searchQuery: action.query };
-    case "CLEAR_FILTERS":
+    case 'CLEAR_FILTERS':
       return initialState;
     default:
       return state;
@@ -52,17 +62,17 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       key: keyof PatternFilters,
       value: string | boolean | string[] | number | undefined,
     ) => {
-      dispatch({ type: "SET_FILTER", key, value });
+      dispatch({ type: 'SET_FILTER', key, value });
     },
     [],
   );
 
   const setSearchQuery = useCallback((query: string) => {
-    dispatch({ type: "SET_SEARCH", query });
+    dispatch({ type: 'SET_SEARCH', query });
   }, []);
 
   const clearFilters = useCallback(() => {
-    dispatch({ type: "CLEAR_FILTERS" });
+    dispatch({ type: 'CLEAR_FILTERS' });
   }, []);
 
   const value = useMemo(
@@ -73,22 +83,24 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       setSearchQuery,
       clearFilters,
     }),
-    [state.filters, state.searchQuery, updateFilter, setSearchQuery, clearFilters],
+    [
+      state.filters,
+      state.searchQuery,
+      updateFilter,
+      setSearchQuery,
+      clearFilters,
+    ],
   );
 
   return (
-    <FilterContext.Provider
-      value={value}
-    >
-      {children}
-    </FilterContext.Provider>
+    <FilterContext.Provider value={value}>{children}</FilterContext.Provider>
   );
 }
 
 export function useFilters() {
   const context = useContext(FilterContext);
   if (context === undefined) {
-    throw new Error("useFilters must be used within a FilterProvider");
+    throw new Error('useFilters must be used within a FilterProvider');
   }
   return context;
 }
