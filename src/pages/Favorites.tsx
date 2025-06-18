@@ -14,9 +14,11 @@ export function Favorites() {
   }, [updateFilter]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      <PatternCatalog />
+      <main className="flex-1">
+        <PatternCatalog />
+      </main>
       <Footer />
     </div>
   );

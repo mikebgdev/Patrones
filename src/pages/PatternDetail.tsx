@@ -28,9 +28,9 @@ export function PatternDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="py-16">
+        <main className="flex-1 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p className="text-gray-600 dark:text-gray-400">Cargando patrón...</p>
           </div>
@@ -42,9 +42,9 @@ export function PatternDetail() {
 
   if (!pattern) {
     return (
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="py-16">
+        <main className="flex-1 py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-3xl font-bold mb-4">Patrón no encontrado</h1>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
@@ -77,10 +77,10 @@ export function PatternDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      
-      <main className="py-16">
+
+      <main className="flex-1 py-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <div className="mb-8">
