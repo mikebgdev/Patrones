@@ -51,7 +51,7 @@ function App() {
 
             <Switch>
               <Route path="/" component={Home} />
-              <Route path="/patterns/:slug" component={PatternDetail} />
+              <Route path="/pattern/:slug" component={PatternDetail} />
               <Route path="/architectures" component={Architectures} />
               <Route path="/languages" component={Languages} />
               <Route path="/favorites" component={Favorites} />

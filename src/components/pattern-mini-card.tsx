@@ -7,7 +7,7 @@ interface PatternMiniCardProps {
 
 export function PatternMiniCard({ pattern }: PatternMiniCardProps) {
   return (
-    <Link href={`/patterns/${pattern.slug}`}>
+    <Link href={`/pattern/${pattern.slug}`}>
       <div className="p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
         <div className="flex items-center gap-3 mb-2">
           <div className={`w-8 h-8 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center`}>
