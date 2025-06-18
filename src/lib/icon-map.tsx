@@ -38,7 +38,7 @@ import {
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
-const iconMap: Record<string, ComponentType<any>> = {
+const iconMap: Record<string, ComponentType<Record<string, unknown>>> = {
   hexagon: Hexagon,
   building: Building,
   'building-2': Building2,
@@ -86,6 +86,8 @@ const iconMap: Record<string, ComponentType<any>> = {
   industry: Factory,
 };
 
-export const getIconComponent = (name: string): ComponentType<any> => {
+export const getIconComponent = (
+  name: string,
+): ComponentType<Record<string, unknown>> => {
   return iconMap[name] || Cog;
 };

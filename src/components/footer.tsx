@@ -1,5 +1,4 @@
-import { Link } from "wouter";
-import { Code } from "lucide-react";
+import { Code } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -11,15 +10,18 @@ export function Footer() {
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
                 <Code className="text-white h-4 w-4" />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Design Patterns</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                Design Patterns
+              </span>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
-              La guía más completa de patrones de diseño y arquitecturas modernas de software. Aprende, practica y domina los conceptos fundamentales.
+              La guía más completa de patrones de diseño y arquitecturas
+              modernas de software. Aprende, practica y domina los conceptos
+              fundamentales.
             </p>
           </div>
-
         </div>
-        
+
         <div className="border-t border-gray-200 dark:border-slate-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 dark:text-gray-400 text-sm">
             © 2025 Design Patterns. Todos los derechos reservados.

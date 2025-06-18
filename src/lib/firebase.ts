@@ -22,7 +22,7 @@ import type {
 } from '@/lib/types';
 import { firebaseConfig } from './env';
 
-function normalizePattern(data: any): Pattern {
+function normalizePattern(data: Record<string, unknown>): Pattern {
   return {
     id: data.id ?? 0,
     name: data.name ?? '',
