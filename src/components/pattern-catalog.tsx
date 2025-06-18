@@ -1,17 +1,23 @@
-import { useState, useMemo, useEffect } from "react";
-import { Grid, List } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PatternCard } from "./pattern-card";
-import { useFilters } from "@/contexts/FilterContext";
-import { useFavorites } from "@/contexts/FavoritesContext";
-import { getPatterns } from "@/lib/firebase";
-import type { Pattern } from "@/lib/types";
+import { useState, useMemo, useEffect } from 'react';
+import { Grid, List } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { PatternCard } from './pattern-card';
+import { useFilters } from '@/contexts/FilterContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { getPatterns } from '@/lib/firebase';
+import type { Pattern } from '@/lib/types';
 export function PatternCatalog() {
   const { filters, searchQuery } = useFilters();
   const { isFavorite } = useFavorites();
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("popular");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState('popular');
 
   const [patterns, setPatterns] = useState<Pattern[]>([]);
   const [isLoading, setLoading] = useState(true);
@@ -25,19 +31,18 @@ export function PatternCatalog() {
   const filteredPatterns = useMemo(() => {
     let filtered = patterns;
 
-    // Apply category filter
     if (filters.category) {
-      filtered = filtered.filter(pattern => pattern.category === filters.category);
+      filtered = filtered.filter(
+        (pattern) => pattern.category === filters.category,
+      );
     }
 
-    // Apply architecture filter
     if (filters.architectures) {
       filtered = filtered.filter((pattern) =>
         pattern.architectures.some((a) => filters.architectures!.includes(a)),
       );
     }
 
-    // Apply language/framework filter
     if (filters.languages) {
       filtered = filtered.filter((pattern) =>
         pattern.languages.some((l) => filters.languages!.includes(l)),
@@ -51,38 +56,35 @@ export function PatternCatalog() {
     }
 
     if (filters.framework) {
-      filtered = filtered.filter(pattern =>
-        pattern.frameworks.includes(filters.framework!)
+      filtered = filtered.filter((pattern) =>
+        pattern.frameworks.includes(filters.framework!),
       );
     }
 
-    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(pattern => 
-        pattern.name.toLowerCase().includes(query) ||
-        pattern.description.toLowerCase().includes(query) ||
-        pattern.tags.some(tag => tag.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        (pattern) =>
+          pattern.name.toLowerCase().includes(query) ||
+          pattern.description.toLowerCase().includes(query) ||
+          pattern.tags.some((tag) => tag.toLowerCase().includes(query)),
       );
     }
 
-    // Apply sorting
     switch (sortBy) {
-      case "alphabetical":
+      case 'alphabetical':
         filtered.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case "difficulty":
+      case 'difficulty':
         filtered.sort((a, b) => a.difficulty - b.difficulty);
         break;
-      case "recent":
+      case 'recent':
         filtered.sort((a, b) => b.id - a.id);
         break;
-      default: // popular
         break;
     }
-    // Apply favorites filter (client-side)
     if (filters.favorites) {
-      filtered = filtered.filter(pattern => isFavorite(pattern.slug));
+      filtered = filtered.filter((pattern) => isFavorite(pattern.slug));
     }
 
     return filtered;
@@ -91,10 +93,11 @@ export function PatternCatalog() {
   return (
     <main className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Results Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Catálogo de Patrones</h2>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Catálogo de Patrones
+            </h2>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
               Mostrando {filteredPatterns.length} patrones de diseño
             </p>
@@ -113,17 +116,17 @@ export function PatternCatalog() {
             </Select>
             <div className="flex border border-gray-300 dark:border-slate-600 rounded-lg overflow-hidden">
               <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
+                variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="icon"
-                onClick={() => setViewMode("grid")}
+                onClick={() => setViewMode('grid')}
                 className="rounded-none"
               >
                 <Grid className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === "list" ? "default" : "ghost"}
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="icon"
-                onClick={() => setViewMode("list")}
+                onClick={() => setViewMode('list')}
                 className="rounded-none"
               >
                 <List className="h-4 w-4" />
@@ -132,7 +135,6 @@ export function PatternCatalog() {
           </div>
         </div>
 
-        {/* Pattern Grid */}
         {isLoading ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400 text-lg">
@@ -142,25 +144,24 @@ export function PatternCatalog() {
         ) : filteredPatterns.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 dark:text-gray-400 text-lg">
-              No se encontraron patrones que coincidan con los filtros seleccionados.
+              No se encontraron patrones que coincidan con los filtros
+              seleccionados.
             </p>
           </div>
         ) : (
-          <div className={`grid gap-6 ${
-            viewMode === "grid" 
-              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
-              : "grid-cols-1"
-          }`}>
+          <div
+            className={`grid gap-6 ${
+              viewMode === 'grid'
+                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                : 'grid-cols-1'
+            }`}
+          >
             {filteredPatterns.map((pattern) => (
-              <PatternCard 
-                key={pattern.id} 
-                pattern={pattern} 
-              />
+              <PatternCard key={pattern.id} pattern={pattern} />
             ))}
           </div>
         )}
 
-        {/* Load More Button */}
         {filteredPatterns.length > 0 && (
           <div className="text-center mt-12">
             <Button variant="outline" size="lg">
