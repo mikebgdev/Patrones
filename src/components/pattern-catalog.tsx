@@ -7,12 +7,9 @@ import { useFilters } from "@/contexts/FilterContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
 import { getPatterns } from "@/lib/firebase";
 import type { Pattern } from "@/lib/types";
-
-interface PatternCatalogProps {}
-
 export function PatternCatalog() {
   const { filters, searchQuery } = useFilters();
-  const { favorites: favSlugs, isFavorite } = useFavorites();
+  const { isFavorite } = useFavorites();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("popular");
 
@@ -46,9 +43,15 @@ export function PatternCatalog() {
         pattern.languages.some((l) => filters.languages!.includes(l)),
       );
     }
-    
+
+    if (filters.difficulty) {
+      filtered = filtered.filter(
+        (pattern) => pattern.difficulty === filters.difficulty,
+      );
+    }
+
     if (filters.framework) {
-      filtered = filtered.filter(pattern => 
+      filtered = filtered.filter(pattern =>
         pattern.frameworks.includes(filters.framework!)
       );
     }
