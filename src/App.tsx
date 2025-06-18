@@ -9,6 +9,7 @@ import { PatternDetail } from '@/pages/PatternDetail';
 import { Architectures } from '@/pages/Architectures';
 import { Languages } from '@/pages/Languages';
 import { Favorites } from '@/pages/Favorites';
+import { FirebaseAdmin } from '@/pages/FirebaseAdmin';
 import { useEffect } from 'react';
 import { ToastProvider } from './contexts/ToastContext';
 
@@ -54,6 +55,7 @@ function App() {
               <Route path="/architectures" component={Architectures} />
               <Route path="/languages" component={Languages} />
               <Route path="/favorites" component={Favorites} />
+              <Route path="/admin/firebase" component={FirebaseAdmin} />
             </Switch>
           </TooltipProvider>
         </FavoritesProvider>
