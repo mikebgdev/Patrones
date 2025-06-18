@@ -1,20 +1,22 @@
-import { Search, Heart } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useFilters } from "@/contexts/FilterContext";
-import { useState, useEffect } from "react";
-import { getLanguages, getArchitectures, getPatterns } from "@/lib/firebase";
-import type { Language, Architecture } from "@/lib/types";
-
-
+import { Search, Heart } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useFilters } from '@/contexts/FilterContext';
+import { useState, useEffect } from 'react';
+import { getLanguages, getArchitectures, getPatterns } from '@/lib/firebase';
+import type { Language, Architecture } from '@/lib/types';
 
 export function FilterSection() {
   const { filters, updateFilter, searchQuery, setSearchQuery, clearFilters } =
     useFilters();
   const [languages, setLanguages] = useState<Language[]>([]);
   const [architectures, setArchitectures] = useState<Architecture[]>([]);
-  const [categories, setCategories] = useState<{ key: string; label: string }[]>([]);
-  const [difficultyLevels, setDifficultyLevels] = useState<{ level: number; label: string }[]>([]);
+  const [categories, setCategories] = useState<
+    { key: string; label: string }[]
+  >([]);
+  const [difficultyLevels, setDifficultyLevels] = useState<
+    { level: number; label: string }[]
+  >([]);
 
   useEffect(() => {
     Promise.all([getLanguages(), getArchitectures(), getPatterns()]).then(
@@ -23,26 +25,31 @@ export function FilterSection() {
         setArchitectures(archs);
 
         const catMap: Record<string, string> = {
-          creational: "Creacionales",
-          structural: "Estructurales",
-          behavioral: "Comportamiento",
-          architectural: "Arquitecturales",
+          creational: 'Creacionales',
+          structural: 'Estructurales',
+          behavioral: 'Comportamiento',
+          architectural: 'Arquitecturales',
         };
         const uniqueCats = Array.from(new Set(patterns.map((p) => p.category)));
-        setCategories(uniqueCats.map((c) => ({ key: c, label: catMap[c] || c })));
+        setCategories(
+          uniqueCats.map((c) => ({ key: c, label: catMap[c] || c })),
+        );
 
         const difficultyLabels: Record<number, string> = {
-          1: "Fácil",
-          2: "Intermedio",
-          3: "Avanzado",
-          4: "Experto",
-          5: "Maestro",
+          1: 'Fácil',
+          2: 'Intermedio',
+          3: 'Avanzado',
+          4: 'Experto',
+          5: 'Maestro',
         };
-        const diffs = Array.from(new Set(patterns.map((p) => p.difficulty))).sort(
-          (a, b) => a - b,
-        );
+        const diffs = Array.from(
+          new Set(patterns.map((p) => p.difficulty)),
+        ).sort((a, b) => a - b);
         setDifficultyLevels(
-          diffs.map((level) => ({ level, label: difficultyLabels[level] || `Nivel ${level}` })),
+          diffs.map((level) => ({
+            level,
+            label: difficultyLabels[level] || `Nivel ${level}`,
+          })),
         );
       },
     );
@@ -58,13 +65,15 @@ export function FilterSection() {
 
   const handleFilterClick = (key: string, value: string) => {
     const currentValue = filters[key as keyof typeof filters];
-    updateFilter(key as keyof typeof filters, currentValue === value ? undefined : value);
+    updateFilter(
+      key as keyof typeof filters,
+      currentValue === value ? undefined : value,
+    );
   };
 
   return (
     <section className="py-12 border-b border-gray-200 dark:border-slate-700 filter-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Search Bar */}
         <div className="mb-8">
           <div className="relative max-w-2xl mx-auto">
             <Input
@@ -78,7 +87,6 @@ export function FilterSection() {
           </div>
         </div>
 
-        {/* Favoritos Toggle */}
         <div className="mb-6 flex items-center gap-3">
           <Button
             variant="ghost"
@@ -95,22 +103,22 @@ export function FilterSection() {
           </Button>
         </div>
 
-        {/* Filter Categories */}
         <div className="space-y-6">
-          {/* Pattern Categories */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Categorías de Patrones</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Categorías de Patrones
+            </h3>
             <div className="flex flex-wrap gap-3">
               {categories.map((category) => (
                 <Button
                   key={category.key}
                   variant="ghost"
                   size="sm"
-                  onClick={() => handleFilterClick("category", category.key)}
+                  onClick={() => handleFilterClick('category', category.key)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isFilterActive("category", category.key)
-                      ? "filter-button-active"
-                      : "filter-button-inactive"
+                    isFilterActive('category', category.key)
+                      ? 'filter-button-active'
+                      : 'filter-button-inactive'
                   }`}
                 >
                   {category.label}
@@ -119,9 +127,10 @@ export function FilterSection() {
             </div>
           </div>
 
-          {/* Architectures */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Arquitecturas</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Arquitecturas
+            </h3>
             <div className="flex flex-wrap gap-3">
               {architectures.map((arch) => (
                 <Button
@@ -147,9 +156,10 @@ export function FilterSection() {
             </div>
           </div>
 
-          {/* Languages */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Lenguajes</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Lenguajes
+            </h3>
             <div className="flex flex-wrap gap-3">
               {languages.map((lang) => (
                 <Button
@@ -175,9 +185,10 @@ export function FilterSection() {
             </div>
           </div>
 
-          {/* Difficulty */}
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Dificultad</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Dificultad
+            </h3>
             <div className="flex flex-wrap gap-3">
               {difficultyLevels.map((diff) => (
                 <Button
@@ -187,7 +198,9 @@ export function FilterSection() {
                   onClick={() =>
                     updateFilter(
                       'difficulty',
-                      filters.difficulty === diff.level ? undefined : diff.level,
+                      filters.difficulty === diff.level
+                        ? undefined
+                        : diff.level,
                     )
                   }
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${

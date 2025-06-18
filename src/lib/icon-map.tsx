@@ -34,7 +34,7 @@ import {
   Wrench,
   Settings,
   Zap,
-  Code
+  Code,
 } from 'lucide-react';
 import type { ComponentType } from 'react';
 
@@ -75,7 +75,6 @@ const iconMap: Record<string, ComponentType<any>> = {
   settings: Settings,
   zap: Zap,
   code: Code,
-  // aliases
   factory2: Factory,
   brush: Paintbrush,
   'puzzle-piece': Puzzle,
