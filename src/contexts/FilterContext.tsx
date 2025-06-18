@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, ReactNode } from "react";
+import { createContext, useContext, useReducer, useCallback, ReactNode } from "react";
 import type { PatternFilters } from "@/lib/types";
 
 interface FilterContextType {
@@ -44,20 +44,23 @@ const FilterContext = createContext<FilterContextType | undefined>(undefined);
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(filterReducer, initialState);
 
-  const updateFilter = (
-    key: keyof PatternFilters,
-    value: string | boolean | string[] | undefined,
-  ) => {
-    dispatch({ type: "SET_FILTER", key, value });
-  };
+  const updateFilter = useCallback(
+    (
+      key: keyof PatternFilters,
+      value: string | boolean | string[] | undefined,
+    ) => {
+      dispatch({ type: "SET_FILTER", key, value });
+    },
+    [],
+  );
 
-  const setSearchQuery = (query: string) => {
+  const setSearchQuery = useCallback((query: string) => {
     dispatch({ type: "SET_SEARCH", query });
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     dispatch({ type: "CLEAR_FILTERS" });
-  };
+  }, []);
 
   return (
     <FilterContext.Provider
