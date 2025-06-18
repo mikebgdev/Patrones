@@ -22,6 +22,26 @@ import type {
 } from '@/lib/types';
 import { firebaseConfig } from './env';
 
+function normalizePattern(data: any): Pattern {
+  return {
+    id: data.id ?? 0,
+    name: data.name ?? '',
+    slug: data.slug ?? '',
+    description: data.description ?? data.descriptionShort ?? '',
+    category: data.category ?? data.type ?? '',
+    difficulty: data.difficulty ?? 1,
+    icon: data.icon ?? (data.iconUrl ? data.iconUrl.replace(/^fa-(solid|regular)\s+fa-/, '') : 'cog'),
+    color: data.color ?? 'from-blue-500 to-blue-600',
+    tags: data.tags ?? [],
+    architectures: data.architectures ?? [],
+    languages: data.languages ?? [],
+    frameworks: data.frameworks ?? [],
+    content: data.content ?? data.descriptionLong ?? '',
+    codeExamples: data.codeExamples ?? data.examples ?? {},
+    relatedPatterns: data.relatedPatterns ?? [],
+  };
+}
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
@@ -30,14 +50,14 @@ export const storage = getStorage(app);
 // Patterns
 export async function getPatterns(): Promise<Pattern[]> {
   const snap = await getDocs(collection(db, 'patterns'));
-  return snap.docs.map((d) => d.data() as Pattern);
+  return snap.docs.map((d) => normalizePattern(d.data()));
 }
 
 export async function getPatternBySlug(slug: string): Promise<Pattern | null> {
   const q = query(collection(db, 'patterns'), where('slug', '==', slug));
   const snap = await getDocs(q);
   if (snap.empty) return null;
-  return snap.docs[0].data() as Pattern;
+  return normalizePattern(snap.docs[0].data());
 }
 
 // Architectures
