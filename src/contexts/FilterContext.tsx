@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, ReactNode } from "react";
+import { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from "react";
 import type { PatternFilters } from "@/lib/types";
 
 interface FilterContextType {
@@ -20,11 +20,7 @@ type FilterState = {
 };
 
 type Action =
-  | {
-      type: "SET_FILTER";
-      key: keyof PatternFilters;
-      value?: string | boolean | string[] | number;
-    }
+  | { type: "SET_FILTER"; key: keyof PatternFilters; value?: string | boolean | string[] | number }
   | { type: "SET_SEARCH"; query: string }
   | { type: "CLEAR_FILTERS" };
 
@@ -51,30 +47,38 @@ const FilterContext = createContext<FilterContextType | undefined>(undefined);
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(filterReducer, initialState);
 
-  const updateFilter = (
-    key: keyof PatternFilters,
-    value: string | boolean | string[] | number | undefined,
-  ) => {
-    dispatch({ type: "SET_FILTER", key, value });
-  };
+  const updateFilter = useCallback(
+    (
+      key: keyof PatternFilters,
+      value: string | boolean | string[] | number | undefined,
+    ) => {
+      dispatch({ type: "SET_FILTER", key, value });
+    },
+    [],
+  );
 
-  const setSearchQuery = (query: string) => {
+  const setSearchQuery = useCallback((query: string) => {
     dispatch({ type: "SET_SEARCH", query });
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     dispatch({ type: "CLEAR_FILTERS" });
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      filters: state.filters,
+      searchQuery: state.searchQuery,
+      updateFilter,
+      setSearchQuery,
+      clearFilters,
+    }),
+    [state.filters, state.searchQuery, updateFilter, setSearchQuery, clearFilters],
+  );
 
   return (
     <FilterContext.Provider
-      value={{
-        filters: state.filters,
-        searchQuery: state.searchQuery,
-        updateFilter,
-        setSearchQuery,
-        clearFilters,
-      }}
+      value={value}
     >
       {children}
     </FilterContext.Provider>
