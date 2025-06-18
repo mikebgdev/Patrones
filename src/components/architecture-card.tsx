@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PatternMiniCard } from './pattern-mini-card';
+import { PatternCard } from './pattern-card';
 import type { Architecture, Pattern } from '@/lib/types';
 
 interface ArchitectureCardProps {
@@ -10,7 +10,7 @@ interface ArchitectureCardProps {
 
 export function ArchitectureCard({ architecture, patterns }: ArchitectureCardProps) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader>
         <div className="flex items-center gap-4">
           <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-xl flex items-center justify-center`}>
@@ -27,10 +27,9 @@ export function ArchitectureCard({ architecture, patterns }: ArchitectureCardPro
       </CardHeader>
       {patterns.length > 0 && (
         <CardContent>
-          <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Patrones relacionados</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {patterns.map((p) => (
-              <PatternMiniCard key={p.slug} pattern={p} />
+              <PatternCard key={p.slug} pattern={p} />
             ))}
           </div>
         </CardContent>
