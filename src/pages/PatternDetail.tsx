@@ -230,7 +230,7 @@ export function PatternDetail() {
                     {pattern.relatedPatterns.map((relatedSlug: string) => {
                       const relatedPattern = allPatterns.find((p) => p.slug === relatedSlug);
                       return relatedPattern ? (
-                        <Link key={relatedSlug} href={`/patterns/${relatedSlug}`}>
+                        <Link key={relatedSlug} href={`/pattern/${relatedSlug}`}>
                           <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <div className={`w-8 h-8 bg-gradient-to-br ${relatedPattern.color} rounded-lg flex items-center justify-center`}>
                               <i className={`fas fa-${relatedPattern.icon} text-white text-xs`}></i>
