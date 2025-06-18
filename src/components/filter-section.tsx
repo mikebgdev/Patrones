@@ -97,28 +97,6 @@ export function FilterSection() {
             </div>
           </div>
 
-          {/* Architecture Types */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Arquitecturas Modernas</h3>
-            <div className="flex flex-wrap gap-3">
-              {architectures.map((arch) => (
-                <Button
-                  key={arch.key}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleFilterClick("architectures", arch.key)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    isFilterActive("architectures", arch.key)
-                      ? "filter-button-active"
-                      : "filter-button-inactive"
-                  }`}
-                >
-                  {arch.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-
           {/* Architectures */}
           <div>
             <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Arquitecturas</h3>
