@@ -4,7 +4,10 @@ import type { PatternFilters } from "@/lib/types";
 interface FilterContextType {
   filters: PatternFilters;
   searchQuery: string;
-  updateFilter: (key: keyof PatternFilters, value: string | boolean | string[] | undefined) => void;
+  updateFilter: (
+    key: keyof PatternFilters,
+    value: string | boolean | string[] | number | undefined,
+  ) => void;
   setSearchQuery: (query: string) => void;
   clearFilters: () => void;
   /** Mostrar solo patrones favoritos */
@@ -17,7 +20,7 @@ type FilterState = {
 };
 
 type Action =
-  | { type: "SET_FILTER"; key: keyof PatternFilters; value?: string | boolean | string[] }
+  | { type: "SET_FILTER"; key: keyof PatternFilters; value?: string | boolean | string[] | number }
   | { type: "SET_SEARCH"; query: string }
   | { type: "CLEAR_FILTERS" };
 
@@ -47,7 +50,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const updateFilter = useCallback(
     (
       key: keyof PatternFilters,
-      value: string | boolean | string[] | undefined,
+      value: string | boolean | string[] | number | undefined,
     ) => {
       dispatch({ type: "SET_FILTER", key, value });
     },
