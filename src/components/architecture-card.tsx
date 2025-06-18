@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PatternCard } from './pattern-card';
 import type { Architecture, Pattern } from '@/lib/types';
+import { getIconComponent } from '@/lib/icon-map';
 
 interface ArchitectureCardProps {
   architecture: Architecture;
@@ -14,7 +15,7 @@ export function ArchitectureCard({ architecture, patterns }: ArchitectureCardPro
       <CardHeader>
         <div className="flex items-center gap-4">
           <div className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-xl flex items-center justify-center`}>
-            <i className={`fas fa-${architecture.icon} text-white text-2xl`} />
+            {(() => { const Icon = getIconComponent(architecture.icon); return <Icon className="text-white" size={24} />; })()}
           </div>
           <div className="flex-1">
             <CardTitle className="mb-2">{architecture.name}</CardTitle>

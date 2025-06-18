@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { PatternCard } from "@/components/pattern-card";
 import { getLanguages, getPatterns } from "@/lib/firebase";
 import type { Language, Pattern } from "@/lib/types";
+import { getIconComponent } from "@/lib/icon-map";
 
 export function Languages() {
   const [languages, setLanguages] = useState<Language[]>([]);
@@ -66,7 +67,7 @@ export function Languages() {
                             <div
                               className={`w-16 h-16 bg-gradient-to-br ${language.color} rounded-xl flex items-center justify-center`}
                             >
-                              <i className={`fab fa-${language.icon} text-white text-2xl`} />
+                              {(() => { const Icon = getIconComponent(language.icon); return <Icon className="text-white" size={24} />; })()}
                             </div>
                             <div className="flex-1">
                               <CardTitle className="text-2xl mb-2">{language.name}</CardTitle>
@@ -111,7 +112,7 @@ export function Languages() {
                             <div
                               className={`w-16 h-16 bg-gradient-to-br ${framework.color} rounded-xl flex items-center justify-center`}
                             >
-                              <i className={`fab fa-${framework.icon} text-white text-2xl`} />
+                              {(() => { const Icon = getIconComponent(framework.icon); return <Icon className="text-white" size={24} />; })()}
                             </div>
                             <div className="flex-1">
                               <CardTitle className="text-2xl mb-2">{framework.name}</CardTitle>

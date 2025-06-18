@@ -1,8 +1,5 @@
-import { 
-  ArrowRight, Factory, Layers, Settings, Building2, 
-  Wrench, Box, Zap, Users, Database, Code, 
-  Target, Repeat, Eye, GitBranch, Shield, Grid3x3, Heart
-} from "lucide-react";
+import { ArrowRight, Heart } from "lucide-react";
+import { getIconComponent } from "@/lib/icon-map";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -32,29 +29,6 @@ const difficultyColors = [
   "bg-red-400"
 ];
 
-const getPatternIcon = (iconName: string) => {
-  const iconMap: Record<string, React.ComponentType<any>> = {
-    'cog': Settings,
-    'industry': Factory,
-    'tools': Wrench,
-    'clone': Box,
-    'layer-group': Layers,
-    'link': GitBranch,
-    'shield-alt': Shield,
-    'filter': Target,
-    'puzzle-piece': Grid3x3,
-    'sync-alt': Repeat,
-    'eye': Eye,
-    'bolt': Zap,
-    'users': Users,
-    'database': Database,
-    'code': Code,
-    'building': Building2
-  };
-  
-  const IconComponent = iconMap[iconName] || Settings;
-  return <IconComponent className="text-white" size={20} />;
-};
 
 export function PatternCard({ pattern }: PatternCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -85,7 +59,10 @@ export function PatternCard({ pattern }: PatternCardProps) {
           {/* Header with icon and category badge */}
           <div className="flex items-start justify-between mb-4">
             <div className={`w-12 h-12 bg-gradient-to-br ${pattern.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
-              {getPatternIcon(pattern.icon)}
+              {(() => {
+                const Icon = getIconComponent(pattern.icon);
+                return <Icon className="text-white" size={20} />;
+              })()}
             </div>
             <div className="flex items-center gap-2 ml-3">
               <span className={`px-3 py-1 text-xs font-medium rounded-full ${categoryColors[pattern.category] || categoryColors.creational}`}>

@@ -1,6 +1,7 @@
 import { Link } from 'wouter';
 import { Badge } from '@/components/ui/badge';
 import type { Language } from '@/lib/types';
+import { getIconComponent } from '@/lib/icon-map';
 
 interface LanguageCardProps {
   language: Language;
@@ -14,7 +15,7 @@ export function LanguageCard({ language, patternsCount }: LanguageCardProps) {
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className={`w-16 h-16 bg-gradient-to-br ${language.color} rounded-xl flex items-center justify-center`}>
-              <i className={`fab fa-${language.icon} text-white text-2xl`} />
+              {(() => { const Icon = getIconComponent(language.icon); return <Icon className="text-white" size={24} />; })()}
             </div>
             <div>
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{language.name}</h3>

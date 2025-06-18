@@ -1,5 +1,6 @@
 import { useParams } from "wouter";
 import { ArrowLeft, BookOpen, Code, ExternalLink } from "lucide-react";
+import { getIconComponent } from "@/lib/icon-map";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,7 +95,7 @@ export function PatternDetail() {
           <div className="mb-12">
             <div className="flex items-start gap-6 mb-6">
               <div className={`w-20 h-20 bg-gradient-to-br ${pattern.color} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                <i className={`fas fa-${pattern.icon} text-white text-3xl`}></i>
+                {(() => { const Icon = getIconComponent(pattern.icon); return <Icon className="text-white" size={32} />; })()}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
@@ -233,7 +234,7 @@ export function PatternDetail() {
                         <Link key={relatedSlug} href={`/pattern/${relatedSlug}`}>
                           <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
                             <div className={`w-8 h-8 bg-gradient-to-br ${relatedPattern.color} rounded-lg flex items-center justify-center`}>
-                              <i className={`fas fa-${relatedPattern.icon} text-white text-xs`}></i>
+                              {(() => { const Icon = getIconComponent(relatedPattern.icon); return <Icon className="text-white" size={12} />; })()}
                             </div>
                             <span className="text-sm font-medium">{relatedPattern.name}</span>
                           </div>

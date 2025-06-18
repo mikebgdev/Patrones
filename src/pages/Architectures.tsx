@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PatternCard } from "@/components/pattern-card";
+import { getIconComponent } from "@/lib/icon-map";
 
 export function Architectures() {
   const [architectures, setArchitectures] = useState<Architecture[]>([]);
@@ -56,7 +57,7 @@ export function Architectures() {
                         <div
                           className={`w-16 h-16 bg-gradient-to-br ${architecture.color} rounded-xl flex items-center justify-center`}
                         >
-                          <i className={`fas fa-${architecture.icon} text-white text-2xl`} />
+                          {(() => { const Icon = getIconComponent(architecture.icon); return <Icon className="text-white" size={24} />; })()}
                         </div>
                         <div className="flex-1">
                           <CardTitle className="text-2xl mb-2">{architecture.name}</CardTitle>
